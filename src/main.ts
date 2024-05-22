@@ -8,6 +8,7 @@ import {
   ButtonStyleTypes,
 } from 'discord-interactions';
 import { VerifyDiscordRequest, DiscordRequest } from './utils';
+import globalConfig from './configuration/config.service';
 
 // Create an express app
 const app = express();
@@ -19,7 +20,8 @@ app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 // Store for in-progress games. In production, you'd want to use a DB
 const activeGames = {};
 
-const activeConfig = {};
+const config = globalConfig.globalConfig;
+config.loadConfigs();
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
@@ -67,7 +69,9 @@ app.post('/interactions', async function (req, res) {
         .map((elem) => elem.name);
       console.log('Channels here: ', channelNames);
 
-      activeConfig[guildId] = { channelNames };
+      config.setConfig({ guildId: guildId, citeChannelId: 'def' });
+      console.log(config);
+      config.saveConfigs();
 
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -78,9 +82,8 @@ app.post('/interactions', async function (req, res) {
       });
     }
     if (name === 'bar') {
-      // console.log(activeConfig);
       const guildId = req.body.guild_id;
-      const guildConfig = activeConfig[guildId];
+      const guildConfig = config.getConfig(guildId);
       let responseMsg = '';
       if (guildConfig)
         responseMsg = `Configuration of the current server: ${JSON.stringify(
