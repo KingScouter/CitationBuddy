@@ -18,6 +18,8 @@ export class ConfigService {
     } else {
       this.configs.splice(idx, 1, config);
     }
+
+    this.saveConfigs();
   }
 
   loadConfigs(): void {
