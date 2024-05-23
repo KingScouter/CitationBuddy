@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { verifyKey } from 'discord-interactions';
+import { APIApplicationCommand } from 'discord-api-types/v10';
 
 export function VerifyDiscordRequest(clientKey) {
   return function (req, res, buf, encoding) {
@@ -41,7 +42,10 @@ export async function DiscordRequest(endpoint, options) {
   return res;
 }
 
-export async function InstallGlobalCommands(appId, commands) {
+export async function InstallGlobalCommands(
+  appId: string,
+  commands: APIApplicationCommand[]
+) {
   // API endpoint to overwrite global commands
   const endpoint = `applications/${appId}/commands`;
 
