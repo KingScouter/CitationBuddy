@@ -5,11 +5,11 @@ import {
   InteractionResponseType,
   InteractionResponseFlags,
   MessageComponentTypes,
-  ButtonStyleTypes,
   ChannelTypes,
 } from 'discord-interactions';
 import { VerifyDiscordRequest, DiscordRequest } from './utils';
 import globalConfig from './configuration/config.service';
+import APP_COMMANDS from './commands';
 
 // Create an express app
 const app = express();
@@ -43,7 +43,15 @@ app.post('/interactions', async function (req, res) {
    * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
    */
   if (type === InteractionType.APPLICATION_COMMAND) {
+    // const reqBody = req.body as APIChatInputApplicationCommandInteraction;
     const { name } = data;
+
+    for (const command of APP_COMMANDS) {
+      if (!command.checkRequest(name)) continue;
+
+      await command.execute(req.body, res);
+      break;
+    }
 
     // "test" command
     if (name === 'test') {
@@ -94,7 +102,7 @@ app.post('/interactions', async function (req, res) {
                 {
                   type: MessageComponentTypes.CHANNEL_SELECT,
                   label: 'Select channel',
-                  custom_id: `channel_select_${req.body.id}`,
+                  custom_id: `channel_select_${id}`,
                   channel_types: [ChannelTypes.GUILD_TEXT],
                 },
               ],
