@@ -43,4 +43,4 @@ export class ConfigService {
 
 const globalConfig = new ConfigService();
 
-export default { globalConfig };
+export default globalConfig;

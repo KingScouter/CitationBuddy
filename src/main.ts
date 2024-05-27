@@ -21,8 +21,7 @@ app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 // Store for in-progress games. In production, you'd want to use a DB
 // const activeGames = {};
 
-const config = globalConfig.globalConfig;
-config.loadConfigs();
+globalConfig.loadConfigs();
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
@@ -113,7 +112,7 @@ app.post('/interactions', async function (req, res) {
     }
     if (name === 'bar') {
       // const guildId = req.body.guild_id;
-      const guildConfig = config.getConfig(guild_id);
+      const guildConfig = globalConfig.getConfig(guild_id);
       let responseMsg = '';
       if (guildConfig)
         responseMsg = `Configuration of the current server: ${JSON.stringify(
@@ -179,7 +178,7 @@ app.post('/interactions', async function (req, res) {
       const selectedChannelId = data.values[0];
       const selectedChannel = data.resolved.channels[selectedChannelId];
 
-      config.setConfig({
+      globalConfig.setConfig({
         citeChannelId: selectedChannelId,
         guildId: guild_id,
       });
