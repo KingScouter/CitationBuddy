@@ -7,7 +7,7 @@ import { ApiCommand } from './models/api-command';
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { ChannelUtils } from '../channel-utils';
-import { ServerConfig } from 'src/models';
+import { ServerConfig } from '../models';
 
 class GetRandomCitecommand extends ApiCommand {
   constructor() {
@@ -20,7 +20,7 @@ class GetRandomCitecommand extends ApiCommand {
     config: ServerConfig,
   ): Promise<void> {
     const messages = await ChannelUtils.getMessages(config.citeChannelId);
-    console.log('Messages', messages);
+    // console.log('Messages', messages);
 
     if (!messages || messages.length <= 0) {
       res.send({
@@ -37,11 +37,12 @@ class GetRandomCitecommand extends ApiCommand {
       Math.random() * randomNumber(0, messages.length - 1),
     );
     const randomMsg = messages[randomIdx];
+    const parsedMsg = hidePersonInCitation(randomMsg.content);
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,
       data: {
-        content: randomMsg.content,
+        content: parsedMsg,
         flags: InteractionResponseFlags.EPHEMERAL,
       },
     });
@@ -50,6 +51,32 @@ class GetRandomCitecommand extends ApiCommand {
 
 function randomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function hidePersonInCitation(msg: string): string {
+  if (!msg) {
+    return msg;
+  }
+
+  const citeRegex = /(.*\n)(.*),(\s?\d+)(,?s?.*)/gms;
+  const regexRes = citeRegex.exec(msg);
+
+  const partMsg = regexRes[1];
+  let partPerson = regexRes[2];
+  let partYear = regexRes[3];
+  let partCtx = regexRes[4];
+
+  if (partMsg === undefined || partPerson === undefined) {
+    return msg;
+  }
+
+  partPerson = `||${partPerson}||`;
+  partYear = `||${partYear}||`;
+  partCtx = `||${partCtx}||`;
+
+  const parsedMsg = `${partMsg}${partPerson}${partYear}${partCtx}`;
+
+  return parsedMsg;
 }
 
 export default new GetRandomCitecommand();
