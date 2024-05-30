@@ -6,7 +6,6 @@ export function VerifyDiscordRequest(clientKey) {
   return function (req, res, buf, encoding) {
     const signature = req.get('X-Signature-Ed25519');
     const timestamp = req.get('X-Signature-Timestamp');
-    console.log(buf, signature, timestamp, clientKey);
 
     const isValidRequest = verifyKey(buf, signature, timestamp, clientKey);
     if (!isValidRequest) {
@@ -35,7 +34,7 @@ export async function DiscordRequest(endpoint, options) {
   // throw API errors
   if (!res.ok) {
     const data = await res.json();
-    console.log(res.status);
+    console.warn(res.status);
     throw new Error(JSON.stringify(data));
   }
   // return original response
@@ -44,7 +43,7 @@ export async function DiscordRequest(endpoint, options) {
 
 export async function InstallGlobalCommands(
   appId: string,
-  commands: APIApplicationCommand[]
+  commands: APIApplicationCommand[],
 ) {
   // API endpoint to overwrite global commands
   const endpoint = `applications/${appId}/commands`;

@@ -6,24 +6,23 @@ import {
 import { ApiCommand } from './models/api-command';
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
-import configService from '../configuration/config.service';
 import { ChannelUtils } from '../channel-utils';
+import { ServerConfig } from '../models';
 
 class ShowCiteChannelCommand extends ApiCommand {
   constructor() {
     super(
       'show_cite_channel',
       'Show selected cite channel',
-      ApplicationCommandType.ChatInput
+      ApplicationCommandType.ChatInput,
     );
   }
 
-  async execute(
+  protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
-    res: Response
+    res: Response,
+    config: ServerConfig,
   ): Promise<void> {
-    const guild_id = interaction.guild_id;
-    const config = configService.getConfig(guild_id);
     let responseMsg = 'No cite channel found for this server!';
     if (config) {
       const channel = await ChannelUtils.getChannel(config.citeChannelId);

@@ -5,31 +5,20 @@ import {
 } from 'discord-api-types/v10';
 import { ApiCommand } from './models/api-command';
 import { Response } from 'express';
-import configService from '../configuration/config.service';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { ChannelUtils } from '../channel-utils';
+import { ServerConfig } from 'src/models';
 
 class GetRandomCitecommand extends ApiCommand {
   constructor() {
     super('random_cite', 'Get a random cite', ApplicationCommandType.ChatInput);
   }
 
-  async execute(
+  protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
+    config: ServerConfig,
   ): Promise<void> {
-    const config = configService.getConfig(interaction.guild_id);
-    if (!config) {
-      res.send({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: 'No cite channel configured!',
-          flags: InteractionResponseFlags.EPHEMERAL,
-        },
-      });
-      return;
-    }
-
     const messages = await ChannelUtils.getMessages(config.citeChannelId);
     console.log('Messages', messages);
 

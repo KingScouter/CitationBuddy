@@ -10,7 +10,7 @@ import { ApiCommand } from './models/api-command';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
 import { ChannelUtils } from '../channel-utils';
-import configService from '../configuration/config.service';
+import { ServerConfig } from '../models';
 
 class AddCiteCommand extends ApiCommand {
   options: APIApplicationCommandOption[] = [];
@@ -37,23 +37,11 @@ class AddCiteCommand extends ApiCommand {
     );
   }
 
-  async execute(
+  protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
+    config: ServerConfig,
   ): Promise<void> {
-    const guild_id = interaction.guild_id;
-    const config = configService.getConfig(guild_id);
-    if (!config) {
-      res.send({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: 'No cite channel configured!',
-          flags: InteractionResponseFlags.EPHEMERAL,
-        },
-      });
-      return;
-    }
-
     const values = interaction.data.options;
     const msgOption = values.find(
       (elem) => elem.name === this.messageOptionKey,
