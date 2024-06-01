@@ -21,8 +21,15 @@ class GetRandomCitecommand extends ApiCommand {
   ): Promise<void> {
     const messages = await ChannelUtils.getMessages(config.citeChannelId);
     // console.log('Messages', messages);
+    const filteredMessages = messages?.filter((elem) => {
+      const idx = config.excludedMessageIds.indexOf(elem.id);
+      if (idx >= 0) {
+        console.log('Skip exluded message: ', elem.content);
+      }
+      return config.excludedMessageIds.indexOf(elem.id) === -1;
+    });
 
-    if (!messages || messages.length <= 0) {
+    if (!filteredMessages || filteredMessages.length <= 0) {
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
@@ -34,9 +41,9 @@ class GetRandomCitecommand extends ApiCommand {
     }
 
     const randomIdx = Math.floor(
-      Math.random() * randomNumber(0, messages.length - 1),
+      Math.random() * randomNumber(0, filteredMessages.length - 1),
     );
-    const randomMsg = messages[randomIdx];
+    const randomMsg = filteredMessages[randomIdx];
     const parsedMsg = hidePersonInCitation(randomMsg.content);
 
     res.send({
@@ -72,7 +79,7 @@ function hidePersonInCitation(msg: string): string {
 
   partPerson = `||${partPerson}||`;
   partYear = `||${partYear}||`;
-  partCtx = `||${partCtx}||`;
+  if (partCtx) partCtx = `||${partCtx}||`;
 
   const parsedMsg = `${partMsg}${partPerson}${partYear}${partCtx}`;
 

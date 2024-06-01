@@ -44,6 +44,7 @@ class SelectCiteChannelCommand extends ApiCommand {
     globalConfig.setConfig({
       citeChannelId: selectedChannelId,
       guildId: interaction.guild_id,
+      excludedMessageIds: [],
     });
 
     await res.send({
