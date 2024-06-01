@@ -1,17 +1,16 @@
 import {
   APIChatInputApplicationCommandInteraction,
-  ApplicationCommandType,
   InteractionResponseType,
 } from 'discord-api-types/v10';
-import { ApiCommand } from '../models/api-command';
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { ChannelUtils } from '../../channel-utils';
 import { ServerConfig } from '../../models';
+import { BaseChatInputCommand } from './base-chat-input-commands';
 
-class GetRandomCitecommand extends ApiCommand {
+class GetRandomCitecommand extends BaseChatInputCommand {
   constructor() {
-    super('random_cite', 'Get a random cite', ApplicationCommandType.ChatInput);
+    super('random_cite', 'Get a random cite');
   }
 
   protected async executeInternal(

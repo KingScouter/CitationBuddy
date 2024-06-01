@@ -1,12 +1,10 @@
 import {
-  APIBaseInteraction,
   APIChatInputApplicationCommandInteraction,
   APIMessageChannelSelectInteractionData,
-  ApplicationCommandType,
+  APIMessageComponentInteraction,
   InteractionResponseType,
   InteractionType,
 } from 'discord-api-types/v10';
-import { ApiCommand } from '../models/api-command';
 import {
   ChannelTypes,
   InteractionResponseFlags,
@@ -16,19 +14,15 @@ import { Response } from 'express';
 import { DiscordRequest } from '../../utils';
 import globalConfig from '../../configuration/config.service';
 import { HttpMethods } from '../../models';
+import { BaseChatInputCommand } from './base-chat-input-commands';
 
-class SelectCiteChannelCommand extends ApiCommand {
+class SelectCiteChannelCommand extends BaseChatInputCommand {
   constructor() {
-    super(
-      'select_cite_channel',
-      'Select the citation channel',
-      ApplicationCommandType.ChatInput,
-      false,
-    );
+    super('select_cite_channel', 'Select the citation channel', false);
   }
 
-  async handleInteraction(
-    interaction: APIBaseInteraction<InteractionType, any>,
+  protected async handleInteractionInternal(
+    interaction: APIMessageComponentInteraction,
     res: Response,
   ): Promise<boolean> {
     if (interaction.type !== InteractionType.MessageComponent) return false;

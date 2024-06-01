@@ -1,5 +1,8 @@
 import 'dotenv/config';
 import { InstallGlobalCommands } from './utils';
-import APP_COMMANDS from './commands';
+import { CHAT_INPUT_COMMANDS, MESSAGE_COMMANDS } from './commands';
 
-InstallGlobalCommands(process.env.APP_ID, APP_COMMANDS);
+InstallGlobalCommands(process.env.APP_ID, [
+  ...CHAT_INPUT_COMMANDS,
+  ...MESSAGE_COMMANDS,
+]);

@@ -1,11 +1,9 @@
 import {
   APIActionRowComponent,
   APIApplicationCommandOption,
-  APIBaseInteraction,
   APIChatInputApplicationCommandInteraction,
   APIModalSubmitInteraction,
   APITextInputComponent,
-  ApplicationCommandType,
   ComponentType,
   InteractionResponseType,
   InteractionType,
@@ -16,8 +14,9 @@ import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
 import { ChannelUtils } from '../../channel-utils';
 import { ServerConfig } from 'src/models';
+import { BaseChatInputCommand } from './base-chat-input-commands';
 
-class AddCiteModalCommand extends ApiCommand {
+class AddCiteModalCommand extends BaseChatInputCommand {
   options: APIApplicationCommandOption[] = [];
 
   private readonly modalComponentId = 'create_citation_modal_';
@@ -26,12 +25,11 @@ class AddCiteModalCommand extends ApiCommand {
   private readonly messageContextComponentId = 'create_citation_msgctx_';
 
   constructor() {
-    super('cite_modal', 'Create a citation', ApplicationCommandType.ChatInput);
+    super('cite_modal', 'Create a citation');
   }
 
-  async handleInteraction(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    interaction: APIBaseInteraction<InteractionType, any>,
+  protected async handleInteractionInternal(
+    interaction: APIModalSubmitInteraction,
     res: Response,
   ): Promise<boolean> {
     const componentId = interaction.data.custom_id;

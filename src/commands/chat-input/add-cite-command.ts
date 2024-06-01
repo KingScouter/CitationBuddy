@@ -3,23 +3,22 @@ import {
   APIApplicationCommandOption,
   APIChatInputApplicationCommandInteraction,
   ApplicationCommandOptionType,
-  ApplicationCommandType,
   InteractionResponseType,
 } from 'discord-api-types/v10';
-import { ApiCommand } from '../models/api-command';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
 import { ChannelUtils } from '../../channel-utils';
 import { ServerConfig } from '../../models';
+import { BaseChatInputCommand } from './base-chat-input-commands';
 
-class AddCiteCommand extends ApiCommand {
+class AddCiteCommand extends BaseChatInputCommand {
   options: APIApplicationCommandOption[] = [];
 
   private readonly messageOptionKey = 'message';
   private readonly personOptionKey = 'person';
 
   constructor() {
-    super('cite', 'Create a citation', ApplicationCommandType.ChatInput);
+    super('cite', 'Create a citation');
 
     this.options.push(
       {

@@ -3,10 +3,10 @@ import express from 'express';
 import { InteractionResponseType } from 'discord-interactions';
 import { VerifyDiscordRequest } from './utils';
 import globalConfig from './configuration/config.service';
-import APP_COMMANDS from './commands';
+import { CHAT_INPUT_COMMANDS, MESSAGE_COMMANDS } from './commands';
 import {
-  APIBaseInteraction,
-  APIChatInputApplicationCommandInteraction,
+  APIApplicationCommandInteraction,
+  APIInteraction,
   InteractionType,
 } from 'discord-api-types/v10';
 
@@ -16,6 +16,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
+
+const APP_COMMANDS = [...CHAT_INPUT_COMMANDS, ...MESSAGE_COMMANDS];
 
 // Store for in-progress games. In production, you'd want to use a DB
 // const activeGames = {};
@@ -27,7 +29,7 @@ globalConfig.loadConfigs();
  */
 app.post('/interactions', async function (req, res) {
   // Interaction type and data
-  const payload = req.body as APIBaseInteraction<InteractionType, unknown>;
+  const payload = req.body as APIInteraction;
 
   /**
    * Handle verification requests
@@ -41,7 +43,7 @@ app.post('/interactions', async function (req, res) {
    * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
    */
   if (payload.type === InteractionType.ApplicationCommand) {
-    const interaction = payload as APIChatInputApplicationCommandInteraction;
+    const interaction = payload as APIApplicationCommandInteraction;
     const { name } = interaction.data;
 
     for (const command of APP_COMMANDS) {

@@ -1,21 +1,16 @@
 import {
   APIChatInputApplicationCommandInteraction,
-  ApplicationCommandType,
   InteractionResponseType,
 } from 'discord-api-types/v10';
-import { ApiCommand } from '../models/api-command';
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { ChannelUtils } from '../../channel-utils';
 import { ServerConfig } from '../../models';
+import { BaseChatInputCommand } from './base-chat-input-commands';
 
-class ShowCiteChannelCommand extends ApiCommand {
+class ShowCiteChannelCommand extends BaseChatInputCommand {
   constructor() {
-    super(
-      'show_cite_channel',
-      'Show selected cite channel',
-      ApplicationCommandType.ChatInput,
-    );
+    super('show_cite_channel', 'Show selected cite channel');
   }
 
   protected async executeInternal(

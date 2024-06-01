@@ -1,17 +1,20 @@
 import {
   APIApplicationCommand,
-  APIBaseInteraction,
-  APIChatInputApplicationCommandInteraction,
+  APIApplicationCommandInteraction,
+  APIInteraction,
   ApplicationCommandType,
   InteractionResponseType,
-  InteractionType,
 } from 'discord-api-types/v10';
 import { Response } from 'express';
 import { ServerConfig } from '../../models';
 import configService from '../../configuration/config.service';
 import { InteractionResponseFlags } from 'discord-interactions';
 
-export abstract class ApiCommand implements APIApplicationCommand {
+export abstract class ApiCommand<
+  T extends APIApplicationCommandInteraction,
+  I extends APIInteraction = APIInteraction,
+> implements APIApplicationCommand
+{
   id: string;
   name: string;
   description: string;
@@ -55,17 +58,20 @@ export abstract class ApiCommand implements APIApplicationCommand {
 
   async handleInteraction(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    interaction: APIBaseInteraction<InteractionType, unknown>,
+    interaction: APIInteraction,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     res: Response,
   ): Promise<boolean> {
-    return false;
+    if (!this.isInteractionType(interaction)) return false;
+
+    return this.handleInteractionInternal(interaction, res);
   }
 
-  execute(
-    interaction: APIChatInputApplicationCommandInteraction,
-    res: Response,
-  ): Promise<void> {
+  execute(interaction: APIInteraction, res: Response): Promise<void> {
+    if (!this.isCommandType(interaction)) {
+      return;
+    }
+
     let config: ServerConfig = null;
     if (this.needsConfig) {
       config = ApiCommand.getConfig(interaction.guild_id, res);
@@ -77,9 +83,26 @@ export abstract class ApiCommand implements APIApplicationCommand {
     return this.executeInternal(interaction, res, config);
   }
 
+  protected async handleInteractionInternal(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interaction: I,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    res: Response,
+  ): Promise<boolean> {
+    return false;
+  }
+
   protected abstract executeInternal(
-    interaction: APIChatInputApplicationCommandInteraction,
+    interaction: T,
     res: Response,
     config: ServerConfig,
   ): Promise<void>;
+
+  protected isCommandType(obj: APIInteraction): obj is T {
+    return true;
+  }
+
+  protected isInteractionType(obj: APIInteraction): obj is I {
+    return true;
+  }
 }

@@ -3,8 +3,9 @@ import ShowCiteChannelCommand from './chat-input/show-cite-channel-command';
 import AddCiteCommand from './chat-input/add-cite-command';
 import GetRandomCiteCommand from './chat-input/get-random-cite-command';
 import AddCiteModalCommand from './chat-input/add-cite-modal-command';
+import IgnoreCitationCommand from './message-command/ignore-citation-command';
 
-const APP_COMMANDS = [
+const CHAT_INPUT_COMMANDS = [
   SelectCiteChannelCommand,
   ShowCiteChannelCommand,
   AddCiteCommand,
@@ -12,4 +13,6 @@ const APP_COMMANDS = [
   AddCiteModalCommand,
 ];
 
-export default APP_COMMANDS;
+const MESSAGE_COMMANDS = [IgnoreCitationCommand];
+
+export { CHAT_INPUT_COMMANDS, MESSAGE_COMMANDS };
