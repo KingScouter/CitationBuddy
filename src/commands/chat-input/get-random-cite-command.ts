@@ -3,11 +3,11 @@ import {
   ApplicationCommandType,
   InteractionResponseType,
 } from 'discord-api-types/v10';
-import { ApiCommand } from './models/api-command';
+import { ApiCommand } from '../models/api-command';
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
-import { ChannelUtils } from '../channel-utils';
-import { ServerConfig } from '../models';
+import { ChannelUtils } from '../../channel-utils';
+import { ServerConfig } from '../../models';
 
 class GetRandomCitecommand extends ApiCommand {
   constructor() {

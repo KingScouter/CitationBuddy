@@ -11,10 +11,10 @@ import {
   InteractionType,
   TextInputStyle,
 } from 'discord-api-types/v10';
-import { ApiCommand } from './models/api-command';
+import { ApiCommand } from '../models/api-command';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
-import { ChannelUtils } from '../channel-utils';
+import { ChannelUtils } from '../../channel-utils';
 import { ServerConfig } from 'src/models';
 
 class AddCiteModalCommand extends ApiCommand {

@@ -6,16 +6,16 @@ import {
   InteractionResponseType,
   InteractionType,
 } from 'discord-api-types/v10';
-import { ApiCommand } from './models/api-command';
+import { ApiCommand } from '../models/api-command';
 import {
   ChannelTypes,
   InteractionResponseFlags,
   MessageComponentTypes,
 } from 'discord-interactions';
 import { Response } from 'express';
-import { DiscordRequest } from '../utils';
-import globalConfig from '../configuration/config.service';
-import { HttpMethods } from '../models';
+import { DiscordRequest } from '../../utils';
+import globalConfig from '../../configuration/config.service';
+import { HttpMethods } from '../../models';
 
 class SelectCiteChannelCommand extends ApiCommand {
   constructor() {
