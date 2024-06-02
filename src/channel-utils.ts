@@ -1,6 +1,7 @@
 import {
   APIChannel,
   APIMessage,
+  APIReaction,
   RESTPostAPIChannelMessageJSONBody,
 } from 'discord-api-types/v10';
 import { DiscordRequest } from './utils';
@@ -51,6 +52,30 @@ export class ChannelUtils {
     });
 
     return (await res.json()) as APIMessage[];
+  }
+
+  static async deleteOwnReaction(
+    channelId: string,
+    messageId: string,
+    emoji: string,
+  ): Promise<void> {
+    const endpoint = `channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`;
+
+    await DiscordRequest(endpoint, {
+      method: HttpMethods.DELETE,
+    });
+  }
+
+  static async createReaction(
+    channelId: string,
+    messageId: string,
+    emoji: string,
+  ): Promise<void> {
+    const endpoint = `channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`;
+
+    await DiscordRequest(endpoint, {
+      method: HttpMethods.PUT,
+    });
   }
 
   static async editInitialResponse(
