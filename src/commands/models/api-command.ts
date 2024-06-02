@@ -9,6 +9,7 @@ import { Response } from 'express';
 import { ServerConfig } from '../../models';
 import configService from '../../configuration/config.service';
 import { InteractionResponseFlags } from 'discord-interactions';
+import { ChannelUtils } from '../../channel-utils';
 
 export abstract class ApiCommand<
   T extends APIApplicationCommandInteraction,
@@ -104,5 +105,12 @@ export abstract class ApiCommand<
 
   protected isInteractionType(obj: APIInteraction): obj is I {
     return true;
+  }
+
+  protected autoDeleteInitialResponse(interaction: T): void {
+    ChannelUtils.autoDeleteInitialResponse(
+      interaction.application_id,
+      interaction.token,
+    );
   }
 }

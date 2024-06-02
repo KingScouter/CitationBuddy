@@ -8,7 +8,6 @@ import { Response } from 'express';
 import { ServerConfig } from '../../models';
 import { BaseMessageCommand } from './base-message-commands';
 import configService from '../../configuration/config.service';
-import { ChannelUtils } from '../../channel-utils';
 
 class IgnoreCitationCommand extends BaseMessageCommand {
   constructor() {
@@ -30,10 +29,7 @@ class IgnoreCitationCommand extends BaseMessageCommand {
         },
       } as APIInteractionResponseChannelMessageWithSource);
 
-      ChannelUtils.autoDeleteInitialResponse(
-        interaction.application_id,
-        interaction.token,
-      );
+      this.autoDeleteInitialResponse(interaction);
 
       return;
     }
@@ -49,10 +45,7 @@ class IgnoreCitationCommand extends BaseMessageCommand {
       },
     } as APIInteractionResponseChannelMessageWithSource);
 
-    ChannelUtils.autoDeleteInitialResponse(
-      interaction.application_id,
-      interaction.token,
-    );
+    this.autoDeleteInitialResponse(interaction);
   }
 }
 

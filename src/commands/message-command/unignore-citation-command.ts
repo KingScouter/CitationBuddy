@@ -31,10 +31,7 @@ class UnignoreCitationCommand extends BaseMessageCommand {
         },
       } as APIInteractionResponseChannelMessageWithSource);
 
-      ChannelUtils.autoDeleteInitialResponse(
-        interaction.application_id,
-        interaction.token,
-      );
+      this.autoDeleteInitialResponse(interaction);
 
       return;
     }
@@ -50,10 +47,7 @@ class UnignoreCitationCommand extends BaseMessageCommand {
       },
     } as APIInteractionResponseChannelMessageWithSource);
 
-    ChannelUtils.autoDeleteInitialResponse(
-      interaction.application_id,
-      interaction.token,
-    );
+    this.autoDeleteInitialResponse(interaction);
   }
 }
 
