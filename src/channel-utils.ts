@@ -52,4 +52,42 @@ export class ChannelUtils {
 
     return (await res.json()) as APIMessage[];
   }
+
+  static async editInitialResponse(
+    appId: string,
+    interactionToken: string,
+    message: string,
+  ): Promise<void> {
+    const endPoint = `webhooks/${appId}/${interactionToken}/messages/@original`;
+
+    const messageBody: RESTPostAPIChannelMessageJSONBody = {
+      content: message,
+    };
+
+    await DiscordRequest(endPoint, {
+      method: HttpMethods.PATCH,
+      body: messageBody,
+    });
+  }
+
+  static async deleteInitialResponse(
+    appId: string,
+    interactionToken: string,
+  ): Promise<void> {
+    const endPoint = `webhooks/${appId}/${interactionToken}/messages/@original`;
+
+    await DiscordRequest(endPoint, {
+      method: HttpMethods.DELETE,
+    });
+  }
+
+  static autoDeleteInitialResponse(
+    appId: string,
+    interactionToken: string,
+    timeout = 5000,
+  ): void {
+    setTimeout(async () => {
+      await ChannelUtils.deleteInitialResponse(appId, interactionToken);
+    }, timeout);
+  }
 }
