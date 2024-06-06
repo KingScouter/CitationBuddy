@@ -2,32 +2,27 @@ import {
   APIChannel,
   APIMessage,
   RESTPostAPIChannelMessageJSONBody,
+  Routes,
 } from 'discord.js';
-import { DiscordRequest } from './utils';
-import { HttpMethods } from './models';
+import { restClient } from './utils';
 
 export class ChannelUtils {
   static async getChannel(channelId: string): Promise<APIChannel> {
-    const endpoint = `channels/${channelId}`;
+    const channelResponse = (await restClient.get(
+      Routes.channel(channelId),
+    )) as APIChannel;
 
-    const channelResponse = await DiscordRequest(endpoint, {
-      method: HttpMethods.GET,
-    });
-    return (await channelResponse.json()) as APIChannel;
+    return channelResponse;
   }
 
   static async createMessage(
     channelId: string,
     message: string,
   ): Promise<void> {
-    const endpoint = `channels/${channelId}/messages`;
-
     const messageBody: RESTPostAPIChannelMessageJSONBody = {
       content: message,
     };
-
-    await DiscordRequest(endpoint, {
-      method: HttpMethods.POST,
+    await restClient.post(Routes.channelMessages(channelId), {
       body: messageBody,
     });
   }
@@ -36,21 +31,14 @@ export class ChannelUtils {
     channelId: string,
     messageId: string,
   ): Promise<void> {
-    const endpoint = `channels/${channelId}/messages/${messageId}`;
-
-    await DiscordRequest(endpoint, {
-      method: HttpMethods.DELETE,
-    });
+    await restClient.delete(Routes.channelMessage(channelId, messageId));
   }
 
   static async getMessages(channelId: string): Promise<APIMessage[]> {
-    const endpoint = `channels/${channelId}/messages`;
-
-    const res = await DiscordRequest(endpoint, {
-      method: HttpMethods.GET,
-    });
-
-    return (await res.json()) as APIMessage[];
+    const response = (await restClient.get(
+      Routes.channelMessages(channelId),
+    )) as APIMessage[];
+    return response;
   }
 
   static async deleteOwnReaction(
@@ -58,11 +46,9 @@ export class ChannelUtils {
     messageId: string,
     emoji: string,
   ): Promise<void> {
-    const endpoint = `channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`;
-
-    await DiscordRequest(endpoint, {
-      method: HttpMethods.DELETE,
-    });
+    await restClient.delete(
+      Routes.channelMessageOwnReaction(channelId, messageId, emoji),
+    );
   }
 
   static async createReaction(
@@ -70,11 +56,9 @@ export class ChannelUtils {
     messageId: string,
     emoji: string,
   ): Promise<void> {
-    const endpoint = `channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`;
-
-    await DiscordRequest(endpoint, {
-      method: HttpMethods.PUT,
-    });
+    await restClient.put(
+      Routes.channelMessageOwnReaction(channelId, messageId, emoji),
+    );
   }
 
   static async editInitialResponse(
@@ -82,14 +66,11 @@ export class ChannelUtils {
     interactionToken: string,
     message: string,
   ): Promise<void> {
-    const endPoint = `webhooks/${appId}/${interactionToken}/messages/@original`;
-
     const messageBody: RESTPostAPIChannelMessageJSONBody = {
       content: message,
     };
 
-    await DiscordRequest(endPoint, {
-      method: HttpMethods.PATCH,
+    await restClient.patch(Routes.webhookMessage(appId, interactionToken), {
       body: messageBody,
     });
   }
@@ -98,11 +79,7 @@ export class ChannelUtils {
     appId: string,
     interactionToken: string,
   ): Promise<void> {
-    const endPoint = `webhooks/${appId}/${interactionToken}/messages/@original`;
-
-    await DiscordRequest(endPoint, {
-      method: HttpMethods.DELETE,
-    });
+    await restClient.delete(Routes.webhookMessage(appId, interactionToken));
   }
 
   static autoDeleteInitialResponse(
@@ -113,5 +90,15 @@ export class ChannelUtils {
     setTimeout(async () => {
       await ChannelUtils.deleteInitialResponse(appId, interactionToken);
     }, timeout);
+  }
+
+  static async deleteInteractionMessage(
+    appId: string,
+    interactionToken: string,
+    messageId: string,
+  ): Promise<void> {
+    await restClient.delete(
+      Routes.webhookMessage(appId, interactionToken, messageId),
+    );
   }
 }

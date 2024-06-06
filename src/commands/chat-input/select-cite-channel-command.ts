@@ -11,10 +11,9 @@ import {
   MessageComponentTypes,
 } from 'discord-interactions';
 import { Response } from 'express';
-import { DiscordRequest } from '../../utils';
 import globalConfig from '../../configuration/config.service';
-import { HttpMethods } from '../../models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
+import { ChannelUtils } from '../../channel-utils';
 
 class SelectCiteChannelCommand extends BaseChatInputCommand {
   constructor() {
@@ -41,16 +40,18 @@ class SelectCiteChannelCommand extends BaseChatInputCommand {
       excludedMessageIds: [],
     });
 
-    await res.send({
+    res.send({
       type: InteractionResponseType.ChannelMessageWithSource,
       data: {
         content: `'Cite channel selected: ', ${selectedChannel.name}`,
       },
     });
 
-    const endpoint = `webhooks/${process.env.APP_ID}/${interaction.token}/messages/${interaction.message.id}`;
-    // Delete previous message
-    await DiscordRequest(endpoint, { method: HttpMethods.DELETE });
+    ChannelUtils.deleteInteractionMessage(
+      interaction.application_id,
+      interaction.token,
+      interaction.message.id,
+    );
 
     return true;
   }
