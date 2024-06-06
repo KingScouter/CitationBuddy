@@ -3,9 +3,9 @@ import {
   APIChatInputApplicationCommandInteraction,
   APIInteraction,
   ApplicationCommandType,
-} from 'discord-api-types/v10';
+  InteractionType,
+} from 'discord.js';
 import { ApiCommand } from '../models/api-command';
-import { isChatInputApplicationCommandInteraction } from 'discord-api-types/utils/v10';
 
 export abstract class BaseChatInputCommand<
   T extends APIInteraction = APIInteraction,
@@ -18,7 +18,9 @@ export abstract class BaseChatInputCommand<
     obj: APIApplicationCommandInteraction,
   ): obj is APIChatInputApplicationCommandInteraction {
     return (
-      super.isCommandType(obj) && isChatInputApplicationCommandInteraction(obj)
+      super.isCommandType(obj) &&
+      obj.type === InteractionType.ApplicationCommand &&
+      obj.data.type === ApplicationCommandType.ChatInput
     );
   }
 }

@@ -8,7 +8,7 @@ import {
   InteractionResponseType,
   InteractionType,
   TextInputStyle,
-} from 'discord-api-types/v10';
+} from 'discord.js';
 import { ApiCommand } from '../models/api-command';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';

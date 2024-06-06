@@ -1,9 +1,8 @@
 import {
   APIChannel,
   APIMessage,
-  APIReaction,
   RESTPostAPIChannelMessageJSONBody,
-} from 'discord-api-types/v10';
+} from 'discord.js';
 import { DiscordRequest } from './utils';
 import { HttpMethods } from './models';
 

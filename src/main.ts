@@ -1,14 +1,14 @@
 import 'dotenv/config';
 import express from 'express';
-import { InteractionResponseType } from 'discord-interactions';
 import { VerifyDiscordRequest } from './utils';
 import globalConfig from './configuration/config.service';
 import { CHAT_INPUT_COMMANDS, MESSAGE_COMMANDS } from './commands';
 import {
   APIApplicationCommandInteraction,
   APIInteraction,
+  InteractionResponseType,
   InteractionType,
-} from 'discord-api-types/v10';
+} from 'discord.js';
 
 // Create an express app
 const app = express();
@@ -35,7 +35,7 @@ app.post('/interactions', async function (req, res) {
    * Handle verification requests
    */
   if (payload.type === InteractionType.Ping) {
-    return res.send({ type: InteractionResponseType.PONG });
+    return res.send({ type: InteractionResponseType.Pong });
   }
 
   /**

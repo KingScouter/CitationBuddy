@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { verifyKey } from 'discord-interactions';
-import { APIApplicationCommand } from 'discord-api-types/v10';
+import { APIApplicationCommand, REST, Routes } from 'discord.js';
 
 export function VerifyDiscordRequest(clientKey) {
   return function (req, res, buf, encoding) {
@@ -57,5 +57,20 @@ export async function InstallGlobalCommands(
     console.log('Install complete: ', response);
   } catch (err) {
     console.error(err);
+  }
+}
+
+export async function RegisterCommand(
+  commands: APIApplicationCommand[],
+): Promise<void> {
+  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+
+  try {
+    await rest.put(Routes.applicationCommands(process.env.APP_ID), {
+      body: commands,
+    });
+    console.log('Install complete: ');
+  } catch (err) {
+    console.error('Install failed: ', err);
   }
 }

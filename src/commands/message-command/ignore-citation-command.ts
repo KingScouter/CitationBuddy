@@ -3,7 +3,7 @@ import {
   APIInteractionResponseChannelMessageWithSource,
   InteractionResponseType,
   MessageFlags,
-} from 'discord-api-types/v10';
+} from 'discord.js';
 import { Response } from 'express';
 import { ServerConfig } from '../../models';
 import { BaseMessageCommand } from './base-message-commands';

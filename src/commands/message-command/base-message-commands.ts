@@ -3,9 +3,9 @@ import {
   APIInteraction,
   APIMessageApplicationCommandInteraction,
   ApplicationCommandType,
-} from 'discord-api-types/v10';
+  InteractionType,
+} from 'discord.js';
 import { ApiCommand } from '../models/api-command';
-import { isContextMenuApplicationCommandInteraction } from 'discord-api-types/utils/v10';
 
 export abstract class BaseMessageCommand<
   T extends APIInteraction = APIInteraction,
@@ -19,7 +19,7 @@ export abstract class BaseMessageCommand<
   ): obj is APIMessageApplicationCommandInteraction {
     return (
       super.isCommandType(obj) &&
-      isContextMenuApplicationCommandInteraction(obj) &&
+      obj.type === InteractionType.ApplicationCommand &&
       obj.data.type === ApplicationCommandType.Message
     );
   }

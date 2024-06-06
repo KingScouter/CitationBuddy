@@ -4,7 +4,7 @@ import {
   APIChatInputApplicationCommandInteraction,
   ApplicationCommandOptionType,
   InteractionResponseType,
-} from 'discord-api-types/v10';
+} from 'discord.js';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
 import { ChannelUtils } from '../../channel-utils';

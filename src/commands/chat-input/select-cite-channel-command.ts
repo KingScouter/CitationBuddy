@@ -4,7 +4,7 @@ import {
   APIMessageComponentInteraction,
   InteractionResponseType,
   InteractionType,
-} from 'discord-api-types/v10';
+} from 'discord.js';
 import {
   ChannelTypes,
   InteractionResponseFlags,
