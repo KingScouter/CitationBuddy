@@ -13,7 +13,7 @@ import { ApiCommand } from '../models/api-command';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
 import { ChannelUtils } from '../../channel-utils';
-import { ServerConfig } from 'src/models';
+import { ServerConfig } from '../../models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class AddCiteModalCommand extends BaseChatInputCommand {

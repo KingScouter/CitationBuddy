@@ -1,7 +1,7 @@
 {
   "name": "citebot",
-  "$schema": "node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "src",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/citebot/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -14,9 +14,9 @@
         "outputPath": "dist/citebot",
         "format": ["cjs"],
         "bundle": false,
-        "main": "src/main.ts",
-        "tsConfig": "tsconfig.app.json",
-        "assets": ["src/assets"],
+        "main": "apps/citebot/src/main.ts",
+        "tsConfig": "apps/citebot/tsconfig.app.json",
+        "assets": ["apps/citebot/src/assets"],
         "generatePackageJson": true,
         "esbuildOptions": {
           "sourcemap": true,

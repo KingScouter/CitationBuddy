@@ -5,9 +5,9 @@
   "license": "MIT",
   "author": "Ortner, Gabriel",
   "scripts": {
-    "start": "nx serve",
-    "build": "nx build",
-    "test": "nx test",
+    "start": "nx serve citebot",
+    "build": "nx build citebot --configuration=production",
+    "test": "nx test citebot",
     "register": "npm run build & node dist/citebot/src/register-commands.js",
     "ngrok": "ngrok http 3000"
   },

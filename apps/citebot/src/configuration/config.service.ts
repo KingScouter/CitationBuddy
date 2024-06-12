@@ -11,7 +11,7 @@ export class ConfigService {
 
   setConfig(config: ServerConfig): void {
     const idx = this.configs.findIndex(
-      (elem) => elem.guildId === config.guildId
+      (elem) => elem.guildId === config.guildId,
     );
     if (idx < 0) {
       this.configs.push(config);

@@ -5,7 +5,7 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { Response } from 'express';
-import { ServerConfig } from 'src/models';
+import { ServerConfig } from '../../models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 import { ChannelUtils } from '../../channel-utils';
 import { InteractionResponseFlags } from 'discord-interactions';
