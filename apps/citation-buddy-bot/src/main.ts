@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import { VerifyDiscordRequest } from './utils';
+import { RegisterCommand, VerifyDiscordRequest } from './utils';
 import globalConfig from './configuration/config.service';
 import { CHAT_INPUT_COMMANDS, MESSAGE_COMMANDS } from './commands';
 import {
@@ -58,6 +58,11 @@ app.post('/interactions', async function (req, res) {
     if (!(await command.handleInteraction(payload, res))) continue;
     break;
   }
+});
+
+app.post('/registercommands', async function (req, res) {
+  RegisterCommand(APP_COMMANDS);
+  res.send();
 });
 
 app.listen(PORT, () => {

@@ -3,7 +3,7 @@ import { verifyKey } from 'discord-interactions';
 import { APIApplicationCommand, REST, Routes } from 'discord.js';
 
 export const restClient = new REST({ version: '10' }).setToken(
-  process.env.DISCORD_TOKEN,
+  process.env.DISCORD_TOKEN
 );
 
 export function VerifyDiscordRequest(clientKey) {
@@ -20,13 +20,13 @@ export function VerifyDiscordRequest(clientKey) {
 }
 
 export async function RegisterCommand(
-  commands: APIApplicationCommand[],
+  commands: APIApplicationCommand[]
 ): Promise<void> {
   try {
     await restClient.put(Routes.applicationCommands(process.env.APP_ID), {
       body: commands,
     });
-    console.log('Install complete: ');
+    console.log('Install complete');
   } catch (err) {
     console.error('Install failed: ', err);
   }
