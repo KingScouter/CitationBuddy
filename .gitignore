@@ -33,11 +33,12 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
-.env
-config.json
 
 # System Files
 .DS_Store
 Thumbs.db
 
 .nx/cache
+.nx/workspace-data
+
+.angular

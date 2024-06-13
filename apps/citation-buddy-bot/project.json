@@ -1,0 +1,31 @@
+{
+  "name": "citation-buddy-bot",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/citation-buddy-bot/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "citation-buddy-bot:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "citation-buddy-bot:build:development"
+        },
+        "production": {
+          "buildTarget": "citation-buddy-bot:build:production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/citation-buddy-bot/jest.config.ts"
+      }
+    }
+  }
+}
