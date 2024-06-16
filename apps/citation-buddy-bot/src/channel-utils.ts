@@ -9,15 +9,23 @@ import { restClient } from './utils';
 export class ChannelUtils {
   static async getChannel(channelId: string): Promise<APIChannel> {
     const channelResponse = (await restClient.get(
-      Routes.channel(channelId),
+      Routes.channel(channelId)
     )) as APIChannel;
+
+    return channelResponse;
+  }
+
+  static async getChannels(guildId: string): Promise<APIChannel[]> {
+    const channelResponse = (await restClient.get(
+      Routes.guildChannels(guildId)
+    )) as APIChannel[];
 
     return channelResponse;
   }
 
   static async createMessage(
     channelId: string,
-    message: string,
+    message: string
   ): Promise<void> {
     const messageBody: RESTPostAPIChannelMessageJSONBody = {
       content: message,
@@ -29,14 +37,14 @@ export class ChannelUtils {
 
   static async deleteMessage(
     channelId: string,
-    messageId: string,
+    messageId: string
   ): Promise<void> {
     await restClient.delete(Routes.channelMessage(channelId, messageId));
   }
 
   static async getMessages(channelId: string): Promise<APIMessage[]> {
     const response = (await restClient.get(
-      Routes.channelMessages(channelId),
+      Routes.channelMessages(channelId)
     )) as APIMessage[];
     return response;
   }
@@ -44,27 +52,27 @@ export class ChannelUtils {
   static async deleteOwnReaction(
     channelId: string,
     messageId: string,
-    emoji: string,
+    emoji: string
   ): Promise<void> {
     await restClient.delete(
-      Routes.channelMessageOwnReaction(channelId, messageId, emoji),
+      Routes.channelMessageOwnReaction(channelId, messageId, emoji)
     );
   }
 
   static async createReaction(
     channelId: string,
     messageId: string,
-    emoji: string,
+    emoji: string
   ): Promise<void> {
     await restClient.put(
-      Routes.channelMessageOwnReaction(channelId, messageId, emoji),
+      Routes.channelMessageOwnReaction(channelId, messageId, emoji)
     );
   }
 
   static async editInitialResponse(
     appId: string,
     interactionToken: string,
-    message: string,
+    message: string
   ): Promise<void> {
     const messageBody: RESTPostAPIChannelMessageJSONBody = {
       content: message,
@@ -77,7 +85,7 @@ export class ChannelUtils {
 
   static async deleteInitialResponse(
     appId: string,
-    interactionToken: string,
+    interactionToken: string
   ): Promise<void> {
     await restClient.delete(Routes.webhookMessage(appId, interactionToken));
   }
@@ -85,7 +93,7 @@ export class ChannelUtils {
   static autoDeleteInitialResponse(
     appId: string,
     interactionToken: string,
-    timeout = 5000,
+    timeout = 5000
   ): void {
     setTimeout(async () => {
       await ChannelUtils.deleteInitialResponse(appId, interactionToken);
@@ -95,10 +103,10 @@ export class ChannelUtils {
   static async deleteInteractionMessage(
     appId: string,
     interactionToken: string,
-    messageId: string,
+    messageId: string
   ): Promise<void> {
     await restClient.delete(
-      Routes.webhookMessage(appId, interactionToken, messageId),
+      Routes.webhookMessage(appId, interactionToken, messageId)
     );
   }
 }

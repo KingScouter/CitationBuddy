@@ -9,6 +9,8 @@ import {
   InteractionResponseType,
   InteractionType,
 } from 'discord.js';
+import cors from 'cors';
+import discordBackend from './discord-backend/discord-backend';
 
 // Create an express app
 const app = express();
@@ -16,6 +18,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
+app.use(cors());
 
 const APP_COMMANDS = [...CHAT_INPUT_COMMANDS, ...MESSAGE_COMMANDS];
 
@@ -64,6 +67,8 @@ app.post('/registercommands', async function (req, res) {
   RegisterCommand(APP_COMMANDS);
   res.send();
 });
+
+discordBackend(app);
 
 app.listen(PORT, () => {
   console.log('Listening on port', PORT);
