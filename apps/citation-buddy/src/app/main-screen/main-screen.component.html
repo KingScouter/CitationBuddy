@@ -1,0 +1,21 @@
+<div class="container">
+  <div class="sidebar-container">
+    @if(isLoggedIn()) {
+    <p>The user is logged in</p>
+    <button (click)="onLogoutButtonClick()">Logout</button>
+    } @else {
+    <p>The user is not logged in</p>
+    <button (click)="onLoginButtonClick()">Login</button>
+    }
+  </div>
+  <div class="content-container">
+    @if(isLoggedIn()) {
+    <button (click)="onGetChannels()">Get channels</button>
+    <button (click)="onGetUser()">Get user info</button>
+
+    <h1>Backend data:</h1>
+    @for(elem of backendData(); track elem) {
+    <p>{{ elem }}</p>
+    } }
+  </div>
+</div>
