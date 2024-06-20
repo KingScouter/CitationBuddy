@@ -1,6 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
-import { APIChannel, APIMessage, APIUser } from 'discord.js';
+import {
+  APIChannel,
+  APIMessage,
+  APIUser,
+  RouteBases,
+  Routes,
+} from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
 import { AuthenticationService } from '../authentication/authentication.service';
 
@@ -45,7 +51,7 @@ export class DiscordBackendService {
   async getChannelsDiscord(): Promise<APIChannel[]> {
     const response = await firstValueFrom(
       this.httpClient.get<APIChannel[]>(
-        'https://discord.com/api/v10/users/@me/guilds',
+        this.getDiscordRoute(Routes.userGuilds()),
         {
           headers: {
             authorization: `${
@@ -61,7 +67,7 @@ export class DiscordBackendService {
 
   async getUserInfoDiscord(): Promise<APIUser> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIUser>('https://discord.com/api/v10/users/@me', {
+      this.httpClient.get<APIUser>(this.getDiscordRoute(Routes.user()), {
         headers: {
           authorization: `${this.authenticationService.userAuth()?.tokenType} ${
             this.authenticationService.userAuth()?.accessToken
@@ -71,5 +77,9 @@ export class DiscordBackendService {
     );
     console.log('Response: ', response);
     return response;
+  }
+
+  private getDiscordRoute(route: string): string {
+    return `${RouteBases.api}${route}`;
   }
 }
