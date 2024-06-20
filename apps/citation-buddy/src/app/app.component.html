@@ -1,17 +1,1 @@
-<div>
-  <input type="text" #channelIdInput />
-  <button (click)="readMessages()">Refresh messages</button>
-</div>
-
-@for(message of messageList(); track message) {
-<p>{{ message }}</p>
-}
-
-<div>
-  <input type="text" #guildIdInput />
-  <button (click)="getChannels()">Get channels</button>
-</div>
-
-@for(channel of channelList(); track channel) {
-<p>{{ channel }}</p>
-}
+<router-outlet></router-outlet>
