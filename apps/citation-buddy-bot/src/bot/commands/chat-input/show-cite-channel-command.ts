@@ -4,8 +4,8 @@ import {
 } from 'discord.js';
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
-import { ChannelUtils } from '../../channel-utils';
-import { ServerConfig } from '../../models';
+import { BotUtils } from '../../bot-utils';
+import { ServerConfig } from '../../../models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class ShowCiteChannelCommand extends BaseChatInputCommand {
@@ -16,11 +16,11 @@ class ShowCiteChannelCommand extends BaseChatInputCommand {
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: ServerConfig,
+    config: ServerConfig
   ): Promise<void> {
     let responseMsg = 'No cite channel found for this server!';
     if (config) {
-      const channel = await ChannelUtils.getChannel(config.citeChannelId);
+      const channel = await BotUtils.getChannel(config.citeChannelId);
       responseMsg = `Cite channel: ${channel.name}`;
     }
 

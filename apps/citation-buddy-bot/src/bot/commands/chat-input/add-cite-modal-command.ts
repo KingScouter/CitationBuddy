@@ -12,8 +12,8 @@ import {
 import { ApiCommand } from '../models/api-command';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
-import { ChannelUtils } from '../../channel-utils';
-import { ServerConfig } from '../../models';
+import { BotUtils } from '../../bot-utils';
+import { ServerConfig } from '../../../models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class AddCiteModalCommand extends BaseChatInputCommand {
@@ -30,7 +30,7 @@ class AddCiteModalCommand extends BaseChatInputCommand {
 
   protected async handleInteractionInternal(
     interaction: APIModalSubmitInteraction,
-    res: Response,
+    res: Response
   ): Promise<boolean> {
     const componentId = interaction.data.custom_id;
     if (
@@ -47,13 +47,13 @@ class AddCiteModalCommand extends BaseChatInputCommand {
     return this.handleModalResult(
       interaction as APIModalSubmitInteraction,
       res,
-      config,
+      config
     );
   }
 
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
-    res: Response,
+    res: Response
   ): Promise<void> {
     res.send({
       type: InteractionResponseType.Modal,
@@ -105,7 +105,7 @@ class AddCiteModalCommand extends BaseChatInputCommand {
   private async handleModalResult(
     interaction: APIModalSubmitInteraction,
     res: Response,
-    config: ServerConfig,
+    config: ServerConfig
   ): Promise<boolean> {
     let msg = '';
     let person = '';
@@ -133,7 +133,7 @@ class AddCiteModalCommand extends BaseChatInputCommand {
       returnMsg += `, ${msgCtx}`;
     }
 
-    await ChannelUtils.createMessage(config.citeChannelId, returnMsg);
+    await BotUtils.createMessage(config.citeChannelId, returnMsg);
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,

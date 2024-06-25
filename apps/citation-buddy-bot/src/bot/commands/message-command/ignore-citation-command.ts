@@ -5,9 +5,9 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { Response } from 'express';
-import { ServerConfig } from '../../models';
+import { ServerConfig } from '../../../models';
 import { BaseMessageCommand } from './base-message-commands';
-import configService from '../../configuration/config.service';
+import configService from '../../../configuration/config.service';
 
 class IgnoreCitationCommand extends BaseMessageCommand {
   constructor() {
@@ -17,7 +17,7 @@ class IgnoreCitationCommand extends BaseMessageCommand {
   protected async executeInternal(
     interaction: APIMessageApplicationCommandInteraction,
     res: Response,
-    config: ServerConfig,
+    config: ServerConfig
   ): Promise<void> {
     const clickedMessageId = interaction.data.target_id;
     if (config.excludedMessageIds.indexOf(clickedMessageId) >= 0) {

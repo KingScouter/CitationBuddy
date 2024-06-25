@@ -6,14 +6,14 @@ import {
   InteractionResponseType,
 } from 'discord.js';
 import { Response } from 'express';
-import { ServerConfig } from '../../models';
-import configService from '../../configuration/config.service';
+import { ServerConfig } from '../../../models';
+import configService from '../../../configuration/config.service';
 import { InteractionResponseFlags } from 'discord-interactions';
-import { ChannelUtils } from '../../channel-utils';
+import { BotUtils } from '../../bot-utils';
 
 export abstract class ApiCommand<
   T extends APIApplicationCommandInteraction,
-  I extends APIInteraction = APIInteraction,
+  I extends APIInteraction = APIInteraction
 > implements APIApplicationCommand
 {
   id: string;
@@ -29,7 +29,7 @@ export abstract class ApiCommand<
     name: string,
     description: string,
     type: ApplicationCommandType,
-    needsConfig = true,
+    needsConfig = true
   ) {
     this.name = name;
     this.description = description;
@@ -61,7 +61,7 @@ export abstract class ApiCommand<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interaction: APIInteraction,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    res: Response,
+    res: Response
   ): Promise<boolean> {
     if (!this.isInteractionType(interaction)) return false;
 
@@ -88,7 +88,7 @@ export abstract class ApiCommand<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interaction: I,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    res: Response,
+    res: Response
   ): Promise<boolean> {
     return false;
   }
@@ -96,7 +96,7 @@ export abstract class ApiCommand<
   protected abstract executeInternal(
     interaction: T,
     res: Response,
-    config: ServerConfig,
+    config: ServerConfig
   ): Promise<void>;
 
   protected isCommandType(obj: APIInteraction): obj is T {
@@ -108,9 +108,9 @@ export abstract class ApiCommand<
   }
 
   protected autoDeleteInitialResponse(interaction: T): void {
-    ChannelUtils.autoDeleteInitialResponse(
+    BotUtils.autoDeleteInitialResponse(
       interaction.application_id,
-      interaction.token,
+      interaction.token
     );
   }
 }

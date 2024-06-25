@@ -11,9 +11,9 @@ import {
   MessageComponentTypes,
 } from 'discord-interactions';
 import { Response } from 'express';
-import globalConfig from '../../configuration/config.service';
+import globalConfig from '../../../configuration/config.service';
 import { BaseChatInputCommand } from './base-chat-input-commands';
-import { ChannelUtils } from '../../channel-utils';
+import { BotUtils } from '../../bot-utils';
 
 class SelectCiteChannelCommand extends BaseChatInputCommand {
   constructor() {
@@ -22,7 +22,7 @@ class SelectCiteChannelCommand extends BaseChatInputCommand {
 
   protected async handleInteractionInternal(
     interaction: APIMessageComponentInteraction,
-    res: Response,
+    res: Response
   ): Promise<boolean> {
     if (interaction.type !== InteractionType.MessageComponent) return false;
 
@@ -47,10 +47,10 @@ class SelectCiteChannelCommand extends BaseChatInputCommand {
       },
     });
 
-    ChannelUtils.deleteInteractionMessage(
+    BotUtils.deleteInteractionMessage(
       interaction.application_id,
       interaction.token,
-      interaction.message.id,
+      interaction.message.id
     );
 
     return true;
@@ -58,7 +58,7 @@ class SelectCiteChannelCommand extends BaseChatInputCommand {
 
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
-    res: Response,
+    res: Response
   ): Promise<void> {
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,

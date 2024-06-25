@@ -5,9 +5,9 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { Response } from 'express';
-import { ServerConfig } from '../../models';
+import { ServerConfig } from '../../../models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
-import { ChannelUtils } from '../../channel-utils';
+import { BotUtils } from '../../bot-utils';
 import { InteractionResponseFlags } from 'discord-interactions';
 
 class ManageIgnoreCommand extends BaseChatInputCommand {
@@ -18,10 +18,10 @@ class ManageIgnoreCommand extends BaseChatInputCommand {
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: ServerConfig,
+    config: ServerConfig
   ): Promise<void> {
     if (interaction.channel.id !== config.citeChannelId) {
-      const channel = await ChannelUtils.getChannel(config.citeChannelId);
+      const channel = await BotUtils.getChannel(config.citeChannelId);
 
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
@@ -37,7 +37,7 @@ class ManageIgnoreCommand extends BaseChatInputCommand {
 
     const filteredMessages = config.excludedMessageIds.map(
       (elem) =>
-        `https://discord.com/channels/${config.guildId}/${config.citeChannelId}/${elem}`,
+        `https://discord.com/channels/${config.guildId}/${config.citeChannelId}/${elem}`
     );
 
     res.send({

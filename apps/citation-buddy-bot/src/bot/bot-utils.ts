@@ -4,9 +4,9 @@ import {
   RESTPostAPIChannelMessageJSONBody,
   Routes,
 } from 'discord.js';
-import { restClient } from './utils';
+import { restClient } from '../utils';
 
-export class ChannelUtils {
+export class BotUtils {
   static async getChannel(channelId: string): Promise<APIChannel> {
     const channelResponse = (await restClient.get(
       Routes.channel(channelId)
@@ -96,7 +96,7 @@ export class ChannelUtils {
     timeout = 5000
   ): void {
     setTimeout(async () => {
-      await ChannelUtils.deleteInitialResponse(appId, interactionToken);
+      await BotUtils.deleteInitialResponse(appId, interactionToken);
     }, timeout);
   }
 

@@ -7,8 +7,8 @@ import {
 } from 'discord.js';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
-import { ChannelUtils } from '../../channel-utils';
-import { ServerConfig } from '../../models';
+import { BotUtils } from '../../bot-utils';
+import { ServerConfig } from '../../../models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class AddCiteCommand extends BaseChatInputCommand {
@@ -32,29 +32,29 @@ class AddCiteCommand extends BaseChatInputCommand {
         description: 'Person',
         type: ApplicationCommandOptionType.String,
         required: true,
-      },
+      }
     );
   }
 
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: ServerConfig,
+    config: ServerConfig
   ): Promise<void> {
     const values = interaction.data.options;
     const msgOption = values.find(
-      (elem) => elem.name === this.messageOptionKey,
+      (elem) => elem.name === this.messageOptionKey
     ) as APIApplicationCommandInteractionDataStringOption;
     const msg = msgOption.value;
 
     const personOption = values.find(
-      (elem) => elem.name === this.personOptionKey,
+      (elem) => elem.name === this.personOptionKey
     ) as APIApplicationCommandInteractionDataStringOption;
     const person = personOption.value;
 
     const returnMsg = `"${msg}"\r\n- ${person}, ${new Date().getFullYear()}`;
 
-    await ChannelUtils.createMessage(config.citeChannelId, returnMsg);
+    await BotUtils.createMessage(config.citeChannelId, returnMsg);
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,

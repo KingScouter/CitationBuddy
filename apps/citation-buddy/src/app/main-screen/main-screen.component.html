@@ -16,6 +16,10 @@
     <h1>Backend data:</h1>
     @for(elem of backendData(); track elem) {
     <p>{{ elem }}</p>
-    } }
+    } } @else {
+    <button (click)="onTestButton()">Test</button>
+    }
+    <h1>User:</h1>
+    <p>{{ user() | json }}</p>
   </div>
 </div>

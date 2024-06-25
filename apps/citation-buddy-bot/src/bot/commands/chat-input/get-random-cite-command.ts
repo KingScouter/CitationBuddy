@@ -4,8 +4,8 @@ import {
 } from 'discord.js';
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
-import { ChannelUtils } from '../../channel-utils';
-import { ServerConfig } from '../../models';
+import { BotUtils } from '../../bot-utils';
+import { ServerConfig } from '../../../models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class GetRandomCitecommand extends BaseChatInputCommand {
@@ -16,9 +16,9 @@ class GetRandomCitecommand extends BaseChatInputCommand {
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: ServerConfig,
+    config: ServerConfig
   ): Promise<void> {
-    const messages = await ChannelUtils.getMessages(config.citeChannelId);
+    const messages = await BotUtils.getMessages(config.citeChannelId);
     // console.log('Messages', messages);
     const filteredMessages = messages?.filter((elem) => {
       const idx = config.excludedMessageIds.indexOf(elem.id);
@@ -40,7 +40,7 @@ class GetRandomCitecommand extends BaseChatInputCommand {
     }
 
     const randomIdx = Math.floor(
-      Math.random() * randomNumber(0, filteredMessages.length - 1),
+      Math.random() * randomNumber(0, filteredMessages.length - 1)
     );
     const randomMsg = filteredMessages[randomIdx];
     const parsedMsg = hidePersonInCitation(randomMsg.content);

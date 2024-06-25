@@ -79,6 +79,15 @@ export class DiscordBackendService {
     return response;
   }
 
+  async getMe(): Promise<APIUser> {
+    const response = await firstValueFrom(
+      this.httpClient.get<APIUser>(this.apiUrl + '/me', {
+        withCredentials: true,
+      })
+    );
+    return response;
+  }
+
   private getDiscordRoute(route: string): string {
     return `${RouteBases.api}${route}`;
   }

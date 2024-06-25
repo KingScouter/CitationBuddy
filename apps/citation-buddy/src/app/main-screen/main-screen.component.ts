@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { AppConfig } from '../models';
 import { DiscordBackendService } from '../discord-backend/discord-backend.service';
+import { APIUser, OAuth2Routes, OAuth2Scopes } from 'discord-api-types/v10';
 
 @Component({
   selector: 'app-main-screen',
@@ -23,29 +24,27 @@ export class MainScreenComponent {
   private readonly discordBackendService = inject(DiscordBackendService);
 
   protected backendData = signal<string[]>([]);
+  protected user = signal<APIUser | null>(null);
 
   protected get isLoggedIn(): Signal<boolean> {
     return this.authenticationService.isAuthenticated;
   }
 
   protected onLoginButtonClick(): void {
-    const stateSecret = 'thisismytest';
+    const scopes = `${OAuth2Scopes.Identify}+${OAuth2Scopes.Guilds}`;
 
     console.log('Redirect to login');
-    const redirectUrlDirect = `https://discord.com/oauth2/authorize?response_type=token&client_id=${
+
+    const redirectUrlDirect = `${OAuth2Routes.authorizationURL}?client_id=${
       AppConfig.CLIENT_ID
-    }&state=${stateSecret}&redirect_uri=${encodeURI(
+    }&response_type=code&redirect_uri=${encodeURI(
       AppConfig.BASE_REDIRECT_URI
-    )}%2Foauth&scope=identify+guilds`;
+    )}&scope=${scopes}`;
     window.open(redirectUrlDirect, '_self');
   }
 
   protected onLogoutButtonClick(): void {
     this.authenticationService.resetAuth();
-  }
-
-  protected onExchangeToken(): void {
-    // this.discordBackendService.exchangeToken();
   }
 
   protected async onGetUser(): Promise<void> {
@@ -56,5 +55,12 @@ export class MainScreenComponent {
   protected async onGetChannels(): Promise<void> {
     const channels = await this.discordBackendService.getChannelsDiscord();
     this.backendData.set(channels.map((elem) => JSON.stringify(elem)));
+  }
+
+  protected async onTestButton(): Promise<void> {
+    const user = await this.discordBackendService.getMe();
+    if (user) {
+      this.user.set(user);
+    }
   }
 }

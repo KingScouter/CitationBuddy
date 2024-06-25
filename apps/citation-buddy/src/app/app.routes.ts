@@ -9,17 +9,17 @@ export const appRoutes: Route[] = [
       ),
   },
   {
-    path: 'oauth-token',
-    loadComponent: () =>
-      import('./oauth-token-redirect/oauth-token-redirect.component').then(
-        (comp) => comp.OauthTokenRedirectComponent
-      ),
-  },
-  {
     path: 'test',
     loadComponent: () =>
       import('./test-screen/test-screen.component').then(
         (comp) => comp.TestScreenComponent
+      ),
+  },
+  {
+    path: 'oauth-error',
+    loadComponent: () =>
+      import('./oauth-error/oauth-error.component').then(
+        (comp) => comp.OauthErrorComponent
       ),
   },
   {
