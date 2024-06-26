@@ -5,10 +5,8 @@ import {
   APIMessage,
   APIUser,
   RouteBases,
-  Routes,
 } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
-import { AuthenticationService } from '../authentication/authentication.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +14,6 @@ import { AuthenticationService } from '../authentication/authentication.service'
 export class DiscordBackendService {
   private httpClient = inject(HttpClient);
   private apiUrl = '';
-  private readonly authenticationService = inject(AuthenticationService);
 
   constructor(@Inject('API_URL') apiUrl: string) {
     this.apiUrl = apiUrl;
@@ -50,32 +47,10 @@ export class DiscordBackendService {
 
   async getChannelsDiscord(): Promise<APIChannel[]> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIChannel[]>(
-        this.getDiscordRoute(Routes.userGuilds()),
-        {
-          headers: {
-            authorization: `${
-              this.authenticationService.userAuth()?.tokenType
-            } ${this.authenticationService.userAuth()?.accessToken}`,
-          },
-        }
-      )
-    );
-    console.log('Response: ', response);
-    return response;
-  }
-
-  async getUserInfoDiscord(): Promise<APIUser> {
-    const response = await firstValueFrom(
-      this.httpClient.get<APIUser>(this.getDiscordRoute(Routes.user()), {
-        headers: {
-          authorization: `${this.authenticationService.userAuth()?.tokenType} ${
-            this.authenticationService.userAuth()?.accessToken
-          }`,
-        },
+      this.httpClient.get<APIChannel[]>(this.apiUrl + '/channels', {
+        withCredentials: true,
       })
     );
-    console.log('Response: ', response);
     return response;
   }
 

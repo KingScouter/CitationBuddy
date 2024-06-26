@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { verifyKey } from 'discord-interactions';
 import {
   APIApplicationCommand,
+  APIChannel,
   REST,
   RESTGetAPIOAuth2CurrentAuthorizationResult,
   Routes,
@@ -49,6 +50,21 @@ export async function getUserMe(accessToken: string): Promise<DiscordUser> {
       name: user.user.global_name,
       username: user.user.username,
     };
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
+export async function getUserChannels(
+  accessToken: string
+): Promise<APIChannel[]> {
+  try {
+    const guilds = (await getRESTClient(accessToken).get(
+      Routes.userGuilds()
+    )) as APIChannel[];
+
+    return guilds;
   } catch (err) {
     console.error(err);
     return null;

@@ -1,7 +1,7 @@
 import { Express, Response, CookieOptions } from 'express';
-import axios, { AxiosHeaders } from 'axios';
+import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
-import { getUserMe } from '../utils';
+import { getUserChannels, getUserMe } from '../utils';
 import { UserDbService } from '../user-db/user-db.service';
 import jwt from 'jsonwebtoken';
 import { DiscordUser } from '../user-db/models/discord-user';
@@ -79,6 +79,36 @@ export default function (app: Express): void {
       }
 
       res.json(userFromDb);
+    } catch (err) {
+      console.error(err);
+      res.status(401).json('Not Authenticated');
+    }
+  });
+
+  app.get('/channels', async (req, res) => {
+    try {
+      const token = req.cookies[COOKIE_NAME];
+      if (!token) {
+        throw new Error('Not Authenticated');
+      }
+      const payload = (await jwt.verify(
+        token,
+        process.env.JWT_SECRET
+      )) as UserJWTPayload;
+      const userFromDb = userDb.getUser(payload?.id);
+      if (!userFromDb) {
+        throw new Error('Not Authenticated');
+      }
+      if (!payload.accessToken) {
+        throw new Error('Not Authenticated');
+      }
+
+      const channels = await getUserChannels(payload.accessToken);
+      if (!channels || channels.length <= 0) {
+        res.status(HttpStatusCode.NotFound).send([]);
+      }
+
+      res.json(channels);
     } catch (err) {
       console.error(err);
       res.status(401).json('Not Authenticated');

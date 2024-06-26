@@ -5,7 +5,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthenticationService } from '../authentication/authentication.service';
 
 @Component({
@@ -17,15 +17,11 @@ import { AuthenticationService } from '../authentication/authentication.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OauthRedirectComponent implements OnInit {
-  private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly authenticationService = inject(AuthenticationService);
   private readonly router = inject(Router);
+  private readonly authenticationService = inject(AuthenticationService);
 
   ngOnInit(): void {
-    this.authenticationService.setAuthByUrlFragments(
-      this.activatedRoute.snapshot.fragment ?? ''
-    );
-
+    this.authenticationService.checkAuthentication();
     setTimeout(() => {
       this.router.navigate(['']);
     }, 3000);
