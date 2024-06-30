@@ -1,7 +1,7 @@
 import { Express, Response, CookieOptions, Request } from 'express';
 import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
-import { getUserChannels, getUserMe } from '../utils';
+import { getUserGuilds, getUserMe } from '../utils';
 import jwt from 'jsonwebtoken';
 import { DiscordUser } from '../user-db/models/discord-user';
 import { UserDbService } from '../user-db/user-db.service';
@@ -78,12 +78,12 @@ export default function (app: Express): void {
   app.get('/channels', async (req, res) => {
     try {
       const jwtPayload = await checkAuth(req);
-      const channels = await getUserChannels(jwtPayload.accessToken);
-      if (!channels || channels.length <= 0) {
+      const guilds = await getUserGuilds(jwtPayload.accessToken);
+      if (!guilds || guilds.length <= 0) {
         res.status(HttpStatusCode.NotFound).send([]);
       }
 
-      res.json(channels);
+      res.json(guilds);
     } catch (err) {
       console.error(err);
       res.status(HttpStatusCode.Unauthorized).json('Not Authenticated');

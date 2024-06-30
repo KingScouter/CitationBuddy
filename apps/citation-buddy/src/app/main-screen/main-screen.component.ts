@@ -48,7 +48,7 @@ export class MainScreenComponent {
   }
 
   protected async onGetChannels(): Promise<void> {
-    const channels = await this.discordBackendService.getChannelsDiscord();
+    const channels = await this.discordBackendService.getGuilds();
     this.backendData.set(channels.map((elem) => JSON.stringify(elem)));
   }
 }

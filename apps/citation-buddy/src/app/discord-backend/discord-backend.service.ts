@@ -5,6 +5,7 @@ import {
   APIMessage,
   APIUser,
   RouteBases,
+  APIGuild,
 } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
 
@@ -45,9 +46,9 @@ export class DiscordBackendService {
     return response;
   }
 
-  async getChannelsDiscord(): Promise<APIChannel[]> {
+  async getGuilds(): Promise<APIGuild[]> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIChannel[]>(this.apiUrl + '/channels')
+      this.httpClient.get<APIGuild[]>(this.apiUrl + '/channels')
     );
     return response;
   }
