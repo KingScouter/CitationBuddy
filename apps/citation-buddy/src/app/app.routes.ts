@@ -23,6 +23,13 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    path: 'channels',
+    loadComponent: () =>
+      import('./channel-list/channel-list.component').then(
+        (comp) => comp.ChannelListComponent
+      ),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./main-screen/main-screen.component').then(

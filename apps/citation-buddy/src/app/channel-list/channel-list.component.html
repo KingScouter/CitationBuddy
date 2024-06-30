@@ -1,0 +1,12 @@
+<mat-list>
+  @for(guild of guilds(); track guild.id) {
+  <mat-list-item class="list-item">
+    <img
+      matListItemAvatar
+      src="{{ guild | guildIcon }}"
+      [attr.alt]="guild.icon"
+    />
+    <h3 matListItemTitle>{{ guild.name }}</h3>
+  </mat-list-item>
+  }
+</mat-list>
