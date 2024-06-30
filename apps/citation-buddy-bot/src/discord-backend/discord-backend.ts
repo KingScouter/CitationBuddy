@@ -2,11 +2,11 @@ import { Express, Response, CookieOptions } from 'express';
 import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
 import { getUserChannels, getUserMe } from '../utils';
-import { UserDbService } from '../user-db/user-db.service';
 import jwt from 'jsonwebtoken';
 import { DiscordUser } from '../user-db/models/discord-user';
+import { UserDbService } from '../user-db/user-db.service';
 
-const userDb = new UserDbService();
+const userDb = UserDbService.getInstance();
 const COOKIE_NAME = process.env.OAUTH2_COOKIE_NAME;
 
 export default function (app: Express): void {
@@ -38,7 +38,7 @@ export default function (app: Express): void {
       const user = await getUserMe(tokenResData.access_token);
 
       // Store user
-      userDb.addUser(user);
+      await userDb.setUser(user);
 
       // Encode token in cookie
       addCookieToRes(res, user, tokenResData.access_token);
@@ -64,7 +64,7 @@ export default function (app: Express): void {
         token,
         process.env.JWT_SECRET
       )) as UserJWTPayload;
-      const userFromDb = userDb.getUser(payload?.id);
+      const userFromDb = await userDb.getUser(payload?.id);
       if (!userFromDb) {
         throw new Error('Not Authenticated');
       }
@@ -95,7 +95,7 @@ export default function (app: Express): void {
         token,
         process.env.JWT_SECRET
       )) as UserJWTPayload;
-      const userFromDb = userDb.getUser(payload?.id);
+      const userFromDb = await userDb.getUser(payload?.id);
       if (!userFromDb) {
         throw new Error('Not Authenticated');
       }

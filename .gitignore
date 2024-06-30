@@ -35,6 +35,7 @@ testem.log
 /typings
 /tmp
 .env
+usersDb.json
 
 # System Files
 .DS_Store
