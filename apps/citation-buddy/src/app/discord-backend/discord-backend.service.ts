@@ -47,18 +47,14 @@ export class DiscordBackendService {
 
   async getChannelsDiscord(): Promise<APIChannel[]> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIChannel[]>(this.apiUrl + '/channels', {
-        withCredentials: true,
-      })
+      this.httpClient.get<APIChannel[]>(this.apiUrl + '/channels')
     );
     return response;
   }
 
   async getMe(): Promise<APIUser> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIUser>(this.apiUrl + '/me', {
-        withCredentials: true,
-      })
+      this.httpClient.get<APIUser>(this.apiUrl + '/me')
     );
     return response;
   }
