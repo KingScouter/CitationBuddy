@@ -1,0 +1,24 @@
+:host {
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background-color: #646464b4;
+  border-left: 1px solid black;
+  height: 100%;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+}
