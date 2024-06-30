@@ -1,4 +1,4 @@
-import { Express, Response, CookieOptions } from 'express';
+import { Express, Response, CookieOptions, Request } from 'express';
 import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
 import { getUserChannels, getUserMe } from '../utils';
@@ -8,6 +8,8 @@ import { UserDbService } from '../user-db/user-db.service';
 
 const userDb = UserDbService.getInstance();
 const COOKIE_NAME = process.env.OAUTH2_COOKIE_NAME;
+
+type UserJWTPayload = Pick<DiscordUser, 'id'> & { accessToken: string };
 
 export default function (app: Express): void {
   app.get('/oauth', async function (req, res) {
@@ -36,12 +38,17 @@ export default function (app: Express): void {
       console.log('TokenRes: ', tokenResData);
 
       const user = await getUserMe(tokenResData.access_token);
+      const userFromDb: DiscordUser = {
+        id: user.id,
+        name: user.global_name,
+        username: user.username,
+      };
 
       // Store user
-      await userDb.setUser(user);
+      await userDb.setUser(userFromDb);
 
       // Encode token in cookie
-      addCookieToRes(res, user, tokenResData.access_token);
+      addCookieToRes(res, userFromDb, tokenResData.access_token);
     } catch (ex) {
       console.error(ex);
       res.redirect(`${process.env.CLIENT_URL}/oauth-error`);
@@ -52,33 +59,16 @@ export default function (app: Express): void {
     res.redirect(`${process.env.CLIENT_URL}/oauth`);
   });
 
-  type UserJWTPayload = Pick<DiscordUser, 'id'> & { accessToken: string };
-
   app.get('/me', async (req, res) => {
     try {
-      const token = req.cookies[COOKIE_NAME];
-      if (!token) {
-        throw new Error('Not Authenticated');
-      }
-      const payload = (await jwt.verify(
-        token,
-        process.env.JWT_SECRET
-      )) as UserJWTPayload;
-      const userFromDb = await userDb.getUser(payload?.id);
-      if (!userFromDb) {
-        throw new Error('Not Authenticated');
-      }
-      if (!payload.accessToken) {
+      const jwtPayload = await checkAuth(req);
+
+      const discordUser = await getUserMe(jwtPayload.accessToken);
+      if (discordUser?.id !== jwtPayload.id) {
         throw new Error('Not Authenticated');
       }
 
-      console.log('User authenticated');
-      const discordUser = await getUserMe(payload.accessToken);
-      if (discordUser?.id !== userFromDb.id) {
-        throw new Error('Not Authenticated');
-      }
-
-      res.json(userFromDb);
+      res.json(discordUser);
     } catch (err) {
       console.error(err);
       res.status(401).json('Not Authenticated');
@@ -87,23 +77,8 @@ export default function (app: Express): void {
 
   app.get('/channels', async (req, res) => {
     try {
-      const token = req.cookies[COOKIE_NAME];
-      if (!token) {
-        throw new Error('Not Authenticated');
-      }
-      const payload = (await jwt.verify(
-        token,
-        process.env.JWT_SECRET
-      )) as UserJWTPayload;
-      const userFromDb = await userDb.getUser(payload?.id);
-      if (!userFromDb) {
-        throw new Error('Not Authenticated');
-      }
-      if (!payload.accessToken) {
-        throw new Error('Not Authenticated');
-      }
-
-      const channels = await getUserChannels(payload.accessToken);
+      const jwtPayload = await checkAuth(req);
+      const channels = await getUserChannels(jwtPayload.accessToken);
       if (!channels || channels.length <= 0) {
         res.status(HttpStatusCode.NotFound).send([]);
       }
@@ -111,7 +86,7 @@ export default function (app: Express): void {
       res.json(channels);
     } catch (err) {
       console.error(err);
-      res.status(401).json('Not Authenticated');
+      res.status(HttpStatusCode.Unauthorized).json('Not Authenticated');
     }
   });
 }
@@ -130,7 +105,7 @@ function addCookieToRes(res: Response, user: DiscordUser, accessToken: string) {
       // Signing the token to send to client side
       id,
       accessToken,
-    },
+    } satisfies UserJWTPayload,
     process.env.JWT_SECRET
   );
   res.cookie(COOKIE_NAME, token, {
@@ -138,4 +113,19 @@ function addCookieToRes(res: Response, user: DiscordUser, accessToken: string) {
     ...cookieOptions,
     expires: new Date(Date.now() + 7200 * 1000),
   });
+}
+
+async function checkAuth(req: Request): Promise<UserJWTPayload> {
+  const token = req.cookies[COOKIE_NAME];
+  if (!token) {
+    throw new Error('Not Authenticated');
+  }
+  const payload = jwt.verify(token, process.env.JWT_SECRET) as UserJWTPayload;
+  const userFromDb = await userDb.getUser(payload?.id);
+  if (!payload.accessToken || !userFromDb) {
+    throw new Error('Not Authenticated');
+  }
+  // ToDo: Check expiration date for token
+
+  return payload;
 }

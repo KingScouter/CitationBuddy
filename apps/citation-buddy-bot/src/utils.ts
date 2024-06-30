@@ -3,11 +3,11 @@ import { verifyKey } from 'discord-interactions';
 import {
   APIApplicationCommand,
   APIChannel,
+  APIUser,
   REST,
   RESTGetAPIOAuth2CurrentAuthorizationResult,
   Routes,
 } from 'discord.js';
-import { DiscordUser } from './user-db/models/discord-user';
 
 export const restClient = new REST({ version: '10' }).setToken(
   process.env.DISCORD_TOKEN
@@ -39,17 +39,13 @@ export async function RegisterCommand(
   }
 }
 
-export async function getUserMe(accessToken: string): Promise<DiscordUser> {
+export async function getUserMe(accessToken: string): Promise<APIUser> {
   try {
     const user = (await getRESTClient(accessToken).get(
       Routes.oauth2CurrentAuthorization()
     )) as RESTGetAPIOAuth2CurrentAuthorizationResult;
 
-    return {
-      id: user.user.id,
-      name: user.user.global_name,
-      username: user.user.username,
-    };
+    return user.user;
   } catch (err) {
     console.error(err);
     return null;
