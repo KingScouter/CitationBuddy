@@ -4,6 +4,7 @@ import { appRoutes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { authenticationInterceptor } from './authentication.interceptor';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +14,6 @@ export const appConfig: ApplicationConfig = {
     {
       provide: 'API_URL',
       useValue: `http://localhost:${environment.apiPort}`,
-    },
+    }, provideAnimationsAsync(),
   ],
 };
