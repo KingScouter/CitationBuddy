@@ -6,10 +6,10 @@ import {
   InteractionResponseType,
 } from 'discord.js';
 import { Response } from 'express';
-import { ServerConfig } from '../../../models';
 import configService from '../../../configuration/config.service';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { BotUtils } from '../../bot-utils';
+import { ServerConfig } from '@cite/models';
 
 export abstract class ApiCommand<
   T extends APIApplicationCommandInteraction,

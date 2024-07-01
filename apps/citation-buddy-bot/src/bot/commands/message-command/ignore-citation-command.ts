@@ -5,7 +5,7 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { Response } from 'express';
-import { ServerConfig } from '../../../models';
+import { ServerConfig } from '@cite/models';
 import { BaseMessageCommand } from './base-message-commands';
 import configService from '../../../configuration/config.service';
 

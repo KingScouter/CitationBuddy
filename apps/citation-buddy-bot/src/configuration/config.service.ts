@@ -1,5 +1,6 @@
 import fs from 'fs';
-import { AppConfig, ServerConfig } from '../models';
+import { AppConfig } from '../models';
+import { ServerConfig } from '@cite/models';
 
 export class ConfigService {
   configFile: string = AppConfig.CONFIG_FILE_DEFAULT;
@@ -11,7 +12,7 @@ export class ConfigService {
 
   setConfig(config: ServerConfig): void {
     const idx = this.configs.findIndex(
-      (elem) => elem.guildId === config.guildId,
+      (elem) => elem.guildId === config.guildId
     );
     if (idx < 0) {
       this.configs.push(config);
