@@ -1,11 +1,4 @@
 <div class="sidebar-container">
-  @if(currentUser(); as user) {
-  <p>The user is logged in</p>
-  <p>Username: {{ user.username }}</p>
-  <p>Name: {{ user.name }}</p>
-  <button (click)="onLogoutButtonClick()">Logout</button>
-  } @else {
-  <p>The user is not logged in</p>
-  <button (click)="onLoginButtonClick()">Login</button>
-  }
+  <app-user-info />
+  <app-main-menu />
 </div>

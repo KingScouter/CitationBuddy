@@ -1,0 +1,19 @@
+.user-container {
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+  gap: 10px;
+}
+
+.user-avatar {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+
+  flex-grow: 0;
+}
+
+.user-name {
+  flex-grow: 1;
+  font-size: 15pt;
+}

@@ -23,7 +23,7 @@ export class OauthRedirectComponent implements OnInit {
   ngOnInit(): void {
     this.authenticationService.checkAuthentication();
     setTimeout(() => {
-      this.router.navigate(['']);
+      this.router.navigate(['channels']);
     }, 3000);
   }
 }
