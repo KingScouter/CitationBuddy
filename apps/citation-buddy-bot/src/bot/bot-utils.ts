@@ -1,5 +1,6 @@
 import {
   APIChannel,
+  APIGuild,
   APIMessage,
   RESTPostAPIChannelMessageJSONBody,
   Routes,
@@ -108,5 +109,13 @@ export class BotUtils {
     await restClient.delete(
       Routes.webhookMessage(appId, interactionToken, messageId)
     );
+  }
+
+  static async getGuilds(): Promise<APIGuild[]> {
+    const guildResponse = (await restClient.get(
+      Routes.userGuilds()
+    )) as APIGuild[];
+
+    return guildResponse;
   }
 }
