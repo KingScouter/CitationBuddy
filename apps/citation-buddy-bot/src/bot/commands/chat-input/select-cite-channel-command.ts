@@ -11,7 +11,7 @@ import {
   MessageComponentTypes,
 } from 'discord-interactions';
 import { Response } from 'express';
-import globalConfig from '../../../configuration/config.service';
+import { ConfigService } from '../../../configuration/config.service';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 import { BotUtils } from '../../bot-utils';
 
@@ -34,7 +34,7 @@ class SelectCiteChannelCommand extends BaseChatInputCommand {
     const selectedChannelId = value.values[0];
     const selectedChannel = value.resolved.channels[selectedChannelId];
 
-    globalConfig.setConfig({
+    await ConfigService.getInstance().setConfig({
       citeChannelId: selectedChannelId,
       guildId: interaction.guild_id,
       excludedMessageIds: [],

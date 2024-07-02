@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
 import { VerifyDiscordRequest } from './utils';
-import globalConfig from './configuration/config.service';
 import cors from 'cors';
 import discordBackend from './discord-backend/discord-backend';
 import botApi from './bot/bot-api';
@@ -21,8 +20,6 @@ app.use(
   })
 );
 app.use(cookieParser());
-
-globalConfig.loadConfigs();
 
 discordBackend(app);
 botApi(app);

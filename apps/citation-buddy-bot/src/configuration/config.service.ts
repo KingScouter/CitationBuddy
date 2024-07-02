@@ -1,47 +1,29 @@
-import fs from 'fs';
-import { AppConfig } from '../models';
 import { ServerConfig } from '@cite/models';
+import { BaseDbService } from '../bot/base-db.service';
 
 export class ConfigService {
-  configFile: string = AppConfig.CONFIG_FILE_DEFAULT;
-  private configs: ServerConfig[] = [];
+  private static instance: ConfigService;
 
-  getConfig(guildId: string): ServerConfig {
-    return this.configs.find((elem) => elem.guildId === guildId);
-  }
+  private readonly dbName = 'serverConfigDb';
+  private readonly db: BaseDbService<ServerConfig>;
 
-  setConfig(config: ServerConfig): void {
-    const idx = this.configs.findIndex(
-      (elem) => elem.guildId === config.guildId
-    );
-    if (idx < 0) {
-      this.configs.push(config);
-    } else {
-      this.configs.splice(idx, 1, config);
+  static getInstance(): ConfigService {
+    if (!this.instance) {
+      this.instance = new ConfigService();
     }
 
-    this.saveConfigs();
+    return this.instance;
   }
 
-  loadConfigs(): void {
-    if (!fs.existsSync(this.configFile)) {
-      console.log('No config exists yet, skip loading');
-      return;
-    }
-
-    const data = fs.readFileSync(this.configFile, {
-      encoding: AppConfig.CONFIG_FILE_ENCODING,
-    });
-    this.configs = JSON.parse(data);
+  protected constructor() {
+    this.db = new BaseDbService<ServerConfig>(this.dbName);
   }
 
-  saveConfigs(): void {
-    fs.writeFileSync(this.configFile, JSON.stringify(this.configs), {
-      encoding: AppConfig.CONFIG_FILE_ENCODING,
-    });
+  async getConfig(guildId: string): Promise<ServerConfig> {
+    return this.db.get(guildId);
+  }
+
+  async setConfig(config: ServerConfig): Promise<void> {
+    await this.db.set(config.guildId, config);
   }
 }
-
-const globalConfig = new ConfigService();
-
-export default globalConfig;

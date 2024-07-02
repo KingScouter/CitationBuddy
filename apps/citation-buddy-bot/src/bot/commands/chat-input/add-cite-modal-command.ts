@@ -39,7 +39,7 @@ class AddCiteModalCommand extends BaseChatInputCommand {
     )
       return false;
 
-    const config = ApiCommand.getConfig(interaction.guild_id, res);
+    const config = await ApiCommand.getConfig(interaction.guild_id, res);
     if (!config) {
       return false;
     }

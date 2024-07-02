@@ -7,7 +7,7 @@ import {
 import { Response } from 'express';
 import { ServerConfig } from '@cite/models';
 import { BaseMessageCommand } from './base-message-commands';
-import configService from '../../../configuration/config.service';
+import { ConfigService } from '../../../configuration/config.service';
 
 class IgnoreCitationCommand extends BaseMessageCommand {
   constructor() {
@@ -35,7 +35,7 @@ class IgnoreCitationCommand extends BaseMessageCommand {
     }
 
     config.excludedMessageIds.push(clickedMessageId);
-    configService.saveConfigs();
+    await ConfigService.getInstance().setConfig(config);
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,

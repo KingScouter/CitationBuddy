@@ -6,7 +6,7 @@ import {
   InteractionResponseType,
 } from 'discord.js';
 import { Response } from 'express';
-import configService from '../../../configuration/config.service';
+import { ConfigService } from '../../../configuration/config.service';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { BotUtils } from '../../bot-utils';
 import { ServerConfig } from '@cite/models';
@@ -41,8 +41,11 @@ export abstract class ApiCommand<
     return name === this.name;
   }
 
-  static getConfig(guildId: string, res: Response): ServerConfig {
-    const config = configService.getConfig(guildId);
+  static async getConfig(
+    guildId: string,
+    res: Response
+  ): Promise<ServerConfig> {
+    const config = await ConfigService.getInstance().getConfig(guildId);
     if (!config) {
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
@@ -68,14 +71,14 @@ export abstract class ApiCommand<
     return this.handleInteractionInternal(interaction, res);
   }
 
-  execute(interaction: APIInteraction, res: Response): Promise<void> {
+  async execute(interaction: APIInteraction, res: Response): Promise<void> {
     if (!this.isCommandType(interaction)) {
       return;
     }
 
     let config: ServerConfig = null;
     if (this.needsConfig) {
-      config = ApiCommand.getConfig(interaction.guild_id, res);
+      config = await ApiCommand.getConfig(interaction.guild_id, res);
       if (!config) {
         return;
       }
