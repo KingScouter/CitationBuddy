@@ -4,3 +4,16 @@
     cursor: pointer;
   }
 }
+
+.list-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.list-title {
+  font-size: 13pt;
+  font-weight: 500;
+}

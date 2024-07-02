@@ -1,12 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
-import {
-  APIChannel,
-  APIMessage,
-  APIUser,
-  RouteBases,
-  APIGuild,
-} from 'discord-api-types/v10';
+import { DiscordGuild } from '@cite/models';
+import { APIMessage, APIUser, RouteBases } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -33,22 +28,9 @@ export class DiscordBackendService {
     return response;
   }
 
-  async getChannels(guildId: string): Promise<APIChannel[]> {
+  async getGuilds(): Promise<DiscordGuild[]> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIChannel[]>(this.apiUrl + '/channels', {
-        params: new HttpParams({
-          fromObject: {
-            guildId,
-          },
-        }),
-      })
-    );
-    return response;
-  }
-
-  async getGuilds(): Promise<APIGuild[]> {
-    const response = await firstValueFrom(
-      this.httpClient.get<APIGuild[]>(this.apiUrl + '/channels')
+      this.httpClient.get<DiscordGuild[]>(this.apiUrl + '/guilds')
     );
     return response;
   }

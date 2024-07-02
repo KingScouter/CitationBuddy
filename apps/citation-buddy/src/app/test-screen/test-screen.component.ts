@@ -40,18 +40,4 @@ export class TestScreenComponent {
     console.log('Mapped messages: ', mappedMessages);
     this.messageList.set(mappedMessages);
   }
-
-  protected async getChannels(): Promise<void> {
-    const guildId = this.channelIdInput?.nativeElement.value ?? '';
-    if (!guildId) {
-      console.error('No guildId provided');
-    }
-
-    const channels = await this.discordBackendService.getChannels(guildId);
-    const mappedChannels = channels.map((elem) =>
-      elem.name !== null ? elem.name : ''
-    );
-    console.log('Mapped channels: ', mappedChannels);
-    this.channelList.set(mappedChannels);
-  }
 }

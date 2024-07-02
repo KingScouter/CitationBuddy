@@ -6,12 +6,3 @@
 @for(message of messageList(); track message) {
 <p>{{ message }}</p>
 }
-
-<div>
-  <input type="text" #guildIdInput />
-  <button (click)="getChannels()">Get channels</button>
-</div>
-
-@for(channel of channelList(); track channel) {
-<p>{{ channel }}</p>
-}

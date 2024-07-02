@@ -1,12 +1,27 @@
 <mat-list>
-  @for(guild of guilds(); track guild.id) {
-  <mat-list-item class="list-item">
+  @for(guild of guilds(); track guild.guild.id) {
+  <mat-list-item class="list-item" (click)="onGuildClick(guild)">
     <img
       matListItemAvatar
       src="{{ guild | guildIcon }}"
-      [attr.alt]="guild.icon"
+      [attr.alt]="guild.guild.icon"
     />
-    <h3 matListItemTitle>{{ guild.name }}</h3>
+    <div class="list-content">
+      <span class="list-title">{{ guild.guild.name }}</span>
+      @if (guild.hasBot) {
+      <mat-icon
+        aria-hidden="false"
+        aria-label="Bot is on the server"
+        fontIcon="check"
+      />
+      } @else {
+      <mat-icon
+        aria-hidden="false"
+        aria-label="Bot is not on the server"
+        fontIcon="close"
+      />
+      }
+    </div>
   </mat-list-item>
   }
 </mat-list>

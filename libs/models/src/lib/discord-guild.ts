@@ -1,5 +1,6 @@
+import { APIGuild } from 'discord-api-types/v10';
+
 export interface DiscordGuild {
-  id: string;
-  icon: string;
-  name: string;
+  guild: APIGuild;
+  hasBot: boolean;
 }

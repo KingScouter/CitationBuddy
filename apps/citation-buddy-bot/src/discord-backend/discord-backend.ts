@@ -5,6 +5,8 @@ import { getUserGuilds, getUserMe } from '../utils';
 import jwt from 'jsonwebtoken';
 import { DiscordUser } from '../user-db/models/discord-user';
 import { UserDbService } from '../user-db/user-db.service';
+import { BotUtils } from '../bot/bot-utils';
+import { DiscordGuild } from '@cite/models';
 
 const userDb = UserDbService.getInstance();
 const COOKIE_NAME = process.env.OAUTH2_COOKIE_NAME;
@@ -75,7 +77,7 @@ export default function (app: Express): void {
     }
   });
 
-  app.get('/channels', async (req, res) => {
+  app.get('/guilds', async (req, res) => {
     try {
       const jwtPayload = await checkAuth(req);
       const guilds = await getUserGuilds(jwtPayload.accessToken);
@@ -83,7 +85,17 @@ export default function (app: Express): void {
         res.status(HttpStatusCode.NotFound).send([]);
       }
 
-      res.json(guilds);
+      const botGuilds = await BotUtils.getGuilds();
+
+      const mappedGuilds: DiscordGuild[] = guilds.map(
+        (elem) =>
+          ({
+            guild: elem,
+            hasBot: botGuilds.some((botGuild) => botGuild.id === elem.id),
+          } as DiscordGuild)
+      );
+
+      res.json(mappedGuilds);
     } catch (err) {
       console.error(err);
       res.status(HttpStatusCode.Unauthorized).json('Not Authenticated');
