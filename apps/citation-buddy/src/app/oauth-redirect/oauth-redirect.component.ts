@@ -7,6 +7,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../authentication/authentication.service';
+import { AppRoutes } from '../models';
 
 @Component({
   selector: 'app-oauth-redirect',
@@ -23,7 +24,7 @@ export class OauthRedirectComponent implements OnInit {
   ngOnInit(): void {
     this.authenticationService.checkAuthentication();
     setTimeout(() => {
-      this.router.navigate(['channels']);
+      this.router.navigate([AppRoutes.Guilds]);
     }, 3000);
   }
 }

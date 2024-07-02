@@ -1,8 +1,9 @@
 import { Route } from '@angular/router';
+import { AppRoutes } from './models';
 
 export const appRoutes: Route[] = [
   {
-    path: 'oauth',
+    path: AppRoutes.Oauth,
     loadComponent: () =>
       import('./oauth-redirect/oauth-redirect.component').then(
         (comp) => comp.OauthRedirectComponent
@@ -16,18 +17,16 @@ export const appRoutes: Route[] = [
       ),
   },
   {
-    path: 'oauth-error',
+    path: AppRoutes.OauthError,
     loadComponent: () =>
       import('./oauth-error/oauth-error.component').then(
         (comp) => comp.OauthErrorComponent
       ),
   },
   {
-    path: 'channels',
-    loadComponent: () =>
-      import('./channel-list/channel-list.component').then(
-        (comp) => comp.ChannelListComponent
-      ),
+    path: AppRoutes.Guilds,
+    loadChildren: () =>
+      import('./guild-list/guild.routes').then((routes) => routes.guildRoutes),
   },
   {
     path: '**',

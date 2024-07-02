@@ -1,5 +1,5 @@
 import { Meta, StoryObj, moduleMetadata } from '@storybook/angular';
-import { ChannelListComponent, DiscordGuild } from './channel-list.component';
+import { GuildListComponent, DiscordGuild } from './guild-list.component';
 import { DiscordBackendService } from '../discord-backend/discord-backend.service';
 import { signal, InputSignal } from '@angular/core';
 
@@ -23,11 +23,11 @@ const fakeGuilds: DiscordGuild[] = [
 //   },
 // };
 
-const meta: Meta<ChannelListComponent> = {
-  component: ChannelListComponent,
+const meta: Meta<GuildListComponent> = {
+  component: GuildListComponent,
   decorators: [
     moduleMetadata({
-      imports: [ChannelListComponent],
+      imports: [GuildListComponent],
       providers: [
         // { provide: DiscordBackendService, useValue: discordBackendServiceMock },
       ],
@@ -36,7 +36,7 @@ const meta: Meta<ChannelListComponent> = {
 };
 export default meta;
 
-type Story = StoryObj<ChannelListComponent>;
+type Story = StoryObj<GuildListComponent>;
 
 export const Base: Story = {
   args: {

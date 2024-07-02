@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ChannelListComponent } from './channel-list.component';
+import { GuildListComponent } from './guild-list.component';
 
-describe('ChannelListComponent', () => {
-  let component: ChannelListComponent;
-  let fixture: ComponentFixture<ChannelListComponent>;
+describe('GuildListComponent', () => {
+  let component: GuildListComponent;
+  let fixture: ComponentFixture<GuildListComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChannelListComponent],
+      imports: [GuildListComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ChannelListComponent);
+    fixture = TestBed.createComponent(GuildListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
 import { DiscordGuild } from '@cite/models';
-import { APIMessage, APIUser, RouteBases } from 'discord-api-types/v10';
+import { APIMessage, APIUser } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -40,9 +40,5 @@ export class DiscordBackendService {
       this.httpClient.get<APIUser>(this.apiUrl + '/me')
     );
     return response;
-  }
-
-  private getDiscordRoute(route: string): string {
-    return `${RouteBases.api}${route}`;
   }
 }
