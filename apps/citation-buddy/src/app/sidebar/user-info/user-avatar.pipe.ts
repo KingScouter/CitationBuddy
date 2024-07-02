@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DiscordAuth } from '../../models/discord-auth';
+import { CDNRoutes, ImageFormat, RouteBases } from 'discord-api-types/v10';
 
 @Pipe({
   name: 'userAvatar',
@@ -7,6 +8,10 @@ import { DiscordAuth } from '../../models/discord-auth';
 })
 export class UserAvatarPipe implements PipeTransform {
   transform(user: DiscordAuth): string {
-    return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+    return `${RouteBases.cdn}${CDNRoutes.userAvatar(
+      user.id,
+      user.avatar,
+      ImageFormat.PNG
+    )}`;
   }
 }
