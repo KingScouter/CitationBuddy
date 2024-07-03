@@ -12,6 +12,7 @@ import { APIGuild } from 'discord-api-types/v10';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GuildIconPipe } from '../guild-icon.pipe';
+import { ServerConfigResponse } from '@cite/models';
 
 @Component({
   selector: 'app-guild-detail',
@@ -23,6 +24,7 @@ import { GuildIconPipe } from '../guild-icon.pipe';
 })
 export class GuildDetailComponent implements OnInit {
   protected guild = signal<APIGuild | null>(null);
+  protected serverConfigInfo = signal<ServerConfigResponse | null>(null);
 
   private readonly discordBackendService = inject(DiscordBackendService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -38,6 +40,10 @@ export class GuildDetailComponent implements OnInit {
         }
         const guild = await this.discordBackendService.getGuild(guildId);
         this.guild.set(guild);
+
+        const serverConfig =
+          await this.discordBackendService.getServerConfigInfo(guildId);
+        this.serverConfigInfo.set(serverConfig);
       });
   }
 }

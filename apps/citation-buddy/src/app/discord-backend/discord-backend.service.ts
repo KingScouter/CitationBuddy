@@ -1,8 +1,13 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpParams,
+  HttpStatusCode,
+} from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
-import { DiscordGuild } from '@cite/models';
+import { DiscordGuild, ServerConfigResponse } from '@cite/models';
 import { APIGuild, APIMessage, APIUser } from 'discord-api-types/v10';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -54,5 +59,36 @@ export class DiscordBackendService {
       this.httpClient.get<APIUser>(this.apiUrl + '/me')
     );
     return response;
+  }
+
+  async getServerConfigInfo(guildId: string): Promise<ServerConfigResponse> {
+    try {
+      const response = await firstValueFrom(
+        this.httpClient
+          .get<ServerConfigResponse>(this.apiUrl + '/server-config', {
+            params: new HttpParams({
+              fromObject: {
+                guildId,
+              },
+            }),
+          })
+          .pipe(
+            catchError((err: HttpErrorResponse) => {
+              if (err.status === HttpStatusCode.NotFound) {
+                return of({
+                  numberIgnoredMessages: 0,
+                  citeChannelName: '',
+                } satisfies ServerConfigResponse);
+              }
+              throw new Error('Something went wrong');
+            })
+          )
+      );
+
+      return response;
+    } catch (ex) {
+      console.error('Error occured: ', ex);
+      throw ex;
+    }
   }
 }

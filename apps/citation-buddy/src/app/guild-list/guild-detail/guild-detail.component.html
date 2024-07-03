@@ -4,7 +4,16 @@
   <h3>{{ val.name }}</h3>
 </div>
 <div class="content-container">
-  <p>Config...</p>
+  @if (serverConfigInfo(); as config) {
+  <h3>Config</h3>
+  <p>Citation channel: {{ config.citeChannelName }}</p>
+  <p>
+    Number of ignored messages:
+    {{ config.numberIgnoredMessages }}
+  </p>
+  } @else {
+  <h3>No configuration found!</h3>
+  }
 </div>
 } @else {
 <p>Loading ...</p>
