@@ -1,1 +1,11 @@
-<p>guild-detail works!</p>
+@if (guild(); as val) {
+<div class="guild-info-container">
+  <img src="{{ val | guildIcon }}" [attr.alt]="val.icon" />
+  <h3>{{ val.name }}</h3>
+</div>
+<div class="content-container">
+  <p>Config...</p>
+</div>
+} @else {
+<p>Loading ...</p>
+}

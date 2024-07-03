@@ -3,7 +3,7 @@
   <mat-list-item class="list-item" (click)="onGuildClick(guild)">
     <img
       matListItemAvatar
-      src="{{ guild | guildIcon }}"
+      src="{{ guild.guild | guildIcon }}"
       [attr.alt]="guild.guild.icon"
     />
     <div class="list-content">

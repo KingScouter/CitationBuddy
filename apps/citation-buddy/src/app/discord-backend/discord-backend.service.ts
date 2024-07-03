@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
 import { DiscordGuild } from '@cite/models';
-import { APIMessage, APIUser } from 'discord-api-types/v10';
+import { APIGuild, APIMessage, APIUser } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -32,6 +32,20 @@ export class DiscordBackendService {
     const response = await firstValueFrom(
       this.httpClient.get<DiscordGuild[]>(this.apiUrl + '/guilds')
     );
+    return response;
+  }
+
+  async getGuild(guildId: string): Promise<APIGuild> {
+    const response = await firstValueFrom(
+      this.httpClient.get<APIGuild>(this.apiUrl + '/guild', {
+        params: new HttpParams({
+          fromObject: {
+            guildId,
+          },
+        }),
+      })
+    );
+
     return response;
   }
 

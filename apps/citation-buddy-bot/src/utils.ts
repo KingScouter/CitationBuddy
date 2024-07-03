@@ -65,6 +65,24 @@ export async function getUserGuilds(accessToken: string): Promise<APIGuild[]> {
   }
 }
 
+export async function getGuild(
+  guildId: string,
+  accessToken: string
+): Promise<APIGuild> {
+  try {
+    const guilds = await getUserGuilds(accessToken);
+    const guild = guilds.find((elem) => elem.id === guildId);
+    if (guild) {
+      return guild;
+    }
+
+    return null;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
 function getRESTClient(accessToken: string): REST {
   return new REST({ version: '10', authPrefix: 'Bearer' }).setToken(
     accessToken

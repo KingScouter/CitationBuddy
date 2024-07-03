@@ -23,12 +23,16 @@ import { UserAvatarPipe } from './user-avatar.pipe';
 export class UserInfoComponent {
   private readonly authenticationService = inject(AuthenticationService);
 
-  private readonly oauth2Scopes = `${OAuth2Scopes.Identify}+${OAuth2Scopes.Guilds}`;
+  private readonly oauth2Scopes: OAuth2Scopes[] = [
+    OAuth2Scopes.Identify,
+    OAuth2Scopes.Guilds,
+  ];
+
   private readonly oauth2Url = `${OAuth2Routes.authorizationURL}?client_id=${
     AppConfig.CLIENT_ID
   }&response_type=code&redirect_uri=${encodeURI(
     AppConfig.BASE_REDIRECT_URI
-  )}&scope=${this.oauth2Scopes}`;
+  )}&scope=${this.oauth2Scopes.join('+')}`;
 
   protected get currentUser(): Signal<DiscordAuth | null> {
     return computed(() => this.authenticationService.userAuth());

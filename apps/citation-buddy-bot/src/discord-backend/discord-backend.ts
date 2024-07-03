@@ -1,7 +1,7 @@
 import { Express, Response, CookieOptions, Request } from 'express';
 import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
-import { getUserGuilds, getUserMe } from '../utils';
+import { getGuild, getUserGuilds, getUserMe } from '../utils';
 import jwt from 'jsonwebtoken';
 import { DiscordUser } from '../user-db/models/discord-user';
 import { UserDbService } from '../user-db/user-db.service';
@@ -96,6 +96,29 @@ export default function (app: Express): void {
       );
 
       res.json(mappedGuilds);
+    } catch (err) {
+      console.error(err);
+      res.status(HttpStatusCode.Unauthorized).json('Not Authenticated');
+    }
+  });
+
+  app.get('/guild', async (req, res) => {
+    try {
+      const jwtPayload = await checkAuth(req);
+
+      const guildId = req.query.guildId as string;
+      console.log('Params: ', req.query, guildId);
+      if (!guildId) {
+        res.status(HttpStatusCode.BadRequest).send(null);
+        return;
+      }
+      const guild = await getGuild(guildId, jwtPayload.accessToken);
+      if (!guild) {
+        res.status(HttpStatusCode.NotFound).send(null);
+        return;
+      }
+
+      res.json(guild);
     } catch (err) {
       console.error(err);
       res.status(HttpStatusCode.Unauthorized).json('Not Authenticated');
