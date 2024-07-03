@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { RegisterCommand } from '../utils';
+import { RegisterCommand } from './utils';
 import {
   APIApplicationCommandInteraction,
   APIInteraction,

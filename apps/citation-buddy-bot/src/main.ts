@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import { VerifyDiscordRequest } from './utils';
+import { VerifyDiscordRequest } from './bot/utils';
 import cors from 'cors';
 import discordBackend from './discord-backend/discord-backend';
 import botApi from './bot/bot-api';

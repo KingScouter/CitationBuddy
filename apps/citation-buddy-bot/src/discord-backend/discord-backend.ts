@@ -1,15 +1,18 @@
 import { Express, Response, CookieOptions, Request } from 'express';
 import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
-import { getGuild, getUserGuilds, getUserMe } from '../utils';
 import jwt from 'jsonwebtoken';
 import { DiscordUser } from '../user-db/models/discord-user';
 import { UserDbService } from '../user-db/user-db.service';
 import { BotUtils } from '../bot/bot-utils';
-import { DiscordGuild } from '@cite/models';
+import { DiscordGuild, ServerConfigResponse } from '@cite/models';
+import { OauthBackendUtils } from './oauth-backend-utils';
+import { ConfigService } from '../configuration/config.service';
 
 const userDb = UserDbService.getInstance();
 const COOKIE_NAME = process.env.OAUTH2_COOKIE_NAME;
+
+const authenticatedErrorName = 'Not Authenticated';
 
 type UserJWTPayload = Pick<DiscordUser, 'id'> & { accessToken: string };
 
@@ -39,7 +42,7 @@ export default function (app: Express): void {
       const tokenResData = tokenRes.data as RESTPostOAuth2AccessTokenResult;
       console.log('TokenRes: ', tokenResData);
 
-      const user = await getUserMe(tokenResData.access_token);
+      const user = await OauthBackendUtils.getUserMe(tokenResData.access_token);
       const userFromDb: DiscordUser = {
         id: user.id,
         name: user.global_name,
@@ -65,22 +68,26 @@ export default function (app: Express): void {
     try {
       const jwtPayload = await checkAuth(req);
 
-      const discordUser = await getUserMe(jwtPayload.accessToken);
+      const discordUser = await OauthBackendUtils.getUserMe(
+        jwtPayload.accessToken
+      );
       if (discordUser?.id !== jwtPayload.id) {
-        throw new Error('Not Authenticated');
+        throw new Error(authenticatedErrorName);
       }
 
       res.json(discordUser);
     } catch (err) {
-      console.error(err);
-      res.status(401).json('Not Authenticated');
+      if (err.name !== authenticatedErrorName) console.error(err);
+      res.status(401).json(authenticatedErrorName);
     }
   });
 
   app.get('/guilds', async (req, res) => {
     try {
       const jwtPayload = await checkAuth(req);
-      const guilds = await getUserGuilds(jwtPayload.accessToken);
+      const guilds = await OauthBackendUtils.getUserGuilds(
+        jwtPayload.accessToken
+      );
       if (!guilds || guilds.length <= 0) {
         res.status(HttpStatusCode.NotFound).send([]);
       }
@@ -97,8 +104,8 @@ export default function (app: Express): void {
 
       res.json(mappedGuilds);
     } catch (err) {
-      console.error(err);
-      res.status(HttpStatusCode.Unauthorized).json('Not Authenticated');
+      if (err.name !== authenticatedErrorName) console.error(err);
+      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
     }
   });
 
@@ -107,12 +114,14 @@ export default function (app: Express): void {
       const jwtPayload = await checkAuth(req);
 
       const guildId = req.query.guildId as string;
-      console.log('Params: ', req.query, guildId);
       if (!guildId) {
         res.status(HttpStatusCode.BadRequest).send(null);
         return;
       }
-      const guild = await getGuild(guildId, jwtPayload.accessToken);
+      const guild = await OauthBackendUtils.getGuild(
+        guildId,
+        jwtPayload.accessToken
+      );
       if (!guild) {
         res.status(HttpStatusCode.NotFound).send(null);
         return;
@@ -120,8 +129,47 @@ export default function (app: Express): void {
 
       res.json(guild);
     } catch (err) {
-      console.error(err);
-      res.status(HttpStatusCode.Unauthorized).json('Not Authenticated');
+      if (err.name !== authenticatedErrorName) console.error(err);
+      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
+    }
+  });
+
+  app.get('/server-config', async (req, res) => {
+    try {
+      const jwtPayload = await checkAuth(req);
+
+      // ToDo: Check user-permissions for server
+
+      const guildId = req.query.guildId as string;
+      if (!guildId) {
+        res.status(HttpStatusCode.BadRequest).send(null);
+        return;
+      }
+
+      const serverConfig = await ConfigService.getInstance().getConfig(guildId);
+      if (!serverConfig || !serverConfig.citeChannelId) {
+        res.status(HttpStatusCode.NotFound).send(null);
+        return;
+      }
+
+      // Get name for configured cite-channel
+      const citeChannel = await BotUtils.getChannel(serverConfig.citeChannelId);
+      if (!citeChannel) {
+        serverConfig.citeChannelId = null;
+        await ConfigService.getInstance().setConfig(serverConfig);
+        res.status(HttpStatusCode.NotFound).send(null);
+        return;
+      }
+
+      const configResponse: ServerConfigResponse = {
+        numberIgnoredMessages: serverConfig.excludedMessageIds.length,
+        citeChannelName: citeChannel.name,
+      };
+
+      res.json(configResponse);
+    } catch (err) {
+      if (err.name !== authenticatedErrorName) console.error(err);
+      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
     }
   });
 }
@@ -153,12 +201,12 @@ function addCookieToRes(res: Response, user: DiscordUser, accessToken: string) {
 async function checkAuth(req: Request): Promise<UserJWTPayload> {
   const token = req.cookies[COOKIE_NAME];
   if (!token) {
-    throw new Error('Not Authenticated');
+    throw new Error(authenticatedErrorName);
   }
   const payload = jwt.verify(token, process.env.JWT_SECRET) as UserJWTPayload;
   const userFromDb = await userDb.getUser(payload?.id);
   if (!payload.accessToken || !userFromDb) {
-    throw new Error('Not Authenticated');
+    throw new Error(authenticatedErrorName);
   }
   // ToDo: Check expiration date for token
 

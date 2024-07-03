@@ -5,7 +5,7 @@ import {
   RESTPostAPIChannelMessageJSONBody,
   Routes,
 } from 'discord.js';
-import { restClient } from '../utils';
+import { restClient } from './utils';
 
 export class BotUtils {
   static async getChannel(channelId: string): Promise<APIChannel> {
