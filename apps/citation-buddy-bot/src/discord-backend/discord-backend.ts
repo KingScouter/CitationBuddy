@@ -153,7 +153,15 @@ export default function (app: Express): void {
       }
 
       // Get name for configured cite-channel
-      const citeChannel = await BotUtils.getChannel(serverConfig.citeChannelId);
+      const guildChannels = await BotUtils.getChannels(serverConfig.guildId);
+      if (!guildChannels || guildChannels.length <= 0) {
+        res.status(HttpStatusCode.InternalServerError).send(null);
+        return;
+      }
+
+      const citeChannel = guildChannels.find(
+        (elem) => elem.id === serverConfig.citeChannelId
+      );
       if (!citeChannel) {
         serverConfig.citeChannelId = null;
         await ConfigService.getInstance().setConfig(serverConfig);
@@ -164,6 +172,7 @@ export default function (app: Express): void {
       const configResponse: ServerConfigResponse = {
         numberIgnoredMessages: serverConfig.excludedMessageIds.length,
         citeChannelName: citeChannel.name,
+        availableChannels: guildChannels as any,
       };
 
       res.json(configResponse);

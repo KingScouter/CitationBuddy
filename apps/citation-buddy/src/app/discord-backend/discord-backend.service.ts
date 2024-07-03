@@ -78,6 +78,7 @@ export class DiscordBackendService {
                 return of({
                   numberIgnoredMessages: 0,
                   citeChannelName: '',
+                  availableChannels: [],
                 } satisfies ServerConfigResponse);
               }
               throw new Error('Something went wrong');
