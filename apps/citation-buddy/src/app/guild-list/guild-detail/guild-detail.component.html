@@ -1,15 +1,15 @@
 @if (guild(); as val) {
 <div class="guild-info-container">
   <img src="{{ val | guildIcon }}" [attr.alt]="val.icon" />
-  <h3>{{ val.name }}</h3>
+  <h2>{{ val.name }}</h2>
 </div>
 <div class="content-container">
   @if (serverConfigInfo(); as config) {
-  <h3>Config</h3>
-  <p>
-    Number of ignored messages:
+  <h3>Configuration</h3>
+  <div>
+    <span>Number of ignored messages:</span>
     {{ config.excludedMessageIds.length }}
-  </p>
+  </div>
   <form
     class="config-container"
     [formGroup]="formGroup"
@@ -25,7 +25,6 @@
     </mat-form-field>
     <button type="submit" mat-flat-button>Save configuration</button>
   </form>
-  <span>{{ formGroup.value | json }}</span>
   } @else {
   <h3>No configuration found!</h3>
   }

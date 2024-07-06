@@ -1,7 +1,7 @@
 .guild-info-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
 
   img {
     border-radius: 50%;
