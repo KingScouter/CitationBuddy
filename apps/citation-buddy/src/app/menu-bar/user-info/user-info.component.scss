@@ -1,0 +1,41 @@
+.user-container {
+  display: flex;
+  align-items: center;
+  margin: 10px;
+  gap: 10px;
+  width: fit-content;
+  background-color: #32424e;
+  box-shadow: 0px 3px 6px;
+  height: 55px;
+  border-radius: 1rem;
+  padding: 0 10px;
+}
+
+.user-avatar {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.avatar-container {
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+  flex-grow: 0;
+  border-right: 1px solid grey;
+  height: 100%;
+}
+
+.user-name {
+  flex-grow: 1;
+  font-size: 15pt;
+  color: white;
+}
+
+.loginout-icon {
+  color: white;
+  &:hover {
+    cursor: pointer;
+    color: darkgrey;
+  }
+}
