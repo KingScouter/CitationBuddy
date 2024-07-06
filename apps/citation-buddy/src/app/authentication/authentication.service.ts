@@ -40,6 +40,11 @@ export class AuthenticationService {
     }
   }
 
+  async logout(): Promise<void> {
+    this._userAuth.set(null);
+    await this.discordBackenService.logout();
+  }
+
   // private checkAuthExpiration(auth: DiscordAuth): boolean {
   //   console.log(
   //     'ExpirationDate: ',

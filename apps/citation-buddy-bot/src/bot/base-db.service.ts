@@ -34,4 +34,8 @@ export class BaseDbService<T> {
       return null;
     }
   }
+
+  async unset(key: string): Promise<void> {
+    await this.db.delete(`${this.basePath}${key}`);
+  }
 }

@@ -1,5 +1,9 @@
 <div class="container">
-  <app-user-info [user]="currentUser()"></app-user-info>
+  <app-user-info
+    [user]="currentUser()"
+    (loginClick)="onLogin()"
+    (logoutClick)="onLogout()"
+  ></app-user-info>
   <mat-icon
     class="home-icon"
     aria-hidden="false"

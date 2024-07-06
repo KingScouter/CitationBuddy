@@ -1,13 +1,8 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpParams,
-  HttpStatusCode,
-} from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
 import { DiscordGuild, ServerConfig, ServerConfigResponse } from '@cite/models';
 import { APIGuild, APIMessage, APIUser } from 'discord-api-types/v10';
-import { catchError, firstValueFrom, of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -87,5 +82,9 @@ export class DiscordBackendService {
     await firstValueFrom(
       this.httpClient.post(this.apiUrl + '/server-config', config)
     );
+  }
+
+  async logout(): Promise<void> {
+    await firstValueFrom(this.httpClient.post(this.apiUrl + '/logout', {}));
   }
 }

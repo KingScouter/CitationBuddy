@@ -194,6 +194,39 @@ export default function (app: Express): void {
       res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
     }
   });
+
+  app.post(DiscordBackendEndpoints.Logout, async (req, res) => {
+    const jwtPayload = await checkAuth(req);
+
+    UserDbService.getInstance().removeUser(jwtPayload.id);
+
+    res.clearCookie(COOKIE_NAME);
+
+    try {
+      // Exchange for token
+      const headers = new AxiosHeaders();
+      const data = {
+        token: jwtPayload.accessToken,
+        token_type_hint: 'access_token',
+      };
+      headers.setContentType('application/x-www-form-urlencoded');
+
+      const discordUrl = OAuth2Routes.tokenRevocationURL;
+      await axios.post(discordUrl, data, {
+        headers,
+        auth: {
+          username: process.env.CLIENT_ID,
+          password: process.env.CLIENT_SECRET,
+        },
+      });
+    } catch (ex) {
+      console.error(ex);
+      res.status(HttpStatusCode.BadRequest).send();
+      return;
+    }
+
+    res.status(HttpStatusCode.Accepted).send();
+  });
 }
 
 function addCookieToRes(res: Response, user: DiscordUser, accessToken: string) {

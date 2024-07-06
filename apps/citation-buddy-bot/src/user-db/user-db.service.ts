@@ -32,4 +32,8 @@ export class UserDbService {
   async getUsers(): Promise<DiscordUsers | null> {
     return this.db.getAll();
   }
+
+  async removeUser(id: string): Promise<void> {
+    await this.db.unset(id);
+  }
 }
