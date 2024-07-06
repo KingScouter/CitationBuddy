@@ -1,8 +1,0 @@
-<div>
-  <input type="text" #channelIdInput />
-  <button (click)="readMessages()">Refresh messages</button>
-</div>
-
-@for(message of messageList(); track message) {
-<p>{{ message }}</p>
-}

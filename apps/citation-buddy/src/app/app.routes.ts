@@ -10,13 +10,6 @@ export const appRoutes: Route[] = [
       ),
   },
   {
-    path: 'test',
-    loadComponent: () =>
-      import('./test-screen/test-screen.component').then(
-        (comp) => comp.TestScreenComponent
-      ),
-  },
-  {
     path: AppRoutes.OauthError,
     loadComponent: () =>
       import('./oauth-error/oauth-error.component').then(
@@ -30,9 +23,6 @@ export const appRoutes: Route[] = [
   },
   {
     path: '**',
-    loadComponent: () =>
-      import('./main-screen/main-screen.component').then(
-        (comp) => comp.MainScreenComponent
-      ),
+    redirectTo: AppRoutes.Guilds,
   },
 ];

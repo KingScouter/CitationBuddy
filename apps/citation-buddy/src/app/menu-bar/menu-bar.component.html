@@ -1,3 +1,10 @@
-<div class="user-info">
+<div class="container">
   <app-user-info [user]="currentUser()"></app-user-info>
+  <mat-icon
+    class="home-icon"
+    aria-hidden="false"
+    aria-label="Home"
+    fontIcon="home"
+    (click)="onHomeButtonClick()"
+  ></mat-icon>
 </div>

@@ -1,6 +1,20 @@
-.user-info {
+.container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
-  align-items: end;
+  justify-content: end;
+  align-items: center;
+  padding-right: 2rem;
+}
+
+.home-icon {
+  height: 100%;
+  font-size: 30pt;
+  padding-right: 2rem;
+
+  color: white;
+  &:hover {
+    cursor: pointer;
+    color: darkgrey;
+  }
 }
