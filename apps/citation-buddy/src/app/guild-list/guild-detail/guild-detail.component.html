@@ -6,15 +6,27 @@
 <div class="content-container">
   @if (serverConfigInfo(); as config) {
   <h3>Config</h3>
-  <p>Citation channel: {{ config.citeChannelName }}</p>
   <p>
     Number of ignored messages:
-    {{ config.numberIgnoredMessages }}
+    {{ config.excludedMessageIds.length }}
   </p>
-  <p>Available channels:</p>
-  @for(elem of config.availableChannels;track elem) {
-  <p>{{ elem.name }}</p>
-  } } @else {
+  <form
+    class="config-container"
+    [formGroup]="formGroup"
+    (ngSubmit)="onSaveConfig()"
+  >
+    <mat-form-field>
+      <mat-label>Citation channel</mat-label>
+      <mat-select [formControlName]="'citeChannel'">
+        @for (elem of availableChannels(); track elem) {
+        <mat-option [value]="elem.key">{{ elem.value }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button type="submit" mat-flat-button>Save configuration</button>
+  </form>
+  <span>{{ formGroup.value | json }}</span>
+  } @else {
   <h3>No configuration found!</h3>
   }
 </div>

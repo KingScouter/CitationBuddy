@@ -5,7 +5,7 @@ import {
   HttpStatusCode,
 } from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
-import { DiscordGuild, ServerConfigResponse } from '@cite/models';
+import { DiscordGuild, ServerConfig, ServerConfigResponse } from '@cite/models';
 import { APIGuild, APIMessage, APIUser } from 'discord-api-types/v10';
 import { catchError, firstValueFrom, of } from 'rxjs';
 
@@ -64,26 +64,16 @@ export class DiscordBackendService {
   async getServerConfigInfo(guildId: string): Promise<ServerConfigResponse> {
     try {
       const response = await firstValueFrom(
-        this.httpClient
-          .get<ServerConfigResponse>(this.apiUrl + '/server-config', {
+        this.httpClient.get<ServerConfigResponse>(
+          this.apiUrl + '/server-config',
+          {
             params: new HttpParams({
               fromObject: {
                 guildId,
               },
             }),
-          })
-          .pipe(
-            catchError((err: HttpErrorResponse) => {
-              if (err.status === HttpStatusCode.NotFound) {
-                return of({
-                  numberIgnoredMessages: 0,
-                  citeChannelName: '',
-                  availableChannels: [],
-                } satisfies ServerConfigResponse);
-              }
-              throw new Error('Something went wrong');
-            })
-          )
+          }
+        )
       );
 
       return response;
@@ -91,5 +81,11 @@ export class DiscordBackendService {
       console.error('Error occured: ', ex);
       throw ex;
     }
+  }
+
+  async updateServerConfig(config: ServerConfig): Promise<void> {
+    await firstValueFrom(
+      this.httpClient.post(this.apiUrl + '/server-config', config)
+    );
   }
 }
