@@ -1,13 +1,18 @@
 import { Express, Response, CookieOptions, Request } from 'express';
 import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
-import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
+import {
+  ChannelType,
+  OAuth2Routes,
+  RESTPostOAuth2AccessTokenResult,
+} from 'discord.js';
 import jwt from 'jsonwebtoken';
 import { DiscordUser } from '../user-db/models/discord-user';
 import { UserDbService } from '../user-db/user-db.service';
 import { BotUtils } from '../bot/bot-utils';
-import { DiscordGuild, ServerConfigResponse } from '@cite/models';
+import { DiscordGuild, ServerConfig, ServerConfigResponse } from '@cite/models';
 import { OauthBackendUtils } from './oauth-backend-utils';
 import { ConfigService } from '../configuration/config.service';
+import { DiscordBackendEndpoints } from './discord-backend-endpoints.enum';
 
 const userDb = UserDbService.getInstance();
 const COOKIE_NAME = process.env.OAUTH2_COOKIE_NAME;
@@ -17,7 +22,7 @@ const authenticatedErrorName = 'Not Authenticated';
 type UserJWTPayload = Pick<DiscordUser, 'id'> & { accessToken: string };
 
 export default function (app: Express): void {
-  app.get('/oauth', async function (req, res) {
+  app.get(DiscordBackendEndpoints.Oauth, async function (req, res) {
     try {
       // Parse authentication code
       const code = req.query['code'];
@@ -64,7 +69,7 @@ export default function (app: Express): void {
     res.redirect(`${process.env.CLIENT_URL}/oauth`);
   });
 
-  app.get('/me', async (req, res) => {
+  app.get(DiscordBackendEndpoints.Me, async (req, res) => {
     try {
       const jwtPayload = await checkAuth(req);
 
@@ -82,7 +87,7 @@ export default function (app: Express): void {
     }
   });
 
-  app.get('/guilds', async (req, res) => {
+  app.get(DiscordBackendEndpoints.Guilds, async (req, res) => {
     try {
       const jwtPayload = await checkAuth(req);
       const guilds = await OauthBackendUtils.getUserGuilds(
@@ -109,7 +114,7 @@ export default function (app: Express): void {
     }
   });
 
-  app.get('/guild', async (req, res) => {
+  app.get(DiscordBackendEndpoints.Guild, async (req, res) => {
     try {
       const jwtPayload = await checkAuth(req);
 
@@ -134,7 +139,21 @@ export default function (app: Express): void {
     }
   });
 
-  app.get('/server-config', async (req, res) => {
+  app.post(DiscordBackendEndpoints.ServerConfig, async (req, res) => {
+    const jwtPayload = await checkAuth(req);
+
+    const config = req.body as ServerConfig;
+    if (!config) {
+      res.status(HttpStatusCode.BadRequest).send();
+      return;
+    }
+
+    await ConfigService.getInstance().setConfig(config);
+
+    res.status(HttpStatusCode.Accepted).send();
+  });
+
+  app.get(DiscordBackendEndpoints.ServerConfig, async (req, res) => {
     try {
       const jwtPayload = await checkAuth(req);
 
@@ -146,33 +165,27 @@ export default function (app: Express): void {
         return;
       }
 
-      const serverConfig = await ConfigService.getInstance().getConfig(guildId);
-      if (!serverConfig || !serverConfig.citeChannelId) {
-        res.status(HttpStatusCode.NotFound).send(null);
-        return;
+      let serverConfig: ServerConfig =
+        await ConfigService.getInstance().getConfig(guildId);
+      if (!serverConfig) {
+        serverConfig = {
+          guildId,
+          citeChannelId: '',
+          excludedMessageIds: [],
+        };
       }
 
-      // Get name for configured cite-channel
       const guildChannels = await BotUtils.getChannels(serverConfig.guildId);
       if (!guildChannels || guildChannels.length <= 0) {
         res.status(HttpStatusCode.InternalServerError).send(null);
         return;
       }
 
-      const citeChannel = guildChannels.find(
-        (elem) => elem.id === serverConfig.citeChannelId
-      );
-      if (!citeChannel) {
-        serverConfig.citeChannelId = null;
-        await ConfigService.getInstance().setConfig(serverConfig);
-        res.status(HttpStatusCode.NotFound).send(null);
-        return;
-      }
-
       const configResponse: ServerConfigResponse = {
-        numberIgnoredMessages: serverConfig.excludedMessageIds.length,
-        citeChannelName: citeChannel.name,
-        availableChannels: guildChannels as any,
+        ...serverConfig,
+        availableChannels: guildChannels.filter(
+          (elem) => elem.type === ChannelType.GuildText
+        ) as any,
       };
 
       res.json(configResponse);

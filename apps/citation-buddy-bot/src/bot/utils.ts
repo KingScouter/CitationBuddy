@@ -1,13 +1,23 @@
 import 'dotenv/config';
 import { verifyKey } from 'discord-interactions';
 import { APIApplicationCommand, REST, Routes } from 'discord.js';
+import { Request } from 'express';
+import { DiscordBackendEndpoints } from '../discord-backend/discord-backend-endpoints.enum';
 
 export const restClient = new REST({ version: '10' }).setToken(
   process.env.DISCORD_TOKEN
 );
 
 export function VerifyDiscordRequest(clientKey) {
-  return function (req, res, buf, encoding) {
+  return function (req: Request, res, buf, encoding) {
+    if (
+      Object.values(DiscordBackendEndpoints).indexOf(
+        req.url as DiscordBackendEndpoints
+      ) !== -1
+    ) {
+      return;
+    }
+
     const signature = req.get('X-Signature-Ed25519');
     const timestamp = req.get('X-Signature-Timestamp');
 

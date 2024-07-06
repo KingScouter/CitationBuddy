@@ -1,7 +1,8 @@
 import { APIChannel } from 'discord-api-types/v10';
+import { ServerConfig } from './server-config';
 
-export interface ServerConfigResponse {
-  citeChannelName: string;
-  numberIgnoredMessages: number;
+interface ServerInfo {
   availableChannels: APIChannel[];
 }
+
+export type ServerConfigResponse = ServerConfig & ServerInfo;
