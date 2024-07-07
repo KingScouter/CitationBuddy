@@ -1,14 +1,19 @@
 <div class="container">
-  <app-user-info
-    [user]="currentUser()"
-    (loginClick)="onLogin()"
-    (logoutClick)="onLogout()"
-  ></app-user-info>
-  <mat-icon
-    class="home-icon"
-    aria-hidden="false"
-    aria-label="Home"
-    fontIcon="home"
-    (click)="onHomeButtonClick()"
-  ></mat-icon>
+  <div class="left-side">
+    <span>Citation Buddy</span>
+  </div>
+  <div class="right-side">
+    <app-user-info
+      [user]="currentUser()"
+      (loginClick)="onLogin()"
+      (logoutClick)="onLogout()"
+    ></app-user-info>
+    <mat-icon
+      class="home-icon"
+      aria-hidden="false"
+      aria-label="Home"
+      fontIcon="home"
+      (click)="onHomeButtonClick()"
+    ></mat-icon>
+  </div>
 </div>

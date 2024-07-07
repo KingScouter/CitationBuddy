@@ -8,7 +8,7 @@ export const appRoutes: Route[] = [
       import('./login/login.component').then((comp) => comp.LoginComponent),
   },
   {
-    path: '**',
+    path: '',
     loadComponent: () =>
       import('./main/main.component').then((comp) => comp.MainComponent),
     children: [
