@@ -82,7 +82,7 @@ export default function (app: Express): void {
 
       res.json(discordUser);
     } catch (err) {
-      if (err.name !== authenticatedErrorName) console.error(err);
+      if (err.message !== authenticatedErrorName) console.error(err);
       res.status(401).json(authenticatedErrorName);
     }
   });
@@ -109,7 +109,7 @@ export default function (app: Express): void {
 
       res.json(mappedGuilds);
     } catch (err) {
-      if (err.name !== authenticatedErrorName) console.error(err);
+      if (err.message !== authenticatedErrorName) console.error(err);
       res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
     }
   });
@@ -134,7 +134,7 @@ export default function (app: Express): void {
 
       res.json(guild);
     } catch (err) {
-      if (err.name !== authenticatedErrorName) console.error(err);
+      if (err.message !== authenticatedErrorName) console.error(err);
       res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
     }
   });
@@ -190,7 +190,7 @@ export default function (app: Express): void {
 
       res.json(configResponse);
     } catch (err) {
-      if (err.name !== authenticatedErrorName) console.error(err);
+      if (err.message !== authenticatedErrorName) console.error(err);
       res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
     }
   });
