@@ -6,7 +6,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthenticationService } from '../authentication/authentication.service';
 import { AppRoutes } from '../models';
 
 @Component({
@@ -19,12 +18,10 @@ import { AppRoutes } from '../models';
 })
 export class OauthRedirectComponent implements OnInit {
   private readonly router = inject(Router);
-  private readonly authenticationService = inject(AuthenticationService);
 
   ngOnInit(): void {
-    this.authenticationService.checkAuthentication();
     setTimeout(() => {
       this.router.navigate([AppRoutes.Guilds]);
-    }, 3000);
+    }, 1500);
   }
 }
