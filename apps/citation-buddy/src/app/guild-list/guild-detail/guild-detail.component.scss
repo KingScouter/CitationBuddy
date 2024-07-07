@@ -1,4 +1,18 @@
+:host {
+  color: white;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
 .guild-info-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -9,11 +23,50 @@
   }
 }
 
+.content-container {
+  min-width: 20rem;
+}
+
 .config-container {
   display: flex;
   flex-direction: column;
 
   button {
     max-width: 10rem;
+  }
+}
+
+.edit-title {
+  font-size: 20pt;
+}
+
+.guild-title {
+  font-size: 20pt;
+}
+
+.additional-data-input-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  mat-form-field {
+    flex-grow: 1;
+  }
+
+  button {
+    flex-grow: 0;
+  }
+}
+
+.additional-data-list {
+  background-color: var(--mdc-filled-text-field-container-color);
+
+  .mat-mdc-list-item {
+    height: 2rem;
+  }
+  mat-icon {
+    &:hover {
+      cursor: pointer;
+    }
   }
 }

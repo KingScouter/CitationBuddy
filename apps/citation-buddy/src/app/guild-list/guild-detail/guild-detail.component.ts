@@ -27,6 +27,8 @@ import {
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { AppRoutes } from '../../models';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 
 interface ComboboxValue {
   key: string;
@@ -45,6 +47,8 @@ interface ComboboxValue {
     FormsModule,
     MatButtonModule,
     ReactiveFormsModule,
+    MatListModule,
+    MatIconModule,
   ],
   templateUrl: './guild-detail.component.html',
   styleUrl: './guild-detail.component.scss',
@@ -55,6 +59,7 @@ export class GuildDetailComponent implements OnInit {
   protected serverConfigInfo = signal<ServerConfigResponse | null>(null);
 
   protected readonly availableChannels: Signal<ComboboxValue[]>;
+  protected readonly additionalData = signal<string[]>(['Test1', 'Test2']);
   protected readonly formGroup: FormGroup;
 
   private readonly discordBackendService = inject(DiscordBackendService);
@@ -66,6 +71,7 @@ export class GuildDetailComponent implements OnInit {
   constructor() {
     this.formGroup = this.fb.group({
       citeChannel: [''],
+      additionalDataInput: [''],
     });
 
     this.availableChannels = computed(() => {
@@ -122,5 +128,23 @@ export class GuildDetailComponent implements OnInit {
     await this.discordBackendService.updateServerConfig(updatedConfig);
 
     this.router.navigate([AppRoutes.Guilds]);
+  }
+
+  protected onAddAdditionalData(): void {
+    const newData = this.formGroup.value.additionalDataInput;
+    if (!newData) {
+      return;
+    }
+
+    const updatedData = new Set([...this.additionalData(), newData]);
+
+    this.additionalData.set([...updatedData.values()]);
+    this.formGroup.controls['additionalDataInput'].setValue('');
+  }
+
+  protected onDeleteAdditionalData(elem: string): void {
+    this.additionalData.set(
+      this.additionalData().filter((val) => val !== elem)
+    );
   }
 }
