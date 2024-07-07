@@ -1,6 +1,8 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { DiscordAuth } from '../models/discord-auth';
 import { DiscordBackendService } from '../discord-backend/discord-backend.service';
+import { OAuth2Scopes, OAuth2Routes } from 'discord-api-types/v10';
+import { AppConfig } from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -8,12 +10,27 @@ import { DiscordBackendService } from '../discord-backend/discord-backend.servic
 export class AuthenticationService {
   private readonly discordBackenService = inject(DiscordBackendService);
 
+  private readonly oauth2Scopes: OAuth2Scopes[] = [
+    OAuth2Scopes.Identify,
+    OAuth2Scopes.Guilds,
+  ];
+
+  private readonly _oauth2Url = `${OAuth2Routes.authorizationURL}?client_id=${
+    AppConfig.CLIENT_ID
+  }&response_type=code&redirect_uri=${encodeURI(
+    AppConfig.BASE_REDIRECT_URI
+  )}&scope=${this.oauth2Scopes.join('+')}`;
+
   isAuthenticated = computed(() => {
     return this._userAuth() !== null;
   });
 
   get userAuth(): Signal<DiscordAuth | null> {
     return this._userAuth;
+  }
+
+  get oauth2Url(): string {
+    return this._oauth2Url;
   }
 
   private _userAuth = signal<DiscordAuth | null>(null);
