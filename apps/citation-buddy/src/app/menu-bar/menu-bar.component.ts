@@ -11,6 +11,7 @@ import { DiscordAuth } from '../models/discord-auth';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
+import { AppRoutes } from '../models';
 
 @Component({
   selector: 'app-menu-bar',
@@ -38,5 +39,6 @@ export class MenuBarComponent {
 
   protected async onLogout(): Promise<void> {
     await this.authenticationService.logout();
+    this.router.navigate([AppRoutes.Login]);
   }
 }
