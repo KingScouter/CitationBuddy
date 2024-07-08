@@ -59,7 +59,11 @@ export class GuildDetailComponent implements OnInit {
   protected serverConfigInfo = signal<ServerConfigResponse | null>(null);
 
   protected readonly availableChannels: Signal<ComboboxValue[]>;
-  protected readonly additionalData = signal<string[]>(['Test1', 'Test2']);
+  protected readonly additionalData = signal<string[]>([]);
+  protected readonly isAdditionalDataEmpty = computed(() => {
+    const data = this.additionalData();
+    return !data || data.length <= 0;
+  });
   protected readonly formGroup: FormGroup;
 
   private readonly discordBackendService = inject(DiscordBackendService);
@@ -106,6 +110,9 @@ export class GuildDetailComponent implements OnInit {
         const serverConfig =
           await this.discordBackendService.getServerConfigInfo(guildId);
         this.serverConfigInfo.set(serverConfig);
+        if (serverConfig.additionalContexts?.length > 0) {
+          this.additionalData.set(serverConfig.additionalContexts);
+        }
       });
   }
 
@@ -123,6 +130,7 @@ export class GuildDetailComponent implements OnInit {
       guildId: guild.id,
       citeChannelId: this.formGroup.value.citeChannel,
       excludedMessageIds: originalConfig.excludedMessageIds,
+      additionalContexts: this.additionalData(),
     };
 
     await this.discordBackendService.updateServerConfig(updatedConfig);

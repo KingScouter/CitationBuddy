@@ -40,7 +40,7 @@
         </mat-form-field>
       </div>
       <mat-list role="list" class="additional-data-list">
-        @if (additionalData().length === 0) {
+        @if (isAdditionalDataEmpty()) {
         <mat-list-item role="listitem">
           <span class="list-item-text" matListItemTitle>Leer</span>
         </mat-list-item>

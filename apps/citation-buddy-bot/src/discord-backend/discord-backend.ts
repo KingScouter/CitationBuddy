@@ -172,6 +172,7 @@ export default function (app: Express): void {
           guildId,
           citeChannelId: '',
           excludedMessageIds: [],
+          additionalContexts: [],
         };
       }
 
