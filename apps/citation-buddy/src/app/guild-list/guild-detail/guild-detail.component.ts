@@ -131,6 +131,7 @@ export class GuildDetailComponent implements OnInit {
       citeChannelId: this.formGroup.value.citeChannel,
       excludedMessageIds: originalConfig.excludedMessageIds,
       additionalContexts: this.additionalData(),
+      messageConfigs: [],
     };
 
     await this.discordBackendService.updateServerConfig(updatedConfig);
@@ -154,5 +155,13 @@ export class GuildDetailComponent implements OnInit {
     this.additionalData.set(
       this.additionalData().filter((val) => val !== elem)
     );
+  }
+
+  protected async onEditCitationsButtonClick(): Promise<void> {
+    await this.router.navigate([
+      AppRoutes.Guilds,
+      AppRoutes.CitationsList,
+      this.serverConfigInfo()?.guildId,
+    ]);
   }
 }

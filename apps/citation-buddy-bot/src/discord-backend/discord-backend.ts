@@ -173,6 +173,7 @@ export default function (app: Express): void {
           citeChannelId: '',
           excludedMessageIds: [],
           additionalContexts: [],
+          messageConfigs: [],
         };
       }
 
@@ -227,6 +228,54 @@ export default function (app: Express): void {
     }
 
     res.status(HttpStatusCode.Accepted).send();
+  });
+
+  app.get(DiscordBackendEndpoints.Messages, async (req, res) => {
+    try {
+      const jwtPayload = await checkAuth(req);
+
+      const guildId = req.query.guildId as string;
+      if (!guildId) {
+        res.status(HttpStatusCode.BadRequest).send(null);
+        return;
+      }
+
+      const config = await ConfigService.getInstance().getConfig(guildId);
+      if (!config) {
+        res.status(HttpStatusCode.NotFound).send();
+        return;
+      }
+
+      const messages = await BotUtils.getMessages(config.citeChannelId);
+
+      res.status(HttpStatusCode.Accepted).json(messages);
+    } catch (err) {
+      if (err.message !== authenticatedErrorName) console.error(err);
+      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
+    }
+  });
+
+  app.get(DiscordBackendEndpoints.MessageConfigs, async (req, res) => {
+    try {
+      const jwtPayload = await checkAuth(req);
+
+      const guildId = req.query.guildId as string;
+      if (!guildId) {
+        res.status(HttpStatusCode.BadRequest).send(null);
+        return;
+      }
+
+      const config = await ConfigService.getInstance().getConfig(guildId);
+      let messageConfigs = config?.messageConfigs;
+      if (!messageConfigs) {
+        messageConfigs = [];
+      }
+
+      res.status(HttpStatusCode.Accepted).json(messageConfigs);
+    } catch (err) {
+      if (err.message !== authenticatedErrorName) console.error(err);
+      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
+    }
   });
 }
 

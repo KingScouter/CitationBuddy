@@ -53,7 +53,16 @@
         </mat-list-item>
         } }
       </mat-list>
-      <button type="submit" mat-flat-button>Save configuration</button>
+      <div class="button-container">
+        <button
+          type="button"
+          mat-flat-button
+          (click)="onEditCitationsButtonClick()"
+        >
+          Edit Citations
+        </button>
+        <button type="submit" mat-flat-button>Save configuration</button>
+      </div>
     </form>
     } @else {
     <h3>No configuration found!</h3>

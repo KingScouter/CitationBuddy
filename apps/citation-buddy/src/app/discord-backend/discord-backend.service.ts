@@ -15,12 +15,12 @@ export class DiscordBackendService {
     this.apiUrl = apiUrl;
   }
 
-  async getMessages(channelId: string): Promise<APIMessage[]> {
+  async getMessages(guildId: string): Promise<APIMessage[]> {
     const response = await firstValueFrom(
       this.httpClient.get<APIMessage[]>(this.apiUrl + '/messages', {
         params: new HttpParams({
           fromObject: {
-            channelId,
+            guildId,
           },
         }),
       })

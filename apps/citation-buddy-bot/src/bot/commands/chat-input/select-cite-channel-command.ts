@@ -43,6 +43,7 @@ class SelectCiteChannelCommand extends BaseChatInputCommand {
         guildId: interaction.guild_id,
         excludedMessageIds: [],
         additionalContexts: [],
+        messageConfigs: [],
       };
     } else {
       config.citeChannelId = selectedChannelId;

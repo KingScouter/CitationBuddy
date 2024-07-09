@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { AppRoutes } from '../models';
 
 export const guildRoutes: Route[] = [
   {
@@ -8,6 +9,14 @@ export const guildRoutes: Route[] = [
         (comp) => comp.GuildDetailComponent
       ),
   },
+  {
+    path: `${AppRoutes.CitationsList}/:guildId`,
+    loadComponent: () =>
+      import('./citations-list/citations-list.component').then(
+        (comp) => comp.CitationsListComponent
+      ),
+  },
+
   {
     path: '',
     loadComponent: () =>
