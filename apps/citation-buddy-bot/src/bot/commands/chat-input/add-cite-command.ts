@@ -43,12 +43,12 @@ class AddCiteCommand extends BaseChatInputCommand {
   ): Promise<void> {
     const values = interaction.data.options;
     const msgOption = values.find(
-      (elem) => elem.name === this.messageOptionKey
+      elem => elem.name === this.messageOptionKey
     ) as APIApplicationCommandInteractionDataStringOption;
     const msg = msgOption.value;
 
     const personOption = values.find(
-      (elem) => elem.name === this.personOptionKey
+      elem => elem.name === this.personOptionKey
     ) as APIApplicationCommandInteractionDataStringOption;
     const person = personOption.value;
 

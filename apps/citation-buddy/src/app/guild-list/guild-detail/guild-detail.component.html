@@ -1,74 +1,80 @@
 <div class="container">
   @if (guild(); as val) {
-  <div class="guild-info-container">
-    <span class="edit-title">Edit Guild</span>
-    <img src="{{ val | guildIcon }}" [attr.alt]="val.icon" />
-    <span class="guild-title">{{ val.name }}</span>
-  </div>
-  <div class="content-container">
-    @if (serverConfigInfo(); as config) {
-    <form
-      class="config-container"
-      [formGroup]="formGroup"
-      (ngSubmit)="onSaveConfig()"
-    >
-      <mat-form-field>
-        <mat-label>Citation channel</mat-label>
-        <mat-select [formControlName]="'citeChannel'">
-          @for (elem of availableChannels(); track elem) {
-          <mat-option [value]="elem.key">{{ elem.value }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <div class="additional-data-input-container">
-        <mat-form-field>
-          <mat-label>Additional data per citation:</mat-label>
-          <input
-            matInput
-            type="text"
-            [formControlName]="'additionalDataInput'"
-          />
-          <button
-            matSuffix
-            mat-icon-button
-            aria-label="Clear"
-            type="button"
-            (click)="onAddAdditionalData()"
-          >
-            <mat-icon>add</mat-icon>
-          </button>
-        </mat-form-field>
-      </div>
-      <mat-list role="list" class="additional-data-list">
-        @if (isAdditionalDataEmpty()) {
-        <mat-list-item role="listitem">
-          <span class="list-item-text" matListItemTitle>Leer</span>
-        </mat-list-item>
-        } @else { @for(elem of additionalData(); track elem) {
-        <mat-list-item role="listitem">
-          <span class="list-item-text" matListItemTitle>{{ elem }}</span>
-          <mat-icon matListItemIcon (click)="onDeleteAdditionalData(elem)"
-            >close</mat-icon
-          >
-        </mat-list-item>
-        } }
-      </mat-list>
-      <div class="button-container">
-        <button
-          type="button"
-          mat-flat-button
-          (click)="onEditCitationsButtonClick()"
+    <div class="guild-info-container">
+      <span class="edit-title">Edit Guild</span>
+      <img src="{{ val | guildIcon }}" [attr.alt]="val.icon" />
+      <span class="guild-title">{{ val.name }}</span>
+    </div>
+    <div class="content-container">
+      @if (serverConfigInfo(); as config) {
+        <form
+          class="config-container"
+          [formGroup]="formGroup"
+          (ngSubmit)="onSaveConfig()"
         >
-          Edit Citations
-        </button>
-        <button type="submit" mat-flat-button>Save configuration</button>
-      </div>
-    </form>
-    } @else {
-    <h3>No configuration found!</h3>
-    }
-  </div>
+          <mat-form-field>
+            <mat-label>Citation channel</mat-label>
+            <mat-select [formControlName]="'citeChannel'">
+              @for (elem of availableChannels(); track elem) {
+                <mat-option [value]="elem.key">{{ elem.value }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <div class="additional-data-input-container">
+            <mat-form-field>
+              <mat-label>Additional data per citation:</mat-label>
+              <input
+                matInput
+                type="text"
+                [formControlName]="'additionalDataInput'"
+              />
+              <button
+                matSuffix
+                mat-icon-button
+                aria-label="Clear"
+                type="button"
+                (click)="onAddAdditionalData()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+          <mat-list role="list" class="additional-data-list">
+            @if (isAdditionalDataEmpty()) {
+              <mat-list-item role="listitem">
+                <span class="list-item-text" matListItemTitle>Leer</span>
+              </mat-list-item>
+            } @else {
+              @for (elem of additionalData(); track elem) {
+                <mat-list-item role="listitem">
+                  <span class="list-item-text" matListItemTitle>{{
+                    elem
+                  }}</span>
+                  <mat-icon
+                    matListItemIcon
+                    (click)="onDeleteAdditionalData(elem)"
+                    >close</mat-icon
+                  >
+                </mat-list-item>
+              }
+            }
+          </mat-list>
+          <div class="button-container">
+            <button
+              type="button"
+              mat-flat-button
+              (click)="onEditCitationsButtonClick()"
+            >
+              Edit Citations
+            </button>
+            <button type="submit" mat-flat-button>Save configuration</button>
+          </div>
+        </form>
+      } @else {
+        <h3>No configuration found!</h3>
+      }
+    </div>
   } @else {
-  <p>Loading ...</p>
+    <p>Loading ...</p>
   }
 </div>

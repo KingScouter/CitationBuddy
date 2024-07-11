@@ -36,7 +36,7 @@ class ManageIgnoreCommand extends BaseChatInputCommand {
     }
 
     const filteredMessages = config.excludedMessageIds.map(
-      (elem) =>
+      elem =>
         `https://discord.com/channels/${config.guildId}/${config.citeChannelId}/${elem}`
     );
 

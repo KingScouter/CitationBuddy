@@ -1,31 +1,31 @@
 <div class="list-container">
   <mat-list class="guild-list">
-    @for(guild of guilds(); track guild.guild.id) {
-    <mat-list-item class="list-item" (click)="onGuildClick(guild)">
-      <img
-        class="guild-avatar"
-        matListItemAvatar
-        src="{{ guild.guild | guildIcon }}"
-        [attr.alt]="guild.guild.icon"
-      />
-      <div class="list-content">
-        <span class="list-title">{{ guild.guild.name }}</span>
-        @if (guild.hasBot) {
-        <mat-icon
-          aria-hidden="false"
-          aria-label="Bot is on the server"
-          fontIcon="check"
+    @for (guild of guilds(); track guild.guild.id) {
+      <mat-list-item class="list-item" (click)="onGuildClick(guild)">
+        <img
+          class="guild-avatar"
+          matListItemAvatar
+          src="{{ guild.guild | guildIcon }}"
+          [attr.alt]="guild.guild.icon"
         />
-        } @else {
-        <mat-icon
-          class="bot-icon"
-          aria-hidden="false"
-          aria-label="Bot is not on the server"
-          fontIcon="close"
-        />
-        }
-      </div>
-    </mat-list-item>
+        <div class="list-content">
+          <span class="list-title">{{ guild.guild.name }}</span>
+          @if (guild.hasBot) {
+            <mat-icon
+              aria-hidden="false"
+              aria-label="Bot is on the server"
+              fontIcon="check"
+            />
+          } @else {
+            <mat-icon
+              class="bot-icon"
+              aria-hidden="false"
+              aria-label="Bot is not on the server"
+              fontIcon="close"
+            />
+          }
+        </div>
+      </mat-list-item>
     }
   </mat-list>
 </div>

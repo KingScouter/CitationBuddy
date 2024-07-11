@@ -15,7 +15,7 @@ export abstract class BaseMessageCommand<
   }
 
   protected isCommandType(
-    obj: APIApplicationCommandInteraction,
+    obj: APIApplicationCommandInteraction
   ): obj is APIMessageApplicationCommandInteraction {
     return (
       super.isCommandType(obj) &&

@@ -40,7 +40,7 @@ export class CitationsListComponent implements OnInit {
   private readonly guildId = signal<string>('');
 
   ngOnInit(): void {
-    this.activatedRoute.paramMap.pipe(first()).subscribe(async (params) => {
+    this.activatedRoute.paramMap.pipe(first()).subscribe(async params => {
       const guildId = params.get('guildId');
       if (!guildId) {
         return;
@@ -48,9 +48,8 @@ export class CitationsListComponent implements OnInit {
       this.guildId.set(guildId);
 
       const messages = await this.discordBackendService.getMessages(guildId);
-      const config = await this.discordBackendService.getServerConfigInfo(
-        guildId
-      );
+      const config =
+        await this.discordBackendService.getServerConfigInfo(guildId);
 
       if (!config) {
         return;
@@ -73,9 +72,9 @@ export class CitationsListComponent implements OnInit {
   protected async onSaveMessage(data: MessageWithContext): Promise<void> {
     await this.discordBackendService.updateMessageConfig(this.guildId(), data);
 
-    this.dataSource.update((val) => {
+    this.dataSource.update(val => {
       const updatedValues = [...val];
-      const toUpdate = updatedValues.findIndex((elem) => elem.id === data.id);
+      const toUpdate = updatedValues.findIndex(elem => elem.id === data.id);
       if (toUpdate >= 0) {
         updatedValues.splice(toUpdate, 1, data);
       }
@@ -94,9 +93,9 @@ export class CitationsListComponent implements OnInit {
     serverConfig: ServerConfig,
     messages: APIMessage[]
   ): void {
-    const mapped: MessageWithContext[] = messages.map((message) => {
+    const mapped: MessageWithContext[] = messages.map(message => {
       const configuredMessage = serverConfig?.messageConfigs?.find(
-        (elem) => elem.id === message.id
+        elem => elem.id === message.id
       );
 
       const val: MessageWithContext = {

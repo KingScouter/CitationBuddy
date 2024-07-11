@@ -15,13 +15,13 @@
       <td mat-cell *matCellDef="let element">{{ element.ignored }}</td>
     </ng-container>
 
-    @for(additional of additionalColumns(); track $index) {
-    <ng-container [matColumnDef]="additional">
-      <th mat-header-cell *matHeaderCellDef>{{ additional }}</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.additionalData[additional] }}
-      </td>
-    </ng-container>
+    @for (additional of additionalColumns(); track $index) {
+      <ng-container [matColumnDef]="additional">
+        <th mat-header-cell *matHeaderCellDef>{{ additional }}</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.additionalData[additional] }}
+        </td>
+      </ng-container>
     }
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
@@ -34,10 +34,10 @@
   </table>
 
   @if (selectedRow()) {
-  <app-message-edit
-    [message]="selectedRow()!"
-    [formFields]="additionalColumns()"
-    (saveMessage)="onSaveMessage($event)"
-  />
+    <app-message-edit
+      [message]="selectedRow()!"
+      [formFields]="additionalColumns()"
+      (saveMessage)="onSaveMessage($event)"
+    />
   }
 </div>

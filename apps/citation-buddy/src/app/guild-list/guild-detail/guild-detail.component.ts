@@ -83,8 +83,8 @@ export class GuildDetailComponent implements OnInit {
       if (!channels || channels.length <= 0) return [];
 
       return channels.map(
-        (elem) =>
-          ({ key: elem.id, value: elem.name ?? '' } satisfies ComboboxValue)
+        elem =>
+          ({ key: elem.id, value: elem.name ?? '' }) satisfies ComboboxValue
       );
     });
 
@@ -99,7 +99,7 @@ export class GuildDetailComponent implements OnInit {
   ngOnInit(): void {
     this.activatedRoute.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(async (params) => {
+      .subscribe(async params => {
         const guildId = params.get('guildId');
         if (!guildId) {
           return;
@@ -152,9 +152,7 @@ export class GuildDetailComponent implements OnInit {
   }
 
   protected onDeleteAdditionalData(elem: string): void {
-    this.additionalData.set(
-      this.additionalData().filter((val) => val !== elem)
-    );
+    this.additionalData.set(this.additionalData().filter(val => val !== elem));
   }
 
   protected async onEditCitationsButtonClick(): Promise<void> {

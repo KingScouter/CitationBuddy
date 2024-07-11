@@ -35,7 +35,7 @@ export class GuildListComponent implements OnInit {
   private readonly router = inject(Router);
 
   ngOnInit(): void {
-    this.discordBackendService.getGuilds().then((val) => {
+    this.discordBackendService.getGuilds().then(val => {
       this.guilds.set(val);
     });
   }

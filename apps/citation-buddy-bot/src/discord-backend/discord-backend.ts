@@ -105,11 +105,11 @@ export default function (app: Express): void {
       const botGuilds = await BotUtils.getGuilds();
 
       const mappedGuilds: DiscordGuild[] = guilds.map(
-        (elem) =>
+        elem =>
           ({
             guild: elem,
-            hasBot: botGuilds.some((botGuild) => botGuild.id === elem.id),
-          } as DiscordGuild)
+            hasBot: botGuilds.some(botGuild => botGuild.id === elem.id),
+          }) as DiscordGuild
       );
 
       res.json(mappedGuilds);
@@ -191,7 +191,7 @@ export default function (app: Express): void {
       const configResponse: ServerConfigResponse = {
         ...serverConfig,
         availableChannels: guildChannels.filter(
-          (elem) => elem.type === ChannelType.GuildText
+          elem => elem.type === ChannelType.GuildText
         ) as any,
       };
 
@@ -301,7 +301,7 @@ export default function (app: Express): void {
     }
 
     const existingConfigIdx = config.messageConfigs.findIndex(
-      (elem) => elem.id === message.id
+      elem => elem.id === message.id
     );
     if (existingConfigIdx >= 0) {
       config.messageConfigs.splice(existingConfigIdx, 1, message);

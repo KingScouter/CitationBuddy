@@ -1,30 +1,31 @@
 <div class="user-container">
-  @if(user(); as user) {
-  <span class="user-name">{{ user.name }}</span>
-  <div class="avatar-container">
-    <img
-      class="user-avatar"
-      src="{{ user | userAvatar }}"
-      [attr.alt]="user.avatar"
-    />
-  </div>
+  @if (user(); as user) {
+    <span class="user-name">{{ user.name }}</span>
+    <div class="avatar-container">
+      <img
+        class="user-avatar"
+        src="{{ user | userAvatar }}"
+        [attr.alt]="user.avatar"
+      />
+    </div>
   } @else {
-  <span class="user-name">Not logged in</span>
-  } @if(user()) {
-  <mat-icon
-    class="loginout-icon"
-    aria-hidden="false"
-    aria-label="Logout"
-    fontIcon="logout"
-    (click)="onLogoutButtonClick()"
-  ></mat-icon>
+    <span class="user-name">Not logged in</span>
+  }
+  @if (user()) {
+    <mat-icon
+      class="loginout-icon"
+      aria-hidden="false"
+      aria-label="Logout"
+      fontIcon="logout"
+      (click)="onLogoutButtonClick()"
+    ></mat-icon>
   } @else {
-  <mat-icon
-    class="loginout-icon"
-    aria-hidden="false"
-    aria-label="Login"
-    fontIcon="login"
-    (click)="onLoginButtonClick()"
-  ></mat-icon>
+    <mat-icon
+      class="loginout-icon"
+      aria-hidden="false"
+      aria-label="Login"
+      fontIcon="login"
+      (click)="onLoginButtonClick()"
+    ></mat-icon>
   }
 </div>

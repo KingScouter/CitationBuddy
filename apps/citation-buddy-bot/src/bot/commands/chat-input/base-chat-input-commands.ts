@@ -15,7 +15,7 @@ export abstract class BaseChatInputCommand<
   }
 
   protected isCommandType(
-    obj: APIApplicationCommandInteraction,
+    obj: APIApplicationCommandInteraction
   ): obj is APIChatInputApplicationCommandInteraction {
     return (
       super.isCommandType(obj) &&

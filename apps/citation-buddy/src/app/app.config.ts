@@ -14,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: 'API_URL',
       useValue: `http://localhost:${environment.apiPort}`,
-    }, provideAnimationsAsync(),
+    },
+    provideAnimationsAsync(),
   ],
 };

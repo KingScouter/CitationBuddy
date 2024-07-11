@@ -20,7 +20,7 @@ class GetRandomCitecommand extends BaseChatInputCommand {
   ): Promise<void> {
     const messages = await BotUtils.getMessages(config.citeChannelId);
     // console.log('Messages', messages);
-    const filteredMessages = messages?.filter((elem) => {
+    const filteredMessages = messages?.filter(elem => {
       const idx = config.excludedMessageIds.indexOf(elem.id);
       if (idx >= 0) {
         console.log('Skip exluded message: ', elem.content);

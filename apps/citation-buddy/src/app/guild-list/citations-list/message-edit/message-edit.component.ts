@@ -68,7 +68,7 @@ export class MessageEditComponent implements OnInit {
     console.log(formData);
 
     for (const elem of this.formFields()) {
-      const idx = formArray.controls.findIndex((ctrl) => !!ctrl.get(elem));
+      const idx = formArray.controls.findIndex(ctrl => !!ctrl.get(elem));
       if (idx < 0) {
         continue;
       }

@@ -39,7 +39,7 @@ export class OauthBackendUtils {
   ): Promise<APIGuild> {
     try {
       const guilds = await OauthBackendUtils.getUserGuilds(accessToken);
-      const guild = guilds.find((elem) => elem.id === guildId);
+      const guild = guilds.find(elem => elem.id === guildId);
       if (guild) {
         return guild;
       }

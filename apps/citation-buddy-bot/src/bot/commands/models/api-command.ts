@@ -13,7 +13,7 @@ import { ServerConfig } from '@cite/models';
 
 export abstract class ApiCommand<
   T extends APIApplicationCommandInteraction,
-  I extends APIInteraction = APIInteraction
+  I extends APIInteraction = APIInteraction,
 > implements APIApplicationCommand
 {
   id: string;
