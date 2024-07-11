@@ -1,26 +1,43 @@
-<table mat-table [dataSource]="dataSource()" class="mat-elevation-z8">
-  <!--- Note that these columns can be defined in any order.
+<div class="container">
+  <table mat-table [dataSource]="dataSource()" class="mat-elevation-z8">
+    <!--- Note that these columns can be defined in any order.
         The actual rendered columns are set as a property on the row definition" -->
 
-  <!-- Position Column -->
-  <ng-container matColumnDef="text">
-    <th mat-header-cell *matHeaderCellDef>Text</th>
-    <td mat-cell *matCellDef="let element">{{ element.text }}</td>
-  </ng-container>
+    <!-- Position Column -->
+    <ng-container matColumnDef="text">
+      <th mat-header-cell *matHeaderCellDef>Text</th>
+      <td mat-cell *matCellDef="let element">{{ element.text }}</td>
+    </ng-container>
 
-  <!-- Name Column -->
-  <ng-container matColumnDef="ignored">
-    <th mat-header-cell *matHeaderCellDef>Ignored</th>
-    <td mat-cell *matCellDef="let element">{{ element.ignored }}</td>
-  </ng-container>
+    <!-- Name Column -->
+    <ng-container matColumnDef="ignored">
+      <th mat-header-cell *matHeaderCellDef>Ignored</th>
+      <td mat-cell *matCellDef="let element">{{ element.ignored }}</td>
+    </ng-container>
 
-  @for(additional of additionalColumns(); track $index) {
-  <ng-container [matColumnDef]="additional">
-    <th mat-header-cell *matHeaderCellDef>{{ additional }}</th>
-    <td mat-cell *matCellDef="let element">{{ element[additional] }}</td>
-  </ng-container>
+    @for(additional of additionalColumns(); track $index) {
+    <ng-container [matColumnDef]="additional">
+      <th mat-header-cell *matHeaderCellDef>{{ additional }}</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.additionalData[additional] }}
+      </td>
+    </ng-container>
+    }
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns()"
+      [ngClass]="{ 'selected-row': selectedRow()?.id === row.id }"
+      (click)="onRowClick(row)"
+    ></tr>
+  </table>
+
+  @if (selectedRow()) {
+  <app-message-edit
+    [message]="selectedRow()!"
+    [formFields]="additionalColumns()"
+    (saveMessage)="onSaveMessage($event)"
+  />
   }
-
-  <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
-</table>
+</div>

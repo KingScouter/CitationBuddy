@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  // flex-direction: row;
+  flex-direction: column;
+
+  @media screen and (max-width: 1200px) {
+    flex-direction: column;
+  }
+}
+
+.mat-mdc-row {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darkgrey;
+  }
+
+  &.selected-row {
+    font-weight: bold;
+    background-color: darkgrey;
+    border-color: currentColor;
+  }
+}

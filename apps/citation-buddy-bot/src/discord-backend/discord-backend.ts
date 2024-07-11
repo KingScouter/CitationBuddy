@@ -9,7 +9,12 @@ import jwt from 'jsonwebtoken';
 import { DiscordUser } from '../user-db/models/discord-user';
 import { UserDbService } from '../user-db/user-db.service';
 import { BotUtils } from '../bot/bot-utils';
-import { DiscordGuild, ServerConfig, ServerConfigResponse } from '@cite/models';
+import {
+  DiscordGuild,
+  MessageConfig,
+  ServerConfig,
+  ServerConfigResponse,
+} from '@cite/models';
 import { OauthBackendUtils } from './oauth-backend-utils';
 import { ConfigService } from '../configuration/config.service';
 import { DiscordBackendEndpoints } from './discord-backend-endpoints.enum';
@@ -139,7 +144,7 @@ export default function (app: Express): void {
     }
   });
 
-  app.post(DiscordBackendEndpoints.ServerConfig, async (req, res) => {
+  app.put(DiscordBackendEndpoints.ServerConfig, async (req, res) => {
     const jwtPayload = await checkAuth(req);
 
     const config = req.body as ServerConfig;
@@ -255,7 +260,7 @@ export default function (app: Express): void {
     }
   });
 
-  app.get(DiscordBackendEndpoints.MessageConfigs, async (req, res) => {
+  app.get(DiscordBackendEndpoints.MessageConfig, async (req, res) => {
     try {
       const jwtPayload = await checkAuth(req);
 
@@ -276,6 +281,37 @@ export default function (app: Express): void {
       if (err.message !== authenticatedErrorName) console.error(err);
       res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
     }
+  });
+
+  app.put(DiscordBackendEndpoints.MessageConfig, async (req, res) => {
+    const jwtPayload = await checkAuth(req);
+
+    if (!req.body) {
+      res.status(HttpStatusCode.BadRequest).send();
+      return;
+    }
+
+    const { guildId, message }: { guildId: string; message: MessageConfig } =
+      req.body;
+
+    const config = await ConfigService.getInstance().getConfig(guildId);
+    if (!config) {
+      res.status(HttpStatusCode.NotFound).send();
+      return;
+    }
+
+    const existingConfigIdx = config.messageConfigs.findIndex(
+      (elem) => elem.id === message.id
+    );
+    if (existingConfigIdx >= 0) {
+      config.messageConfigs.splice(existingConfigIdx, 1, message);
+    } else {
+      config.messageConfigs.push(message);
+    }
+
+    await ConfigService.getInstance().setConfig(config);
+
+    res.status(HttpStatusCode.Accepted).send();
   });
 }
 

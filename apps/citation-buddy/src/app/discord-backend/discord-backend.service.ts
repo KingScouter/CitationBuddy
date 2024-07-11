@@ -1,6 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
-import { DiscordGuild, ServerConfig, ServerConfigResponse } from '@cite/models';
+import {
+  DiscordGuild,
+  MessageConfig,
+  ServerConfig,
+  ServerConfigResponse,
+} from '@cite/models';
 import { APIGuild, APIMessage, APIUser } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
 
@@ -80,7 +85,19 @@ export class DiscordBackendService {
 
   async updateServerConfig(config: ServerConfig): Promise<void> {
     await firstValueFrom(
-      this.httpClient.post(this.apiUrl + '/server-config', config)
+      this.httpClient.put(this.apiUrl + '/server-config', config)
+    );
+  }
+
+  async updateMessageConfig(
+    guildId: string,
+    message: MessageConfig
+  ): Promise<void> {
+    await firstValueFrom(
+      this.httpClient.put(this.apiUrl + '/message-config', {
+        guildId,
+        message,
+      })
     );
   }
 
