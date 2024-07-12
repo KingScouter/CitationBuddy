@@ -21,6 +21,8 @@ export class AuthenticationService {
     AppConfig.BASE_REDIRECT_URI
   )}&scope=${this.oauth2Scopes.join('+')}`;
 
+  private readonly _userAuth = signal<DiscordAuth | null>(null);
+
   isAuthenticated = computed(() => {
     return this._userAuth() !== null;
   });
@@ -33,12 +35,14 @@ export class AuthenticationService {
     return this._oauth2Url;
   }
 
-  private _userAuth = signal<DiscordAuth | null>(null);
-
   constructor() {
     this.checkAuthentication();
   }
 
+  /**
+   * Check if the authentication stored in the browser is valid by requsting the user-data from the backend.
+   * @returns { Promise<DiscordAuth | null> } The user-data if the authentication is valid, otherwise null
+   */
   async checkAuthentication(): Promise<DiscordAuth | null> {
     try {
       const user = await this.discordBackenService.getMe();
@@ -57,6 +61,9 @@ export class AuthenticationService {
     }
   }
 
+  /**
+   * Reset the user and send the logout-request to the backend.
+   */
   async logout(): Promise<void> {
     this._userAuth.set(null);
     await this.discordBackenService.logout();

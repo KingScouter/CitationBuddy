@@ -19,6 +19,9 @@ import { AppRoutes } from '../models';
 export class OauthRedirectComponent implements OnInit {
   private readonly router = inject(Router);
 
+  /**
+   * OnInit-lifecycle. Automatically redirects the user to the main-screen after a given timeout
+   */
   ngOnInit(): void {
     setTimeout(() => {
       this.router.navigate([AppRoutes.Guilds]);
