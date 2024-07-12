@@ -117,8 +117,6 @@ export class GuildDetailComponent implements OnInit {
   }
 
   protected async onSaveConfig(): Promise<void> {
-    console.log('Save config', this.formGroup.value);
-
     const guild = this.guild();
     const originalConfig = this.serverConfigInfo();
     if (!guild || !originalConfig) {
@@ -129,9 +127,8 @@ export class GuildDetailComponent implements OnInit {
     const updatedConfig: ServerConfig = {
       guildId: guild.id,
       citeChannelId: this.formGroup.value.citeChannel,
-      excludedMessageIds: originalConfig.excludedMessageIds,
       additionalContexts: this.additionalData(),
-      messageConfigs: [],
+      messageConfigs: originalConfig.messageConfigs,
     };
 
     await this.discordBackendService.updateServerConfig(updatedConfig);

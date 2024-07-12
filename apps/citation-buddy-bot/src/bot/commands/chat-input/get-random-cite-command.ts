@@ -19,13 +19,14 @@ class GetRandomCitecommand extends BaseChatInputCommand {
     config: ServerConfig
   ): Promise<void> {
     const messages = await BotUtils.getMessages(config.citeChannelId);
-    // console.log('Messages', messages);
     const filteredMessages = messages?.filter(elem => {
-      const idx = config.excludedMessageIds.indexOf(elem.id);
-      if (idx >= 0) {
+      const isIgnored = config.messageConfigs.some(
+        msg => msg.id === elem.id && msg.ignored
+      );
+      if (isIgnored) {
         console.log('Skip exluded message: ', elem.content);
       }
-      return config.excludedMessageIds.indexOf(elem.id) === -1;
+      return !isIgnored;
     });
 
     if (!filteredMessages || filteredMessages.length <= 0) {

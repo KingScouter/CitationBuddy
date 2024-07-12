@@ -46,7 +46,7 @@ export abstract class ApiCommand<
     res: Response
   ): Promise<ServerConfig> {
     const config = await ConfigService.getInstance().getConfig(guildId);
-    if (!config) {
+    if (!config.citeChannelId) {
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {

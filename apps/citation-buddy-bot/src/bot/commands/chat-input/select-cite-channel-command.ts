@@ -34,20 +34,10 @@ class SelectCiteChannelCommand extends BaseChatInputCommand {
     const selectedChannelId = value.values[0];
     const selectedChannel = value.resolved.channels[selectedChannelId];
 
-    let config = await ConfigService.getInstance().getConfig(
+    const config = await ConfigService.getInstance().getConfig(
       interaction.guild_id
     );
-    if (!config) {
-      config = {
-        citeChannelId: selectedChannelId,
-        guildId: interaction.guild_id,
-        excludedMessageIds: [],
-        additionalContexts: [],
-        messageConfigs: [],
-      };
-    } else {
-      config.citeChannelId = selectedChannelId;
-    }
+    config.citeChannelId = selectedChannelId;
 
     await ConfigService.getInstance().setConfig(config);
 

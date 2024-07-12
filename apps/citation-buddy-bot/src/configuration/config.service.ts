@@ -20,7 +20,17 @@ export class ConfigService {
   }
 
   async getConfig(guildId: string): Promise<ServerConfig> {
-    return this.db.get(guildId);
+    let config = await this.db.get(guildId);
+    if (!config) {
+      config = {
+        guildId,
+        citeChannelId: null,
+        messageConfigs: [],
+        additionalContexts: [],
+      };
+    }
+
+    return config;
   }
 
   async setConfig(config: ServerConfig): Promise<void> {

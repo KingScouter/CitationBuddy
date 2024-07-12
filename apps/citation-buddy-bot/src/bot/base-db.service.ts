@@ -20,7 +20,7 @@ export class BaseDbService<T> {
       const obj = await this.db.getObject<T>(`${this.basePath}${key}`);
       return obj;
     } catch (ex) {
-      console.error('Element not found', ex);
+      console.log('Element not found', ex);
       return null;
     }
   }
@@ -30,7 +30,7 @@ export class BaseDbService<T> {
       const allObj = await this.db.getObject<Record<string, T>>(this.basePath);
       return allObj;
     } catch (ex) {
-      console.error('No elements found', ex);
+      console.log('No elements found', ex);
       return null;
     }
   }

@@ -88,7 +88,7 @@ export default function (app: Express): void {
       res.json(discordUser);
     } catch (err) {
       if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(401).json(authenticatedErrorName);
+      res.status(401).send(authenticatedErrorName);
     }
   });
 
@@ -115,7 +115,7 @@ export default function (app: Express): void {
       res.json(mappedGuilds);
     } catch (err) {
       if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
+      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
     }
   });
 
@@ -140,7 +140,7 @@ export default function (app: Express): void {
       res.json(guild);
     } catch (err) {
       if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
+      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
     }
   });
 
@@ -170,19 +170,9 @@ export default function (app: Express): void {
         return;
       }
 
-      let serverConfig: ServerConfig =
-        await ConfigService.getInstance().getConfig(guildId);
-      if (!serverConfig) {
-        serverConfig = {
-          guildId,
-          citeChannelId: '',
-          excludedMessageIds: [],
-          additionalContexts: [],
-          messageConfigs: [],
-        };
-      }
+      const serverConfig = await ConfigService.getInstance().getConfig(guildId);
 
-      const guildChannels = await BotUtils.getChannels(serverConfig.guildId);
+      const guildChannels = await BotUtils.getChannels(guildId);
       if (!guildChannels || guildChannels.length <= 0) {
         res.status(HttpStatusCode.InternalServerError).send(null);
         return;
@@ -192,13 +182,13 @@ export default function (app: Express): void {
         ...serverConfig,
         availableChannels: guildChannels.filter(
           elem => elem.type === ChannelType.GuildText
-        ) as any,
+        ),
       };
 
       res.json(configResponse);
     } catch (err) {
       if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
+      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
     }
   });
 
@@ -246,7 +236,7 @@ export default function (app: Express): void {
       }
 
       const config = await ConfigService.getInstance().getConfig(guildId);
-      if (!config) {
+      if (!config.citeChannelId) {
         res.status(HttpStatusCode.NotFound).send();
         return;
       }
@@ -256,7 +246,7 @@ export default function (app: Express): void {
       res.status(HttpStatusCode.Accepted).json(messages);
     } catch (err) {
       if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
+      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
     }
   });
 
@@ -271,15 +261,11 @@ export default function (app: Express): void {
       }
 
       const config = await ConfigService.getInstance().getConfig(guildId);
-      let messageConfigs = config?.messageConfigs;
-      if (!messageConfigs) {
-        messageConfigs = [];
-      }
 
-      res.status(HttpStatusCode.Accepted).json(messageConfigs);
+      res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
     } catch (err) {
       if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).json(authenticatedErrorName);
+      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
     }
   });
 
@@ -295,11 +281,6 @@ export default function (app: Express): void {
       req.body;
 
     const config = await ConfigService.getInstance().getConfig(guildId);
-    if (!config) {
-      res.status(HttpStatusCode.NotFound).send();
-      return;
-    }
-
     const existingConfigIdx = config.messageConfigs.findIndex(
       elem => elem.id === message.id
     );

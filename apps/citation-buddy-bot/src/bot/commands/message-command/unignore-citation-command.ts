@@ -20,8 +20,17 @@ class UnignoreCitationCommand extends BaseMessageCommand {
     config: ServerConfig
   ): Promise<void> {
     const clickedMessageId = interaction.data.target_id;
-    const messageIdx = config.excludedMessageIds.indexOf(clickedMessageId);
-    if (messageIdx < 0) {
+    let messageConfig = config.messageConfigs.find(
+      elem => elem.id === clickedMessageId
+    );
+    if (!messageConfig) {
+      messageConfig = {
+        id: clickedMessageId,
+        additionalData: {},
+        ignored: false,
+      };
+      config.messageConfigs.push(messageConfig);
+    } else if (!messageConfig.ignored) {
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
@@ -35,7 +44,7 @@ class UnignoreCitationCommand extends BaseMessageCommand {
       return;
     }
 
-    config.excludedMessageIds.splice(messageIdx, 1);
+    messageConfig.ignored = false;
     await ConfigService.getInstance().setConfig(config);
 
     res.send({

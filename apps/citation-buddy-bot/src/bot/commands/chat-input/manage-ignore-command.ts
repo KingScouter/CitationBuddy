@@ -35,10 +35,12 @@ class ManageIgnoreCommand extends BaseChatInputCommand {
       return;
     }
 
-    const filteredMessages = config.excludedMessageIds.map(
-      elem =>
-        `https://discord.com/channels/${config.guildId}/${config.citeChannelId}/${elem}`
-    );
+    const filteredMessages = config.messageConfigs
+      .filter(elem => elem.ignored)
+      .map(
+        elem =>
+          `https://discord.com/channels/${config.guildId}/${config.citeChannelId}/${elem.id}`
+      );
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,
