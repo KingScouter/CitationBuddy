@@ -13,7 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes),
     {
       provide: 'API_URL',
-      useValue: `http://localhost:${environment.apiPort}`,
+      useValue: `${environment.apiUrl}:${environment.apiPort}`,
     },
     provideAnimationsAsync(),
   ],
