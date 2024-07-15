@@ -27,273 +27,290 @@ const authenticatedErrorName = 'Not Authenticated';
 type UserJWTPayload = Pick<DiscordUser, 'id'> & { accessToken: string };
 
 export default function (app: Express): void {
-  app.get(DiscordBackendEndpoints.Oauth, async function (req, res) {
-    try {
-      // Parse authentication code
-      const code = req.query['code'];
+  app.get(DiscordBackendEndpoints.Oauth, getOauth);
 
-      // Exchange for token
-      const headers = new AxiosHeaders();
-      const data = {
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: 'http://localhost:3000/oauth',
-      };
-      headers.setContentType('application/x-www-form-urlencoded');
+  app.get(DiscordBackendEndpoints.Me, getMe);
 
-      const discordUrl = OAuth2Routes.tokenURL;
-      const tokenRes = await axios.post(discordUrl, data, {
-        headers,
-        auth: {
-          username: process.env.CLIENT_ID,
-          password: process.env.CLIENT_SECRET,
-        },
-      });
-      const tokenResData = tokenRes.data as RESTPostOAuth2AccessTokenResult;
-      console.log('TokenRes: ', tokenResData);
+  app.get(DiscordBackendEndpoints.Guild, getGuild);
+  app.get(DiscordBackendEndpoints.Guilds, getGuilds);
 
-      const user = await OauthBackendUtils.getUserMe(tokenResData.access_token);
-      const userFromDb: DiscordUser = {
-        id: user.id,
-        name: user.global_name,
-        username: user.username,
-      };
+  app.put(DiscordBackendEndpoints.ServerConfig, putServerConfig);
+  app.get(DiscordBackendEndpoints.ServerConfig, getServerConfig);
 
-      // Store user
-      await userDb.setUser(userFromDb);
+  app.post(DiscordBackendEndpoints.Logout, postLogout);
 
-      // Encode token in cookie
-      addCookieToRes(res, userFromDb, tokenResData.access_token);
-    } catch (ex) {
-      console.error(ex);
-      res.redirect(`${process.env.CLIENT_URL}/oauth-error`);
-      return;
-    }
+  app.get(DiscordBackendEndpoints.Messages, getMessages);
 
-    // Redirect
-    res.redirect(`${process.env.CLIENT_URL}/oauth`);
-  });
+  app.get(DiscordBackendEndpoints.MessageConfig, getMessageConfig);
+  app.put(DiscordBackendEndpoints.MessageConfig, putMessageConfig);
+}
 
-  app.get(DiscordBackendEndpoints.Me, async (req, res) => {
-    try {
-      const jwtPayload = await checkAuth(req);
+async function getOauth(req: Request, res: Response): Promise<void> {
+  try {
+    // Parse authentication code
+    const code = req.query['code'];
 
-      const discordUser = await OauthBackendUtils.getUserMe(
-        jwtPayload.accessToken
-      );
-      if (discordUser?.id !== jwtPayload.id) {
-        throw new Error(authenticatedErrorName);
-      }
+    // Exchange for token
+    const headers = new AxiosHeaders();
+    const data = {
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: `${process.env.API_URL}/oauth`,
+    };
+    headers.setContentType('application/x-www-form-urlencoded');
 
-      res.json(discordUser);
-    } catch (err) {
-      if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(401).send(authenticatedErrorName);
-    }
-  });
+    const discordUrl = OAuth2Routes.tokenURL;
+    const tokenRes = await axios.post(discordUrl, data, {
+      headers,
+      auth: {
+        username: process.env.CLIENT_ID,
+        password: process.env.CLIENT_SECRET,
+      },
+    });
+    const tokenResData = tokenRes.data as RESTPostOAuth2AccessTokenResult;
+    // console.log('TokenRes: ', tokenResData);
 
-  app.get(DiscordBackendEndpoints.Guilds, async (req, res) => {
-    try {
-      const jwtPayload = await checkAuth(req);
-      const guilds = await OauthBackendUtils.getUserGuilds(
-        jwtPayload.accessToken
-      );
-      if (!guilds || guilds.length <= 0) {
-        res.status(HttpStatusCode.NotFound).send([]);
-      }
+    const user = await OauthBackendUtils.getUserMe(tokenResData.access_token);
+    const userFromDb: DiscordUser = {
+      id: user.id,
+      name: user.global_name,
+      username: user.username,
+    };
 
-      const botGuilds = await BotUtils.getGuilds();
+    // Store user
+    await userDb.setUser(userFromDb);
 
-      const mappedGuilds: DiscordGuild[] = guilds.map(
-        elem =>
-          ({
-            guild: elem,
-            hasBot: botGuilds.some(botGuild => botGuild.id === elem.id),
-          }) as DiscordGuild
-      );
+    // Encode token in cookie
+    addCookieToRes(res, userFromDb, tokenResData.access_token);
+  } catch (ex) {
+    console.error(ex);
+    res.redirect(`${process.env.CLIENT_URL}/oauth-error`);
+    return;
+  }
 
-      res.json(mappedGuilds);
-    } catch (err) {
-      if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
-    }
-  });
+  // Redirect
+  res.redirect(`${process.env.CLIENT_URL}/oauth`);
+}
 
-  app.get(DiscordBackendEndpoints.Guild, async (req, res) => {
-    try {
-      const jwtPayload = await checkAuth(req);
-
-      const guildId = req.query.guildId as string;
-      if (!guildId) {
-        res.status(HttpStatusCode.BadRequest).send(null);
-        return;
-      }
-      const guild = await OauthBackendUtils.getGuild(
-        guildId,
-        jwtPayload.accessToken
-      );
-      if (!guild) {
-        res.status(HttpStatusCode.NotFound).send(null);
-        return;
-      }
-
-      res.json(guild);
-    } catch (err) {
-      if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
-    }
-  });
-
-  app.put(DiscordBackendEndpoints.ServerConfig, async (req, res) => {
+async function getMe(req: Request, res: Response): Promise<void> {
+  try {
     const jwtPayload = await checkAuth(req);
 
-    const config = req.body as ServerConfig;
-    if (!config) {
-      res.status(HttpStatusCode.BadRequest).send();
-      return;
+    const discordUser = await OauthBackendUtils.getUserMe(
+      jwtPayload.accessToken
+    );
+    if (discordUser?.id !== jwtPayload.id) {
+      throw new Error(authenticatedErrorName);
     }
 
-    await ConfigService.getInstance().setConfig(config);
+    res.json(discordUser);
+  } catch (err) {
+    if (err.message !== authenticatedErrorName) console.error(err);
+    res.status(401).send(authenticatedErrorName);
+  }
+}
 
-    res.status(HttpStatusCode.Accepted).send();
-  });
-
-  app.get(DiscordBackendEndpoints.ServerConfig, async (req, res) => {
-    try {
-      const jwtPayload = await checkAuth(req);
-
-      // ToDo: Check user-permissions for server
-
-      const guildId = req.query.guildId as string;
-      if (!guildId) {
-        res.status(HttpStatusCode.BadRequest).send(null);
-        return;
-      }
-
-      const serverConfig = await ConfigService.getInstance().getConfig(guildId);
-
-      const guildChannels = await BotUtils.getChannels(guildId);
-      if (!guildChannels || guildChannels.length <= 0) {
-        res.status(HttpStatusCode.InternalServerError).send(null);
-        return;
-      }
-
-      const configResponse: ServerConfigResponse = {
-        ...serverConfig,
-        availableChannels: guildChannels.filter(
-          elem => elem.type === ChannelType.GuildText
-        ) as any,
-      };
-
-      res.json(configResponse);
-    } catch (err) {
-      if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
+async function getGuilds(req: Request, res: Response): Promise<void> {
+  try {
+    const jwtPayload = await checkAuth(req);
+    const guilds = await OauthBackendUtils.getUserGuilds(
+      jwtPayload.accessToken
+    );
+    if (!guilds || guilds.length <= 0) {
+      res.status(HttpStatusCode.NotFound).send([]);
     }
-  });
 
-  app.post(DiscordBackendEndpoints.Logout, async (req, res) => {
+    const botGuilds = await BotUtils.getGuilds();
+
+    const mappedGuilds: DiscordGuild[] = guilds.map(
+      elem =>
+        ({
+          guild: elem,
+          hasBot: botGuilds.some(botGuild => botGuild.id === elem.id),
+        }) as DiscordGuild
+    );
+
+    res.json(mappedGuilds);
+  } catch (err) {
+    if (err.message !== authenticatedErrorName) console.error(err);
+    res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
+  }
+}
+
+async function getGuild(req: Request, res: Response): Promise<void> {
+  try {
     const jwtPayload = await checkAuth(req);
 
-    UserDbService.getInstance().removeUser(jwtPayload.id);
-
-    res.clearCookie(COOKIE_NAME);
-
-    try {
-      // Exchange for token
-      const headers = new AxiosHeaders();
-      const data = {
-        token: jwtPayload.accessToken,
-        token_type_hint: 'access_token',
-      };
-      headers.setContentType('application/x-www-form-urlencoded');
-
-      const discordUrl = OAuth2Routes.tokenRevocationURL;
-      await axios.post(discordUrl, data, {
-        headers,
-        auth: {
-          username: process.env.CLIENT_ID,
-          password: process.env.CLIENT_SECRET,
-        },
-      });
-    } catch (ex) {
-      console.error(ex);
-      res.status(HttpStatusCode.BadRequest).send();
+    const guildId = req.query.guildId as string;
+    if (!guildId) {
+      res.status(HttpStatusCode.BadRequest).send(null);
+      return;
+    }
+    const guild = await OauthBackendUtils.getGuild(
+      guildId,
+      jwtPayload.accessToken
+    );
+    if (!guild) {
+      res.status(HttpStatusCode.NotFound).send(null);
       return;
     }
 
-    res.status(HttpStatusCode.Accepted).send();
-  });
+    res.json(guild);
+  } catch (err) {
+    if (err.message !== authenticatedErrorName) console.error(err);
+    res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
+  }
+}
 
-  app.get(DiscordBackendEndpoints.Messages, async (req, res) => {
-    try {
-      const jwtPayload = await checkAuth(req);
+async function putServerConfig(req: Request, res: Response): Promise<void> {
+  const jwtPayload = await checkAuth(req);
 
-      const guildId = req.query.guildId as string;
-      if (!guildId) {
-        res.status(HttpStatusCode.BadRequest).send(null);
-        return;
-      }
+  const config = req.body as ServerConfig;
+  if (!config) {
+    res.status(HttpStatusCode.BadRequest).send();
+    return;
+  }
 
-      const config = await ConfigService.getInstance().getConfig(guildId);
-      if (!config.citeChannelId) {
-        res.status(HttpStatusCode.NotFound).send();
-        return;
-      }
+  await ConfigService.getInstance().setConfig(config);
 
-      const messages = await BotUtils.getMessages(config.citeChannelId);
+  res.status(HttpStatusCode.Accepted).send();
+}
 
-      res.status(HttpStatusCode.Accepted).json(messages);
-    } catch (err) {
-      if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
-    }
-  });
-
-  app.get(DiscordBackendEndpoints.MessageConfig, async (req, res) => {
-    try {
-      const jwtPayload = await checkAuth(req);
-
-      const guildId = req.query.guildId as string;
-      if (!guildId) {
-        res.status(HttpStatusCode.BadRequest).send(null);
-        return;
-      }
-
-      const config = await ConfigService.getInstance().getConfig(guildId);
-
-      res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
-    } catch (err) {
-      if (err.message !== authenticatedErrorName) console.error(err);
-      res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
-    }
-  });
-
-  app.put(DiscordBackendEndpoints.MessageConfig, async (req, res) => {
+async function getServerConfig(req: Request, res: Response): Promise<void> {
+  try {
     const jwtPayload = await checkAuth(req);
 
-    if (!req.body) {
-      res.status(HttpStatusCode.BadRequest).send();
+    // ToDo: Check user-permissions for server
+
+    const guildId = req.query.guildId as string;
+    if (!guildId) {
+      res.status(HttpStatusCode.BadRequest).send(null);
       return;
     }
 
-    const { guildId, message }: { guildId: string; message: MessageConfig } =
-      req.body;
+    const serverConfig = await ConfigService.getInstance().getConfig(guildId);
+
+    const guildChannels = await BotUtils.getChannels(guildId);
+    if (!guildChannels || guildChannels.length <= 0) {
+      res.status(HttpStatusCode.InternalServerError).send(null);
+      return;
+    }
+
+    const configResponse: ServerConfigResponse = {
+      ...serverConfig,
+      availableChannels: guildChannels.filter(
+        elem => elem.type === ChannelType.GuildText
+      ) as any,
+    };
+
+    res.json(configResponse);
+  } catch (err) {
+    if (err.message !== authenticatedErrorName) console.error(err);
+    res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
+  }
+}
+
+async function postLogout(req: Request, res: Response): Promise<void> {
+  const jwtPayload = await checkAuth(req);
+
+  UserDbService.getInstance().removeUser(jwtPayload.id);
+
+  res.clearCookie(COOKIE_NAME);
+
+  try {
+    // Exchange for token
+    const headers = new AxiosHeaders();
+    const data = {
+      token: jwtPayload.accessToken,
+      token_type_hint: 'access_token',
+    };
+    headers.setContentType('application/x-www-form-urlencoded');
+
+    const discordUrl = OAuth2Routes.tokenRevocationURL;
+    await axios.post(discordUrl, data, {
+      headers,
+      auth: {
+        username: process.env.CLIENT_ID,
+        password: process.env.CLIENT_SECRET,
+      },
+    });
+  } catch (ex) {
+    console.error(ex);
+    res.status(HttpStatusCode.BadRequest).send();
+    return;
+  }
+
+  res.status(HttpStatusCode.Accepted).send();
+}
+
+async function getMessages(req: Request, res: Response): Promise<void> {
+  try {
+    const jwtPayload = await checkAuth(req);
+
+    const guildId = req.query.guildId as string;
+    if (!guildId) {
+      res.status(HttpStatusCode.BadRequest).send(null);
+      return;
+    }
 
     const config = await ConfigService.getInstance().getConfig(guildId);
-    const existingConfigIdx = config.messageConfigs.findIndex(
-      elem => elem.id === message.id
-    );
-    if (existingConfigIdx >= 0) {
-      config.messageConfigs.splice(existingConfigIdx, 1, message);
-    } else {
-      config.messageConfigs.push(message);
+    if (!config.citeChannelId) {
+      res.status(HttpStatusCode.NotFound).send();
+      return;
     }
 
-    await ConfigService.getInstance().setConfig(config);
+    const messages = await BotUtils.getMessages(config.citeChannelId);
 
-    res.status(HttpStatusCode.Accepted).send();
-  });
+    res.status(HttpStatusCode.Accepted).json(messages);
+  } catch (err) {
+    if (err.message !== authenticatedErrorName) console.error(err);
+    res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
+  }
+}
+
+async function getMessageConfig(req: Request, res: Response): Promise<void> {
+  try {
+    const jwtPayload = await checkAuth(req);
+
+    const guildId = req.query.guildId as string;
+    if (!guildId) {
+      res.status(HttpStatusCode.BadRequest).send(null);
+      return;
+    }
+
+    const config = await ConfigService.getInstance().getConfig(guildId);
+
+    res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
+  } catch (err) {
+    if (err.message !== authenticatedErrorName) console.error(err);
+    res.status(HttpStatusCode.Unauthorized).send(authenticatedErrorName);
+  }
+}
+
+async function putMessageConfig(req: Request, res: Response): Promise<void> {
+  const jwtPayload = await checkAuth(req);
+
+  if (!req.body) {
+    res.status(HttpStatusCode.BadRequest).send();
+    return;
+  }
+
+  const { guildId, message }: { guildId: string; message: MessageConfig } =
+    req.body;
+
+  const config = await ConfigService.getInstance().getConfig(guildId);
+  const existingConfigIdx = config.messageConfigs.findIndex(
+    elem => elem.id === message.id
+  );
+  if (existingConfigIdx >= 0) {
+    config.messageConfigs.splice(existingConfigIdx, 1, message);
+  } else {
+    config.messageConfigs.push(message);
+  }
+
+  await ConfigService.getInstance().setConfig(config);
+
+  res.status(HttpStatusCode.Accepted).send();
 }
 
 function addCookieToRes(res: Response, user: DiscordUser, accessToken: string) {
