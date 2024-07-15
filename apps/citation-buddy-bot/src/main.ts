@@ -5,6 +5,7 @@ import cors from 'cors';
 import discordBackend from './discord-backend/discord-backend';
 import botApi from './bot/bot-api';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 
 // Create an express app
 const app = express();
@@ -20,6 +21,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use(morgan('combined'));
 
 discordBackend(app);
 botApi(app);

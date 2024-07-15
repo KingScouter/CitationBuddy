@@ -182,7 +182,7 @@ export default function (app: Express): void {
         ...serverConfig,
         availableChannels: guildChannels.filter(
           elem => elem.type === ChannelType.GuildText
-        ),
+        ) as any,
       };
 
       res.json(configResponse);
