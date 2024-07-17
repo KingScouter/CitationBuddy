@@ -6,6 +6,7 @@ import discordBackend from './discord-backend/discord-backend';
 import botApi from './bot/bot-api';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import { checkCookieAuthMiddleware } from './discord-backend/oauth-handlers';
 
 // Create an express app
 const app = express();
@@ -22,6 +23,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(morgan('combined'));
+app.use(checkCookieAuthMiddleware);
 
 discordBackend(app);
 botApi(app);

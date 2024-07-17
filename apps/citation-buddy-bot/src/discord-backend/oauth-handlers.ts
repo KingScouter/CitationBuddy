@@ -1,4 +1,4 @@
-import { CookieOptions, Request, Response } from 'express';
+import { CookieOptions, NextFunction, Request, Response } from 'express';
 import { DiscordUser } from '../user-db/models/discord-user';
 import jwt from 'jsonwebtoken';
 import { UserDbService } from '../user-db/user-db.service';
@@ -6,6 +6,7 @@ import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
 import { OauthBackendUtils } from './oauth-backend-utils';
 import { AppConfig } from '../models';
+import { DiscordBackendEndpoints } from './discord-backend-endpoints.enum';
 
 const COOKIE_NAME = process.env.OAUTH2_COOKIE_NAME;
 type UserJWTPayload = Pick<DiscordUser, 'id'> & { accessToken: string };
@@ -67,7 +68,7 @@ export async function getOauth(req: Request, res: Response): Promise<void> {
  * @param res Response
  */
 export async function postLogout(req: Request, res: Response): Promise<void> {
-  const jwtPayload = await checkAuth(req);
+  const jwtPayload = getUserFromCookie(req);
 
   UserDbService.getInstance().removeUser(jwtPayload.id);
 
@@ -105,20 +106,39 @@ export async function postLogout(req: Request, res: Response): Promise<void> {
  * @param res Response with the user informations
  */
 export async function getMe(req: Request, res: Response): Promise<void> {
+  const jwtPayload = getUserFromCookie(req);
+
+  const discordUser = await OauthBackendUtils.getUserMe(jwtPayload.accessToken);
+  if (discordUser?.id !== jwtPayload.id) {
+    throw new Error(AppConfig.AUTH_ERROR_NAME);
+  }
+
+  res.json(discordUser);
+}
+
+export async function checkCookieAuthMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  // Check if route needs auth
+  if (
+    Object.values(DiscordBackendEndpoints).indexOf(
+      req.url as DiscordBackendEndpoints
+    ) <= 0 ||
+    req.url === DiscordBackendEndpoints.Oauth
+  ) {
+    next();
+    return;
+  }
+
   try {
-    const jwtPayload = await checkAuth(req);
-
-    const discordUser = await OauthBackendUtils.getUserMe(
-      jwtPayload.accessToken
-    );
-    if (discordUser?.id !== jwtPayload.id) {
-      throw new Error(AppConfig.AUTH_ERROR_NAME);
-    }
-
-    res.json(discordUser);
+    // Check auth
+    await checkAuth(req);
+    next();
   } catch (err) {
     if (err.message !== AppConfig.AUTH_ERROR_NAME) console.error(err);
-    res.status(401).send(AppConfig.AUTH_ERROR_NAME);
+    res.status(HttpStatusCode.Unauthorized).send(AppConfig.AUTH_ERROR_NAME);
   }
 }
 
@@ -127,19 +147,21 @@ export async function getMe(req: Request, res: Response): Promise<void> {
  * @param req Request
  * @returns { Promise<UserJWTPayload> } The authentication-information for the user, if valid.
  */
-export async function checkAuth(req: Request): Promise<UserJWTPayload> {
-  const token = req.cookies[COOKIE_NAME];
-  if (!token) {
-    throw new Error(AppConfig.AUTH_ERROR_NAME);
-  }
-  const payload = jwt.verify(token, process.env.JWT_SECRET) as UserJWTPayload;
+export async function checkAuth(req: Request): Promise<void> {
+  const payload = getUserFromCookie(req);
   const userFromDb = await UserDbService.getInstance().getUser(payload?.id);
   if (!payload.accessToken || !userFromDb) {
     throw new Error(AppConfig.AUTH_ERROR_NAME);
   }
   // ToDo: Check expiration date for token
+}
 
-  return payload;
+export function getUserFromCookie(req: Request): UserJWTPayload {
+  const token = req.cookies[COOKIE_NAME];
+  if (!token) {
+    throw new Error(AppConfig.AUTH_ERROR_NAME);
+  }
+  return jwt.verify(token, process.env.JWT_SECRET) as UserJWTPayload;
 }
 
 /**

@@ -5,7 +5,6 @@ import { ChannelType } from 'discord.js';
 import { BotUtils } from '../bot/bot-utils';
 import { ConfigService } from '../configuration/config.service';
 import { AppConfig } from '../models';
-import { checkAuth } from './oauth-handlers';
 
 /**
  * Update the server configuration for a given guild
@@ -16,8 +15,6 @@ export async function putServerConfig(
   req: Request,
   res: Response
 ): Promise<void> {
-  await checkAuth(req);
-
   const config = req.body as ServerConfig;
   if (!config) {
     res.status(HttpStatusCode.BadRequest).send();
@@ -38,35 +35,28 @@ export async function getServerConfig(
   req: Request,
   res: Response
 ): Promise<void> {
-  try {
-    await checkAuth(req);
+  // ToDo: Check user-permissions for server
 
-    // ToDo: Check user-permissions for server
-
-    const guildId = req.query.guildId as string;
-    if (!guildId) {
-      res.status(HttpStatusCode.BadRequest).send(null);
-      return;
-    }
-
-    const serverConfig = await ConfigService.getInstance().getConfig(guildId);
-
-    const guildChannels = await BotUtils.getChannels(guildId);
-    if (!guildChannels || guildChannels.length <= 0) {
-      res.status(HttpStatusCode.InternalServerError).send(null);
-      return;
-    }
-
-    const configResponse: ServerConfigResponse = {
-      ...serverConfig,
-      availableChannels: guildChannels.filter(
-        elem => elem.type === ChannelType.GuildText
-      ) as any,
-    };
-
-    res.json(configResponse);
-  } catch (err) {
-    if (err.message !== AppConfig.AUTH_ERROR_NAME) console.error(err);
-    res.status(HttpStatusCode.Unauthorized).send(AppConfig.AUTH_ERROR_NAME);
+  const guildId = req.query.guildId as string;
+  if (!guildId) {
+    res.status(HttpStatusCode.BadRequest).send(null);
+    return;
   }
+
+  const serverConfig = await ConfigService.getInstance().getConfig(guildId);
+
+  const guildChannels = await BotUtils.getChannels(guildId);
+  if (!guildChannels || guildChannels.length <= 0) {
+    res.status(HttpStatusCode.InternalServerError).send(null);
+    return;
+  }
+
+  const configResponse: ServerConfigResponse = {
+    ...serverConfig,
+    availableChannels: guildChannels.filter(
+      elem => elem.type === ChannelType.GuildText
+    ) as any,
+  };
+
+  res.json(configResponse);
 }

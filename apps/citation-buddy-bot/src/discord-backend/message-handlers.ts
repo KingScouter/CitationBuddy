@@ -2,8 +2,6 @@ import { Request, Response } from 'express';
 import { MessageConfig } from '@cite/models';
 import { HttpStatusCode } from 'axios';
 import { ConfigService } from '../configuration/config.service';
-import { AppConfig } from '../models';
-import { checkAuth } from './oauth-handlers';
 import { BotUtils } from '../bot/bot-utils';
 
 /**
@@ -15,22 +13,15 @@ export async function getMessageConfig(
   req: Request,
   res: Response
 ): Promise<void> {
-  try {
-    await checkAuth(req);
-
-    const guildId = req.query.guildId as string;
-    if (!guildId) {
-      res.status(HttpStatusCode.BadRequest).send(null);
-      return;
-    }
-
-    const config = await ConfigService.getInstance().getConfig(guildId);
-
-    res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
-  } catch (err) {
-    if (err.message !== AppConfig.AUTH_ERROR_NAME) console.error(err);
-    res.status(HttpStatusCode.Unauthorized).send(AppConfig.AUTH_ERROR_NAME);
+  const guildId = req.query.guildId as string;
+  if (!guildId) {
+    res.status(HttpStatusCode.BadRequest).send(null);
+    return;
   }
+
+  const config = await ConfigService.getInstance().getConfig(guildId);
+
+  res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
 }
 
 /**
@@ -42,8 +33,6 @@ export async function putMessageConfig(
   req: Request,
   res: Response
 ): Promise<void> {
-  await checkAuth(req);
-
   if (!req.body) {
     res.status(HttpStatusCode.BadRequest).send();
     return;
@@ -73,26 +62,19 @@ export async function putMessageConfig(
  * @param res Reponse with list of messages
  */
 export async function getMessages(req: Request, res: Response): Promise<void> {
-  try {
-    await checkAuth(req);
-
-    const guildId = req.query.guildId as string;
-    if (!guildId) {
-      res.status(HttpStatusCode.BadRequest).send(null);
-      return;
-    }
-
-    const config = await ConfigService.getInstance().getConfig(guildId);
-    if (!config.citeChannelId) {
-      res.status(HttpStatusCode.NotFound).send();
-      return;
-    }
-
-    const messages = await BotUtils.getMessages(config.citeChannelId);
-
-    res.status(HttpStatusCode.Accepted).json(messages);
-  } catch (err) {
-    if (err.message !== AppConfig.AUTH_ERROR_NAME) console.error(err);
-    res.status(HttpStatusCode.Unauthorized).send(AppConfig.AUTH_ERROR_NAME);
+  const guildId = req.query.guildId as string;
+  if (!guildId) {
+    res.status(HttpStatusCode.BadRequest).send(null);
+    return;
   }
+
+  const config = await ConfigService.getInstance().getConfig(guildId);
+  if (!config.citeChannelId) {
+    res.status(HttpStatusCode.NotFound).send();
+    return;
+  }
+
+  const messages = await BotUtils.getMessages(config.citeChannelId);
+
+  res.status(HttpStatusCode.Accepted).json(messages);
 }

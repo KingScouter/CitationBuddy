@@ -3,8 +3,7 @@ import { DiscordGuild } from '@cite/models';
 import { HttpStatusCode } from 'axios';
 import { BotUtils } from '../bot/bot-utils';
 import { OauthBackendUtils } from './oauth-backend-utils';
-import { checkAuth } from './oauth-handlers';
-import { AppConfig } from '../models';
+import { getUserFromCookie } from './oauth-handlers';
 
 /**
  * Get a list of all guilds of the currently authenticated user
@@ -12,30 +11,23 @@ import { AppConfig } from '../models';
  * @param res Response with the list of guilds
  */
 export async function getGuilds(req: Request, res: Response): Promise<void> {
-  try {
-    const jwtPayload = await checkAuth(req);
-    const guilds = await OauthBackendUtils.getUserGuilds(
-      jwtPayload.accessToken
-    );
-    if (!guilds || guilds.length <= 0) {
-      res.status(HttpStatusCode.NotFound).send([]);
-    }
-
-    const botGuilds = await BotUtils.getGuilds();
-
-    const mappedGuilds: DiscordGuild[] = guilds.map(
-      elem =>
-        ({
-          guild: elem,
-          hasBot: botGuilds.some(botGuild => botGuild.id === elem.id),
-        }) as DiscordGuild
-    );
-
-    res.json(mappedGuilds);
-  } catch (err) {
-    if (err.message !== AppConfig.AUTH_ERROR_NAME) console.error(err);
-    res.status(HttpStatusCode.Unauthorized).send(AppConfig.AUTH_ERROR_NAME);
+  const jwtPayload = getUserFromCookie(req);
+  const guilds = await OauthBackendUtils.getUserGuilds(jwtPayload.accessToken);
+  if (!guilds || guilds.length <= 0) {
+    res.status(HttpStatusCode.NotFound).send([]);
   }
+
+  const botGuilds = await BotUtils.getGuilds();
+
+  const mappedGuilds = guilds.map(
+    elem =>
+      ({
+        guild: elem,
+        hasBot: botGuilds.some(botGuild => botGuild.id === elem.id),
+      }) as DiscordGuild
+  );
+
+  res.json(mappedGuilds);
 }
 
 /**
@@ -44,26 +36,21 @@ export async function getGuilds(req: Request, res: Response): Promise<void> {
  * @param res Response with the guild
  */
 export async function getGuild(req: Request, res: Response): Promise<void> {
-  try {
-    const jwtPayload = await checkAuth(req);
+  const jwtPayload = getUserFromCookie(req);
 
-    const guildId = req.query.guildId as string;
-    if (!guildId) {
-      res.status(HttpStatusCode.BadRequest).send(null);
-      return;
-    }
-    const guild = await OauthBackendUtils.getGuild(
-      guildId,
-      jwtPayload.accessToken
-    );
-    if (!guild) {
-      res.status(HttpStatusCode.NotFound).send(null);
-      return;
-    }
-
-    res.json(guild);
-  } catch (err) {
-    if (err.message !== AppConfig.AUTH_ERROR_NAME) console.error(err);
-    res.status(HttpStatusCode.Unauthorized).send(AppConfig.AUTH_ERROR_NAME);
+  const guildId = req.query.guildId as string;
+  if (!guildId) {
+    res.status(HttpStatusCode.BadRequest).send(null);
+    return;
   }
+  const guild = await OauthBackendUtils.getGuild(
+    guildId,
+    jwtPayload.accessToken
+  );
+  if (!guild) {
+    res.status(HttpStatusCode.NotFound).send(null);
+    return;
+  }
+
+  res.json(guild);
 }
