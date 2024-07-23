@@ -4,7 +4,7 @@ import { HttpStatusCode } from 'axios';
 import { ChannelType } from 'discord.js';
 import { BotUtils } from '../bot/bot-utils';
 import { ConfigService } from '../configuration/config.service';
-import { AppConfig } from '../models';
+import { OauthBackendUtils } from './oauth-backend-utils';
 
 /**
  * Update the server configuration for a given guild
@@ -14,16 +14,19 @@ import { AppConfig } from '../models';
 export async function putServerConfig(
   req: Request,
   res: Response
-): Promise<void> {
+): Promise<Response> {
   const config = req.body as ServerConfig;
   if (!config) {
-    res.status(HttpStatusCode.BadRequest).send();
-    return;
+    return res.status(HttpStatusCode.BadRequest).send();
+  }
+
+  if (!OauthBackendUtils.checkUserGuildPrivileges(req, config.guildId)) {
+    return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
   await ConfigService.getInstance().setConfig(config);
 
-  res.status(HttpStatusCode.Accepted).send();
+  return res.status(HttpStatusCode.Accepted).send();
 }
 
 /**
@@ -34,21 +37,21 @@ export async function putServerConfig(
 export async function getServerConfig(
   req: Request,
   res: Response
-): Promise<void> {
-  // ToDo: Check user-permissions for server
-
+): Promise<Response> {
   const guildId = req.query.guildId as string;
   if (!guildId) {
-    res.status(HttpStatusCode.BadRequest).send(null);
-    return;
+    return res.status(HttpStatusCode.BadRequest).send(null);
+  }
+
+  if (!OauthBackendUtils.checkUserGuildPrivileges(req, guildId)) {
+    return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
   const serverConfig = await ConfigService.getInstance().getConfig(guildId);
 
   const guildChannels = await BotUtils.getChannels(guildId);
   if (!guildChannels || guildChannels.length <= 0) {
-    res.status(HttpStatusCode.InternalServerError).send(null);
-    return;
+    return res.status(HttpStatusCode.InternalServerError).send(null);
   }
 
   const configResponse: ServerConfigResponse = {
@@ -58,5 +61,5 @@ export async function getServerConfig(
     ) as any,
   };
 
-  res.json(configResponse);
+  return res.json(configResponse);
 }

@@ -3,6 +3,7 @@ import { MessageConfig } from '@cite/models';
 import { HttpStatusCode } from 'axios';
 import { ConfigService } from '../configuration/config.service';
 import { BotUtils } from '../bot/bot-utils';
+import { OauthBackendUtils } from './oauth-backend-utils';
 
 /**
  * Get the message-config for a specific guild
@@ -12,16 +13,19 @@ import { BotUtils } from '../bot/bot-utils';
 export async function getMessageConfig(
   req: Request,
   res: Response
-): Promise<void> {
+): Promise<Response> {
   const guildId = req.query.guildId as string;
   if (!guildId) {
-    res.status(HttpStatusCode.BadRequest).send(null);
-    return;
+    return res.status(HttpStatusCode.BadRequest).send(null);
+  }
+
+  if (!OauthBackendUtils.checkUserGuildPrivileges(req, guildId)) {
+    return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
   const config = await ConfigService.getInstance().getConfig(guildId);
 
-  res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
+  return res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
 }
 
 /**
@@ -32,14 +36,17 @@ export async function getMessageConfig(
 export async function putMessageConfig(
   req: Request,
   res: Response
-): Promise<void> {
+): Promise<Response> {
   if (!req.body) {
-    res.status(HttpStatusCode.BadRequest).send();
-    return;
+    return res.status(HttpStatusCode.BadRequest).send();
   }
 
   const { guildId, message }: { guildId: string; message: MessageConfig } =
     req.body;
+
+  if (!OauthBackendUtils.checkUserGuildPrivileges(req, guildId)) {
+    return res.status(HttpStatusCode.Unauthorized).send(null);
+  }
 
   const config = await ConfigService.getInstance().getConfig(guildId);
   const existingConfigIdx = config.messageConfigs.findIndex(
@@ -53,7 +60,7 @@ export async function putMessageConfig(
 
   await ConfigService.getInstance().setConfig(config);
 
-  res.status(HttpStatusCode.Accepted).send();
+  return res.status(HttpStatusCode.Accepted).send();
 }
 
 /**
@@ -61,20 +68,25 @@ export async function putMessageConfig(
  * @param req Request with guildId in query-params
  * @param res Reponse with list of messages
  */
-export async function getMessages(req: Request, res: Response): Promise<void> {
+export async function getMessages(
+  req: Request,
+  res: Response
+): Promise<Response> {
   const guildId = req.query.guildId as string;
   if (!guildId) {
-    res.status(HttpStatusCode.BadRequest).send(null);
-    return;
+    return res.status(HttpStatusCode.BadRequest).send(null);
+  }
+
+  if (!OauthBackendUtils.checkUserGuildPrivileges(req, guildId)) {
+    return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
   const config = await ConfigService.getInstance().getConfig(guildId);
   if (!config.citeChannelId) {
-    res.status(HttpStatusCode.NotFound).send();
-    return;
+    return res.status(HttpStatusCode.NotFound).send();
   }
 
   const messages = await BotUtils.getMessages(config.citeChannelId);
 
-  res.status(HttpStatusCode.Accepted).json(messages);
+  return res.status(HttpStatusCode.Accepted).json(messages);
 }

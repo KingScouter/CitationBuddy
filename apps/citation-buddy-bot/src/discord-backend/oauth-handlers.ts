@@ -5,11 +5,10 @@ import { UserDbService } from '../user-db/user-db.service';
 import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
 import { OauthBackendUtils } from './oauth-backend-utils';
-import { AppConfig } from '../models';
+import { AppConfig, UserJWT } from '../models';
 import { DiscordBackendEndpoints } from './discord-backend-endpoints.enum';
 
 const COOKIE_NAME = process.env.OAUTH2_COOKIE_NAME;
-type UserJWTPayload = Pick<DiscordUser, 'id'> & { accessToken: string };
 
 /**
  * Handle the Oauth2-token exchange and redirect the client to the correct page afterwards
@@ -68,7 +67,7 @@ export async function getOauth(req: Request, res: Response): Promise<void> {
  * @param res Response
  */
 export async function postLogout(req: Request, res: Response): Promise<void> {
-  const jwtPayload = getUserFromCookie(req);
+  const jwtPayload = OauthBackendUtils.getUserFromCookie(req);
 
   UserDbService.getInstance().removeUser(jwtPayload.id);
 
@@ -106,7 +105,7 @@ export async function postLogout(req: Request, res: Response): Promise<void> {
  * @param res Response with the user informations
  */
 export async function getMe(req: Request, res: Response): Promise<void> {
-  const jwtPayload = getUserFromCookie(req);
+  const jwtPayload = OauthBackendUtils.getUserFromCookie(req);
 
   const discordUser = await OauthBackendUtils.getUserMe(jwtPayload.accessToken);
   if (discordUser?.id !== jwtPayload.id) {
@@ -134,34 +133,12 @@ export async function checkCookieAuthMiddleware(
 
   try {
     // Check auth
-    await checkAuth(req);
+    await OauthBackendUtils.checkAuth(req);
     next();
   } catch (err) {
     if (err.message !== AppConfig.AUTH_ERROR_NAME) console.error(err);
     res.status(HttpStatusCode.Unauthorized).send(AppConfig.AUTH_ERROR_NAME);
   }
-}
-
-/**
- * Check if the user authenticated by the request-cookie is authorized.
- * @param req Request
- * @returns { Promise<UserJWTPayload> } The authentication-information for the user, if valid.
- */
-export async function checkAuth(req: Request): Promise<void> {
-  const payload = getUserFromCookie(req);
-  const userFromDb = await UserDbService.getInstance().getUser(payload?.id);
-  if (!payload.accessToken || !userFromDb) {
-    throw new Error(AppConfig.AUTH_ERROR_NAME);
-  }
-  // ToDo: Check expiration date for token
-}
-
-export function getUserFromCookie(req: Request): UserJWTPayload {
-  const token = req.cookies[COOKIE_NAME];
-  if (!token) {
-    throw new Error(AppConfig.AUTH_ERROR_NAME);
-  }
-  return jwt.verify(token, process.env.JWT_SECRET) as UserJWTPayload;
 }
 
 /**
@@ -188,7 +165,7 @@ function addCookieToRes(
       // Signing the token to send to client side
       id,
       accessToken,
-    } satisfies UserJWTPayload,
+    } satisfies UserJWT,
     process.env.JWT_SECRET
   );
   res.cookie(COOKIE_NAME, token, {

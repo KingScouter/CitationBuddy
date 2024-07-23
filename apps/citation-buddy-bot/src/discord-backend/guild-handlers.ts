@@ -3,7 +3,6 @@ import { DiscordGuild } from '@cite/models';
 import { HttpStatusCode } from 'axios';
 import { BotUtils } from '../bot/bot-utils';
 import { OauthBackendUtils } from './oauth-backend-utils';
-import { getUserFromCookie } from './oauth-handlers';
 
 /**
  * Get a list of all guilds of the currently authenticated user
@@ -11,7 +10,7 @@ import { getUserFromCookie } from './oauth-handlers';
  * @param res Response with the list of guilds
  */
 export async function getGuilds(req: Request, res: Response): Promise<void> {
-  const jwtPayload = getUserFromCookie(req);
+  const jwtPayload = OauthBackendUtils.getUserFromCookie(req);
   const guilds = await OauthBackendUtils.getUserGuilds(jwtPayload.accessToken);
   if (!guilds || guilds.length <= 0) {
     res.status(HttpStatusCode.NotFound).send([]);
@@ -35,14 +34,15 @@ export async function getGuilds(req: Request, res: Response): Promise<void> {
  * @param req Request with the guildId in the query-params
  * @param res Response with the guild
  */
-export async function getGuild(req: Request, res: Response): Promise<void> {
-  const jwtPayload = getUserFromCookie(req);
+export async function getGuild(req: Request, res: Response): Promise<Response> {
+  const jwtPayload = OauthBackendUtils.getUserFromCookie(req);
 
   const guildId = req.query.guildId as string;
   if (!guildId) {
     res.status(HttpStatusCode.BadRequest).send(null);
     return;
   }
+
   const guild = await OauthBackendUtils.getGuild(
     guildId,
     jwtPayload.accessToken
@@ -52,5 +52,14 @@ export async function getGuild(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  res.json(guild);
+  if (!OauthBackendUtils.checkUserPermissions(guild)) {
+    console.log('User is not permitted');
+    return res
+      .status(HttpStatusCode.Unauthorized)
+      .send('No sufficient user permissions');
+  } else {
+    console.log('User is permitted');
+  }
+
+  return res.json(guild);
 }
