@@ -14,10 +14,17 @@ import { firstValueFrom } from 'rxjs';
 })
 export class DiscordBackendService {
   private readonly httpClient = inject(HttpClient);
-  private readonly apiUrl: string = '';
+  private readonly _apiUrl: string = '';
+
+  /**
+   * The URL for the API-backend
+   */
+  get apiUrl(): string {
+    return this._apiUrl;
+  }
 
   constructor(@Inject('API_URL') apiUrl: string) {
-    this.apiUrl = apiUrl;
+    this._apiUrl = apiUrl;
   }
 
   /**
@@ -27,7 +34,7 @@ export class DiscordBackendService {
    */
   async getMessages(guildId: string): Promise<APIMessage[]> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIMessage[]>(this.apiUrl + '/messages', {
+      this.httpClient.get<APIMessage[]>(this._apiUrl + '/messages', {
         params: new HttpParams({
           fromObject: {
             guildId,
@@ -44,7 +51,7 @@ export class DiscordBackendService {
    */
   async getGuilds(): Promise<DiscordGuild[]> {
     const response = await firstValueFrom(
-      this.httpClient.get<DiscordGuild[]>(this.apiUrl + '/guilds')
+      this.httpClient.get<DiscordGuild[]>(this._apiUrl + '/guilds')
     );
     return response;
   }
@@ -56,7 +63,7 @@ export class DiscordBackendService {
    */
   async getGuild(guildId: string): Promise<APIGuild> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIGuild>(this.apiUrl + '/guild', {
+      this.httpClient.get<APIGuild>(this._apiUrl + '/guild', {
         params: new HttpParams({
           fromObject: {
             guildId,
@@ -74,7 +81,7 @@ export class DiscordBackendService {
    */
   async getMe(): Promise<APIUser> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIUser>(this.apiUrl + '/me')
+      this.httpClient.get<APIUser>(this._apiUrl + '/me')
     );
     return response;
   }
@@ -88,7 +95,7 @@ export class DiscordBackendService {
     try {
       const response = await firstValueFrom(
         this.httpClient.get<ServerConfigResponse>(
-          this.apiUrl + '/server-config',
+          this._apiUrl + '/server-config',
           {
             params: new HttpParams({
               fromObject: {
@@ -112,7 +119,7 @@ export class DiscordBackendService {
    */
   async updateServerConfig(config: ServerConfig): Promise<void> {
     await firstValueFrom(
-      this.httpClient.put(this.apiUrl + '/server-config', config)
+      this.httpClient.put(this._apiUrl + '/server-config', config)
     );
   }
 
@@ -126,7 +133,7 @@ export class DiscordBackendService {
     message: MessageConfig
   ): Promise<void> {
     await firstValueFrom(
-      this.httpClient.put(this.apiUrl + '/message-config', {
+      this.httpClient.put(this._apiUrl + '/message-config', {
         guildId,
         message,
       })
@@ -137,6 +144,6 @@ export class DiscordBackendService {
    * Send a request to the backend to logout the currently authenticated user and revoke the token.
    */
   async logout(): Promise<void> {
-    await firstValueFrom(this.httpClient.post(this.apiUrl + '/logout', {}));
+    await firstValueFrom(this.httpClient.post(this._apiUrl + '/logout', {}));
   }
 }
