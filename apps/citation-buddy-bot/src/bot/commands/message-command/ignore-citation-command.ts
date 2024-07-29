@@ -7,7 +7,7 @@ import {
 import { Response } from 'express';
 import { ServerConfig } from '@cite/models';
 import { BaseMessageCommand } from './base-message-commands';
-import { ConfigService } from '../../../configuration/config.service';
+import { GuildConfigDbService } from '../../../db/guild-config-db/guild-config-db.service';
 
 class IgnoreCitationCommand extends BaseMessageCommand {
   constructor() {
@@ -46,7 +46,7 @@ class IgnoreCitationCommand extends BaseMessageCommand {
     }
 
     messageConfig.ignored = true;
-    await ConfigService.getInstance().setConfig(config);
+    await GuildConfigDbService.getInstance().setConfig(config);
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,

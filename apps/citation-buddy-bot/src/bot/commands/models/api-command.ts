@@ -6,7 +6,7 @@ import {
   InteractionResponseType,
 } from 'discord.js';
 import { Response } from 'express';
-import { ConfigService } from '../../../configuration/config.service';
+import { GuildConfigDbService } from '../../../db/guild-config-db/guild-config-db.service';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { BotUtils } from '../../bot-utils';
 import { ServerConfig } from '@cite/models';
@@ -45,7 +45,7 @@ export abstract class ApiCommand<
     guildId: string,
     res: Response
   ): Promise<ServerConfig> {
-    const config = await ConfigService.getInstance().getConfig(guildId);
+    const config = await GuildConfigDbService.getInstance().getConfig(guildId);
     if (!config.citeChannelId) {
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,

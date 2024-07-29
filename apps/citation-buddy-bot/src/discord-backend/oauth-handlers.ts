@@ -1,7 +1,7 @@
 import { CookieOptions, NextFunction, Request, Response } from 'express';
-import { DiscordUser } from '../user-db/models/discord-user';
+import { DiscordUser } from '../db/user-db/models/discord-user';
 import jwt from 'jsonwebtoken';
-import { UserDbService } from '../user-db/user-db.service';
+import { UserDbService } from '../db/user-db/user-db.service';
 import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
 import { OauthBackendUtils } from './oauth-backend-utils';

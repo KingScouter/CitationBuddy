@@ -1,4 +1,4 @@
 export { DiscordGuild } from './lib/discord-guild';
-export { ServerConfig } from './lib/server-config';
+export { GuildConfig } from './lib/guild-config';
 export { ServerConfigResponse } from './lib/server-config-response';
-export { MessageConfig } from './lib/message-config';
+export { MessageConfig, GuildMessageConfig } from './lib/message-config';

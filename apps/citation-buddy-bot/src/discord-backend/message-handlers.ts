@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { MessageConfig } from '@cite/models';
 import { HttpStatusCode } from 'axios';
-import { ConfigService } from '../configuration/config.service';
+import { GuildConfigDbService } from '../db/guild-config-db/guild-config-db.service';
 import { BotUtils } from '../bot/bot-utils';
 import { OauthBackendUtils } from './oauth-backend-utils';
 
@@ -23,7 +23,7 @@ export async function getMessageConfig(
     return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
-  const config = await ConfigService.getInstance().getConfig(guildId);
+  const config = await GuildConfigDbService.getInstance().getConfig(guildId);
 
   return res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
 }
@@ -48,7 +48,7 @@ export async function putMessageConfig(
     return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
-  const config = await ConfigService.getInstance().getConfig(guildId);
+  const config = await GuildConfigDbService.getInstance().getConfig(guildId);
   const existingConfigIdx = config.messageConfigs.findIndex(
     elem => elem.id === message.id
   );
@@ -58,7 +58,7 @@ export async function putMessageConfig(
     config.messageConfigs.push(message);
   }
 
-  await ConfigService.getInstance().setConfig(config);
+  await GuildConfigDbService.getInstance().setConfig(config);
 
   return res.status(HttpStatusCode.Accepted).send();
 }
@@ -81,7 +81,7 @@ export async function getMessages(
     return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
-  const config = await ConfigService.getInstance().getConfig(guildId);
+  const config = await GuildConfigDbService.getInstance().getConfig(guildId);
   if (!config.citeChannelId) {
     return res.status(HttpStatusCode.NotFound).send();
   }

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ServerConfig, ServerConfigResponse } from '@cite/models';
+import { GuildConfig, ServerConfigResponse } from '@cite/models';
 import { HttpStatusCode } from 'axios';
 import { ChannelType } from 'discord.js';
 import { BotUtils } from '../bot/bot-utils';
-import { ConfigService } from '../configuration/config.service';
+import { GuildConfigDbService } from '../db/guild-config-db/guild-config-db.service';
 import { OauthBackendUtils } from './oauth-backend-utils';
 
 /**
@@ -15,7 +15,7 @@ export async function putServerConfig(
   req: Request,
   res: Response
 ): Promise<Response> {
-  const config = req.body as ServerConfig;
+  const config = req.body as GuildConfig;
   if (!config) {
     return res.status(HttpStatusCode.BadRequest).send();
   }
@@ -24,7 +24,7 @@ export async function putServerConfig(
     return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
-  await ConfigService.getInstance().setConfig(config);
+  await GuildConfigDbService.getInstance().setConfig(config);
 
   return res.status(HttpStatusCode.Accepted).send();
 }
@@ -47,7 +47,8 @@ export async function getServerConfig(
     return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
-  const serverConfig = await ConfigService.getInstance().getConfig(guildId);
+  const serverConfig =
+    await GuildConfigDbService.getInstance().getConfig(guildId);
 
   const guildChannels = await BotUtils.getChannels(guildId);
   if (!guildChannels || guildChannels.length <= 0) {

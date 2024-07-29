@@ -11,7 +11,7 @@ import {
   MessageComponentTypes,
 } from 'discord-interactions';
 import { Response } from 'express';
-import { ConfigService } from '../../../configuration/config.service';
+import { GuildConfigDbService } from '../../../guild-config/guild-config-db.service';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 import { BotUtils } from '../../bot-utils';
 
@@ -34,12 +34,12 @@ class SelectCiteChannelCommand extends BaseChatInputCommand {
     const selectedChannelId = value.values[0];
     const selectedChannel = value.resolved.channels[selectedChannelId];
 
-    const config = await ConfigService.getInstance().getConfig(
+    const config = await GuildConfigDbService.getInstance().getConfig(
       interaction.guild_id
     );
     config.citeChannelId = selectedChannelId;
 
-    await ConfigService.getInstance().setConfig(config);
+    await GuildConfigDbService.getInstance().setConfig(config);
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,

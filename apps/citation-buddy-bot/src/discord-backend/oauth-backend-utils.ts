@@ -7,7 +7,7 @@ import {
   Routes,
 } from 'discord.js';
 import jwt from 'jsonwebtoken';
-import { UserDbService } from '../user-db/user-db.service';
+import { UserDbService } from '../db/user-db/user-db.service';
 import { AppConfig, UserJWT } from '../models';
 import { Request } from 'express';
 

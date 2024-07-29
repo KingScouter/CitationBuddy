@@ -1,15 +1,15 @@
 import { ServerConfig } from '@cite/models';
 import { BaseDbService } from '../bot/base-db.service';
 
-export class ConfigService {
-  private static instance: ConfigService;
+export class GuildConfigDbService {
+  private static instance: GuildConfigDbService;
 
-  private readonly dbName = 'serverConfigDb';
+  private readonly dbName = 'guildConfigDb';
   private readonly db: BaseDbService<ServerConfig>;
 
-  static getInstance(): ConfigService {
+  static getInstance(): GuildConfigDbService {
     if (!this.instance) {
-      this.instance = new ConfigService();
+      this.instance = new GuildConfigDbService();
     }
 
     return this.instance;

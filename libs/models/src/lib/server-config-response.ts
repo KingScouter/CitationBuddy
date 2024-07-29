@@ -1,8 +1,8 @@
 import { APIChannel } from 'discord-api-types/v10';
-import { ServerConfig } from './server-config';
+import { GuildConfig } from './guild-config';
 
 interface ServerInfo {
   availableChannels: APIChannel[];
 }
 
-export type ServerConfigResponse = ServerConfig & ServerInfo;
+export type ServerConfigResponse = GuildConfig & ServerInfo;

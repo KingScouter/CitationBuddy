@@ -3,3 +3,8 @@ export interface MessageConfig {
   ignored: boolean;
   additionalData: Record<string, string>;
 }
+
+export interface GuildMessageConfig {
+  guildId: string;
+  configs: MessageConfig[];
+}
