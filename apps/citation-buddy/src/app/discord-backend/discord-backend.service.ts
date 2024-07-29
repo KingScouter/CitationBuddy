@@ -3,8 +3,8 @@ import { Inject, Injectable, inject } from '@angular/core';
 import {
   DiscordGuild,
   MessageConfig,
-  ServerConfig,
-  ServerConfigResponse,
+  GuildConfig,
+  GuildConfigResponse,
 } from '@cite/models';
 import { APIGuild, APIMessage, APIUser } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
@@ -89,13 +89,13 @@ export class DiscordBackendService {
   /**
    * Send a request to the backend to get the server-configuration for a given guild.
    * @param guildId ID of the guild to get the config for
-   * @returns { Promise<ServerConfigResponse> } The server-configuration
+   * @returns { Promise<GuildConfigResponse> } The guild-configuration
    */
-  async getServerConfigInfo(guildId: string): Promise<ServerConfigResponse> {
+  async getGuildConfigInfo(guildId: string): Promise<GuildConfigResponse> {
     try {
       const response = await firstValueFrom(
-        this.httpClient.get<ServerConfigResponse>(
-          this._apiUrl + '/server-config',
+        this.httpClient.get<GuildConfigResponse>(
+          this._apiUrl + '/guild-config',
           {
             params: new HttpParams({
               fromObject: {
@@ -114,12 +114,12 @@ export class DiscordBackendService {
   }
 
   /**
-   * Send a request to the backend to update an existing server-configuration
+   * Send a request to the backend to update an existing guild-configuration
    * @param config The updated configuration
    */
-  async updateServerConfig(config: ServerConfig): Promise<void> {
+  async updateGuildConfig(config: GuildConfig): Promise<void> {
     await firstValueFrom(
-      this.httpClient.put(this._apiUrl + '/server-config', config)
+      this.httpClient.put(this._apiUrl + '/guild-config', config)
     );
   }
 

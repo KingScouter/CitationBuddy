@@ -3,7 +3,7 @@ export enum DiscordBackendEndpoints {
   Me = '/me',
   Guilds = '/guilds',
   Guild = '/guild',
-  ServerConfig = '/server-config',
+  GuildConfig = '/guild-config',
   Logout = '/logout',
   Messages = '/messages',
   MessageConfig = '/message-config',

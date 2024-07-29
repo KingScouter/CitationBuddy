@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { GuildConfig, ServerConfigResponse } from '@cite/models';
+import { GuildConfig, GuildConfigResponse } from '@cite/models';
 import { HttpStatusCode } from 'axios';
 import { ChannelType } from 'discord.js';
 import { BotUtils } from '../bot/bot-utils';
@@ -7,11 +7,11 @@ import { GuildConfigDbService } from '../db/guild-config-db/guild-config-db.serv
 import { OauthBackendUtils } from './oauth-backend-utils';
 
 /**
- * Update the server configuration for a given guild
- * @param req Request with the server-config in the body
+ * Update the guild configuration for a given guild
+ * @param req Request with the guild-config in the body
  * @param res Response
  */
-export async function putServerConfig(
+export async function putGuildConfig(
   req: Request,
   res: Response
 ): Promise<Response> {
@@ -34,7 +34,7 @@ export async function putServerConfig(
  * @param req Request with the guildId in the query-params
  * @param res Response with the server-config
  */
-export async function getServerConfig(
+export async function getGuildConfig(
   req: Request,
   res: Response
 ): Promise<Response> {
@@ -47,7 +47,7 @@ export async function getServerConfig(
     return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
-  const serverConfig =
+  const guildConfig =
     await GuildConfigDbService.getInstance().getConfig(guildId);
 
   const guildChannels = await BotUtils.getChannels(guildId);
@@ -55,8 +55,8 @@ export async function getServerConfig(
     return res.status(HttpStatusCode.InternalServerError).send(null);
   }
 
-  const configResponse: ServerConfigResponse = {
-    ...serverConfig,
+  const configResponse: GuildConfigResponse = {
+    ...guildConfig,
     availableChannels: guildChannels.filter(
       elem => elem.type === ChannelType.GuildText
     ) as any,
