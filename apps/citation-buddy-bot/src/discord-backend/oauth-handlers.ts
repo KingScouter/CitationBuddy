@@ -6,7 +6,7 @@ import axios, { AxiosHeaders, HttpStatusCode } from 'axios';
 import { OAuth2Routes, RESTPostOAuth2AccessTokenResult } from 'discord.js';
 import { OauthBackendUtils } from './oauth-backend-utils';
 import { AppConfig, UserJWT } from '../models';
-import { DiscordBackendEndpoints } from './discord-backend-endpoints.enum';
+import { DiscordBackendEndpoints } from '@cite/models';
 
 const COOKIE_NAME = process.env.OAUTH2_COOKIE_NAME;
 

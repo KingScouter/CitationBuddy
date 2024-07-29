@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { DiscordBackendEndpoints } from './discord-backend-endpoints.enum';
+import { DiscordBackendEndpoints } from '@cite/models';
 import { getMe, getOauth, postLogout } from './oauth-handlers';
 import { getGuild, getGuilds } from './guild-handlers';
 import { putGuildConfig, getGuildConfig } from './guild-config-handlers';
@@ -14,7 +14,7 @@ export default function (app: Express): void {
   app.post(DiscordBackendEndpoints.Logout, postLogout);
   app.get(DiscordBackendEndpoints.Me, getMe);
 
-  app.get(DiscordBackendEndpoints.Guild, getGuild);
+  app.get(DiscordBackendEndpoints.Guilds + '/:guildId', getGuild);
   app.get(DiscordBackendEndpoints.Guilds, getGuilds);
 
   app.put(DiscordBackendEndpoints.GuildConfig, putGuildConfig);

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { verifyKey } from 'discord-interactions';
 import { APIApplicationCommand, REST, Routes } from 'discord.js';
 import { Request } from 'express';
-import { DiscordBackendEndpoints } from '../discord-backend/discord-backend-endpoints.enum';
+import { DiscordBackendEndpoints } from '@cite/models';
 
 export const restClient = new REST({ version: '10' }).setToken(
   process.env.DISCORD_TOKEN
