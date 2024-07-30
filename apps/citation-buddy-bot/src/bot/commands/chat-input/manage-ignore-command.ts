@@ -5,7 +5,7 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { Response } from 'express';
-import { GuildConfig } from '@cite/models';
+import { FullGuildConfig } from '@cite/models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 import { BotUtils } from '../../bot-utils';
 import { InteractionResponseFlags } from 'discord-interactions';
@@ -18,10 +18,12 @@ class ManageIgnoreCommand extends BaseChatInputCommand {
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: GuildConfig
+    config: FullGuildConfig
   ): Promise<void> {
-    if (interaction.channel.id !== config.citeChannelId) {
-      const channel = await BotUtils.getChannel(config.citeChannelId);
+    if (interaction.channel.id !== config.generalConfig.citeChannelId) {
+      const channel = await BotUtils.getChannel(
+        config.generalConfig.citeChannelId
+      );
 
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
@@ -35,11 +37,11 @@ class ManageIgnoreCommand extends BaseChatInputCommand {
       return;
     }
 
-    const filteredMessages = config.messageConfigs
+    const filteredMessages = config.messageConfig.configs
       .filter(elem => elem.ignored)
       .map(
         elem =>
-          `https://discord.com/channels/${config.guildId}/${config.citeChannelId}/${elem.id}`
+          `https://discord.com/channels/${config.generalConfig.guildId}/${config.generalConfig.citeChannelId}/${elem.id}`
       );
 
     res.send({

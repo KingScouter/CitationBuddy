@@ -25,7 +25,6 @@ export class GuildConfigDbService {
       config = {
         guildId,
         citeChannelId: null,
-        messageConfigs: [],
         additionalContexts: [],
       };
     }

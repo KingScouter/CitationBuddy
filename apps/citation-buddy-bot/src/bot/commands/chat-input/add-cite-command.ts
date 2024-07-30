@@ -8,7 +8,7 @@ import {
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
 import { BotUtils } from '../../bot-utils';
-import { GuildConfig } from '@cite/models';
+import { FullGuildConfig } from '@cite/models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class AddCiteCommand extends BaseChatInputCommand {
@@ -39,7 +39,7 @@ class AddCiteCommand extends BaseChatInputCommand {
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: GuildConfig
+    config: FullGuildConfig
   ): Promise<void> {
     const values = interaction.data.options;
     const msgOption = values.find(
@@ -54,7 +54,7 @@ class AddCiteCommand extends BaseChatInputCommand {
 
     const returnMsg = `"${msg}"\r\n- ${person}, ${new Date().getFullYear()}`;
 
-    await BotUtils.createMessage(config.citeChannelId, returnMsg);
+    await BotUtils.createMessage(config.generalConfig.citeChannelId, returnMsg);
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,

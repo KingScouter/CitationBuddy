@@ -37,7 +37,7 @@ export async function getGuilds(req: Request, res: Response): Promise<void> {
 export async function getGuild(req: Request, res: Response): Promise<Response> {
   const jwtPayload = OauthBackendUtils.getUserFromCookie(req);
 
-  const guildId = req.query.guildId as string;
+  const guildId = req.params.guildId as string;
   if (!guildId) {
     res.status(HttpStatusCode.BadRequest).send(null);
     return;

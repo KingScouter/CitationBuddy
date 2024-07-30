@@ -5,9 +5,9 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { Response } from 'express';
-import { GuildConfig } from '@cite/models';
+import { FullGuildConfig } from '@cite/models';
 import { BaseMessageCommand } from './base-message-commands';
-import { GuildConfigDbService } from '../../../db/guild-config-db/guild-config-db.service';
+import { MessageConfigDbService } from '../../../db/message-config-db/message-config-db.service';
 
 class IgnoreCitationCommand extends BaseMessageCommand {
   constructor() {
@@ -17,10 +17,10 @@ class IgnoreCitationCommand extends BaseMessageCommand {
   protected async executeInternal(
     interaction: APIMessageApplicationCommandInteraction,
     res: Response,
-    config: GuildConfig
+    config: FullGuildConfig
   ): Promise<void> {
     const clickedMessageId = interaction.data.target_id;
-    let messageConfig = config.messageConfigs.find(
+    let messageConfig = config.messageConfig.configs.find(
       elem => elem.id === clickedMessageId
     );
     if (!messageConfig) {
@@ -29,7 +29,7 @@ class IgnoreCitationCommand extends BaseMessageCommand {
         additionalData: {},
         ignored: false,
       };
-      config.messageConfigs.push(messageConfig);
+      config.messageConfig.configs.push(messageConfig);
     }
     if (messageConfig.ignored) {
       res.send({
@@ -46,7 +46,7 @@ class IgnoreCitationCommand extends BaseMessageCommand {
     }
 
     messageConfig.ignored = true;
-    await GuildConfigDbService.getInstance().setConfig(config);
+    await MessageConfigDbService.getInstance().setConfig(config.messageConfig);
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,

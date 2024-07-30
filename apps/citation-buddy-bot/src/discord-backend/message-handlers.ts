@@ -4,6 +4,7 @@ import { HttpStatusCode } from 'axios';
 import { GuildConfigDbService } from '../db/guild-config-db/guild-config-db.service';
 import { BotUtils } from '../bot/bot-utils';
 import { OauthBackendUtils } from './oauth-backend-utils';
+import { MessageConfigDbService } from '../db/message-config-db/message-config-db.service';
 
 /**
  * Get the message-config for a specific guild
@@ -23,9 +24,9 @@ export async function getMessageConfig(
     return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
-  const config = await GuildConfigDbService.getInstance().getConfig(guildId);
+  const config = await MessageConfigDbService.getInstance().getConfig(guildId);
 
-  return res.status(HttpStatusCode.Accepted).json(config.messageConfigs);
+  return res.status(HttpStatusCode.Accepted).json(config);
 }
 
 /**
@@ -48,17 +49,17 @@ export async function putMessageConfig(
     return res.status(HttpStatusCode.Unauthorized).send(null);
   }
 
-  const config = await GuildConfigDbService.getInstance().getConfig(guildId);
-  const existingConfigIdx = config.messageConfigs.findIndex(
+  const config = await MessageConfigDbService.getInstance().getConfig(guildId);
+  const existingConfigIdx = config.configs.findIndex(
     elem => elem.id === message.id
   );
   if (existingConfigIdx >= 0) {
-    config.messageConfigs.splice(existingConfigIdx, 1, message);
+    config.configs.splice(existingConfigIdx, 1, message);
   } else {
-    config.messageConfigs.push(message);
+    config.configs.push(message);
   }
 
-  await GuildConfigDbService.getInstance().setConfig(config);
+  await MessageConfigDbService.getInstance().setConfig(config);
 
   return res.status(HttpStatusCode.Accepted).send();
 }

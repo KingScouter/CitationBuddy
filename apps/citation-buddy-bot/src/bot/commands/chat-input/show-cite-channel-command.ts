@@ -5,7 +5,7 @@ import {
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { BotUtils } from '../../bot-utils';
-import { GuildConfig } from '@cite/models';
+import { FullGuildConfig } from '@cite/models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class ShowCiteChannelCommand extends BaseChatInputCommand {
@@ -16,11 +16,13 @@ class ShowCiteChannelCommand extends BaseChatInputCommand {
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: GuildConfig
+    config: FullGuildConfig
   ): Promise<void> {
     let responseMsg = 'No cite channel found for this server!';
     if (config) {
-      const channel = await BotUtils.getChannel(config.citeChannelId);
+      const channel = await BotUtils.getChannel(
+        config.generalConfig.citeChannelId
+      );
       responseMsg = `Cite channel: ${channel.name}`;
     }
 

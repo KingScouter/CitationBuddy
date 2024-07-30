@@ -47,7 +47,7 @@ class AddCiteModalCommand extends BaseChatInputCommand {
     return this.handleModalResult(
       interaction as APIModalSubmitInteraction,
       res,
-      config
+      config.generalConfig
     );
   }
 

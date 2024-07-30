@@ -9,7 +9,8 @@ import { Response } from 'express';
 import { GuildConfigDbService } from '../../../db/guild-config-db/guild-config-db.service';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { BotUtils } from '../../bot-utils';
-import { GuildConfig } from '@cite/models';
+import { FullGuildConfig } from '@cite/models';
+import { MessageConfigDbService } from '../../../db/message-config-db/message-config-db.service';
 
 export abstract class ApiCommand<
   T extends APIApplicationCommandInteraction,
@@ -41,9 +42,13 @@ export abstract class ApiCommand<
     return name === this.name;
   }
 
-  static async getConfig(guildId: string, res: Response): Promise<GuildConfig> {
-    const config = await GuildConfigDbService.getInstance().getConfig(guildId);
-    if (!config.citeChannelId) {
+  static async getConfig(
+    guildId: string,
+    res: Response
+  ): Promise<FullGuildConfig> {
+    const generalConfig =
+      await GuildConfigDbService.getInstance().getConfig(guildId);
+    if (!generalConfig.citeChannelId) {
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
@@ -54,7 +59,13 @@ export abstract class ApiCommand<
       return null;
     }
 
-    return config;
+    const messageConfig =
+      await MessageConfigDbService.getInstance().getConfig(guildId);
+
+    return {
+      generalConfig,
+      messageConfig,
+    };
   }
 
   async handleInteraction(
@@ -73,7 +84,7 @@ export abstract class ApiCommand<
       return;
     }
 
-    let config: GuildConfig = null;
+    let config: FullGuildConfig = null;
     if (this.needsConfig) {
       config = await ApiCommand.getConfig(interaction.guild_id, res);
       if (!config) {
@@ -96,7 +107,7 @@ export abstract class ApiCommand<
   protected abstract executeInternal(
     interaction: T,
     res: Response,
-    config: GuildConfig
+    config: FullGuildConfig
   ): Promise<void>;
 
   protected isCommandType(obj: APIInteraction): obj is T {
