@@ -1,5 +1,5 @@
 import { DiscordUser } from './models/discord-user';
-import { BaseDbService } from '../bot/base-db.service';
+import { BaseDbService } from '../base-db.service';
 
 type DiscordUsers = Record<string, DiscordUser>;
 

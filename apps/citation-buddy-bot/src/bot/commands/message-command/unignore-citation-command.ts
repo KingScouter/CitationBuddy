@@ -5,7 +5,7 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { Response } from 'express';
-import { ServerConfig } from '@cite/models';
+import { GuildConfig } from '@cite/models';
 import { BaseMessageCommand } from './base-message-commands';
 import { GuildConfigDbService } from '../../../db/guild-config-db/guild-config-db.service';
 
@@ -17,7 +17,7 @@ class UnignoreCitationCommand extends BaseMessageCommand {
   protected async executeInternal(
     interaction: APIMessageApplicationCommandInteraction,
     res: Response,
-    config: ServerConfig
+    config: GuildConfig
   ): Promise<void> {
     const clickedMessageId = interaction.data.target_id;
     let messageConfig = config.messageConfigs.find(

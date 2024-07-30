@@ -11,7 +11,7 @@ import {
   MessageComponentTypes,
 } from 'discord-interactions';
 import { Response } from 'express';
-import { GuildConfigDbService } from '../../../guild-config/guild-config-db.service';
+import { GuildConfigDbService } from '../../../db/guild-config-db/guild-config-db.service';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 import { BotUtils } from '../../bot-utils';
 

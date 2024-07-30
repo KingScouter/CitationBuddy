@@ -5,7 +5,7 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { Response } from 'express';
-import { ServerConfig } from '@cite/models';
+import { GuildConfig } from '@cite/models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 import { BotUtils } from '../../bot-utils';
 import { InteractionResponseFlags } from 'discord-interactions';
@@ -18,7 +18,7 @@ class ManageIgnoreCommand extends BaseChatInputCommand {
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: ServerConfig
+    config: GuildConfig
   ): Promise<void> {
     if (interaction.channel.id !== config.citeChannelId) {
       const channel = await BotUtils.getChannel(config.citeChannelId);

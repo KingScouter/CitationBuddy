@@ -1,11 +1,11 @@
-import { ServerConfig } from '@cite/models';
-import { BaseDbService } from '../bot/base-db.service';
+import { GuildConfig } from '@cite/models';
+import { BaseDbService } from '../base-db.service';
 
 export class GuildConfigDbService {
   private static instance: GuildConfigDbService;
 
   private readonly dbName = 'guildConfigDb';
-  private readonly db: BaseDbService<ServerConfig>;
+  private readonly db: BaseDbService<GuildConfig>;
 
   static getInstance(): GuildConfigDbService {
     if (!this.instance) {
@@ -16,10 +16,10 @@ export class GuildConfigDbService {
   }
 
   protected constructor() {
-    this.db = new BaseDbService<ServerConfig>(this.dbName);
+    this.db = new BaseDbService<GuildConfig>(this.dbName);
   }
 
-  async getConfig(guildId: string): Promise<ServerConfig> {
+  async getConfig(guildId: string): Promise<GuildConfig> {
     let config = await this.db.get(guildId);
     if (!config) {
       config = {
@@ -33,7 +33,7 @@ export class GuildConfigDbService {
     return config;
   }
 
-  async setConfig(config: ServerConfig): Promise<void> {
+  async setConfig(config: GuildConfig): Promise<void> {
     await this.db.set(config.guildId, config);
   }
 }

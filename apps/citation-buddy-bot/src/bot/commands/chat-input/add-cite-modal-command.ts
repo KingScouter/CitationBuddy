@@ -13,7 +13,7 @@ import { ApiCommand } from '../models/api-command';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { Response } from 'express';
 import { BotUtils } from '../../bot-utils';
-import { ServerConfig } from '@cite/models';
+import { GuildConfig } from '@cite/models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class AddCiteModalCommand extends BaseChatInputCommand {
@@ -105,7 +105,7 @@ class AddCiteModalCommand extends BaseChatInputCommand {
   private async handleModalResult(
     interaction: APIModalSubmitInteraction,
     res: Response,
-    config: ServerConfig
+    config: GuildConfig
   ): Promise<boolean> {
     let msg = '';
     let person = '';

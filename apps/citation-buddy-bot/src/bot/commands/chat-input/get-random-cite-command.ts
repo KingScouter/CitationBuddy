@@ -5,7 +5,7 @@ import {
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { BotUtils } from '../../bot-utils';
-import { ServerConfig } from '@cite/models';
+import { GuildConfig } from '@cite/models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class GetRandomCitecommand extends BaseChatInputCommand {
@@ -16,7 +16,7 @@ class GetRandomCitecommand extends BaseChatInputCommand {
   protected async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response,
-    config: ServerConfig
+    config: GuildConfig
   ): Promise<void> {
     const messages = await BotUtils.getMessages(config.citeChannelId);
     const filteredMessages = messages?.filter(elem => {

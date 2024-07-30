@@ -9,7 +9,7 @@ import { Response } from 'express';
 import { GuildConfigDbService } from '../../../db/guild-config-db/guild-config-db.service';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { BotUtils } from '../../bot-utils';
-import { ServerConfig } from '@cite/models';
+import { GuildConfig } from '@cite/models';
 
 export abstract class ApiCommand<
   T extends APIApplicationCommandInteraction,
@@ -41,10 +41,7 @@ export abstract class ApiCommand<
     return name === this.name;
   }
 
-  static async getConfig(
-    guildId: string,
-    res: Response
-  ): Promise<ServerConfig> {
+  static async getConfig(guildId: string, res: Response): Promise<GuildConfig> {
     const config = await GuildConfigDbService.getInstance().getConfig(guildId);
     if (!config.citeChannelId) {
       res.send({
@@ -76,7 +73,7 @@ export abstract class ApiCommand<
       return;
     }
 
-    let config: ServerConfig = null;
+    let config: GuildConfig = null;
     if (this.needsConfig) {
       config = await ApiCommand.getConfig(interaction.guild_id, res);
       if (!config) {
@@ -99,7 +96,7 @@ export abstract class ApiCommand<
   protected abstract executeInternal(
     interaction: T,
     res: Response,
-    config: ServerConfig
+    config: GuildConfig
   ): Promise<void>;
 
   protected isCommandType(obj: APIInteraction): obj is T {
