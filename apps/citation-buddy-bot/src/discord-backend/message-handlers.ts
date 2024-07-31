@@ -15,7 +15,7 @@ export async function getMessageConfig(
   req: Request,
   res: Response
 ): Promise<Response> {
-  const guildId = req.query.guildId as string;
+  const guildId = req.params.guildId as string;
   if (!guildId) {
     return res.status(HttpStatusCode.BadRequest).send(null);
   }
@@ -73,7 +73,7 @@ export async function getMessages(
   req: Request,
   res: Response
 ): Promise<Response> {
-  const guildId = req.query.guildId as string;
+  const guildId = req.params.guildId as string;
   if (!guildId) {
     return res.status(HttpStatusCode.BadRequest).send(null);
   }
