@@ -1,10 +1,15 @@
 import { Request, Response } from 'express';
-import { GuildConfig, GuildConfigResponse } from '@cite/models';
+import {
+  FullGuildConfig,
+  GuildConfig,
+  GuildConfigResponse,
+} from '@cite/models';
 import { HttpStatusCode } from 'axios';
 import { ChannelType } from 'discord.js';
 import { BotUtils } from '../bot/bot-utils';
 import { GuildConfigDbService } from '../db/guild-config-db/guild-config-db.service';
 import { OauthBackendUtils } from './oauth-backend-utils';
+import { MessageConfigDbService } from '../db/message-config-db/message-config-db.service';
 
 /**
  * Update the guild configuration for a given guild
@@ -31,7 +36,7 @@ export async function putGuildConfig(
 
 /**
  * Get the server-configuration for a specific guild
- * @param req Request with the guildId in the query-params
+ * @param req Request with the guildId in the URL-params
  * @param res Response with the server-config
  */
 export async function getGuildConfig(
@@ -63,4 +68,34 @@ export async function getGuildConfig(
   };
 
   return res.json(configResponse);
+}
+
+/**
+ * Get the complete config for a given guild (general- and message-config)
+ * @param req Request with the guildId in the URL-params
+ * @param res Response with the full config
+ */
+export async function getFullGuildConfig(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const guildId = req.params.guildId as string;
+  if (!guildId) {
+    return res.status(HttpStatusCode.BadRequest).send(null);
+  }
+
+  if (!OauthBackendUtils.checkUserGuildPrivileges(req, guildId)) {
+    return res.status(HttpStatusCode.Unauthorized).send(null);
+  }
+
+  const guildConfig =
+    await GuildConfigDbService.getInstance().getConfig(guildId);
+
+  const messageConfig =
+    await MessageConfigDbService.getInstance().getConfig(guildId);
+
+  return res.json({
+    generalConfig: guildConfig,
+    messageConfig,
+  } satisfies FullGuildConfig);
 }

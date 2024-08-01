@@ -6,7 +6,7 @@
       <span class="guild-title">{{ val.name }}</span>
     </div>
     <div class="content-container">
-      @if (serverConfigInfo(); as config) {
+      @if (guildConfigInfo(); as config) {
         <form
           class="config-container"
           [formGroup]="formGroup"

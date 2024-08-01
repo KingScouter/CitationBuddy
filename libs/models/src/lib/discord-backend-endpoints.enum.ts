@@ -6,4 +6,5 @@ export enum DiscordBackendEndpoints {
   Logout = '/logout',
   Messages = '/messages',
   MessageConfig = '/message-config',
+  FullGuildConfig = '/full-guild-config',
 }

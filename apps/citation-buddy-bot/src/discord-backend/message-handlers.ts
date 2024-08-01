@@ -8,7 +8,7 @@ import { MessageConfigDbService } from '../db/message-config-db/message-config-d
 
 /**
  * Get the message-config for a specific guild
- * @param req Request with guildId in query-params
+ * @param req Request with guildId in URL-params
  * @param res Response with the message-config
  */
 export async function getMessageConfig(
@@ -66,7 +66,7 @@ export async function putMessageConfig(
 
 /**
  * Get the list of messages from the configured citation-channel of a specific guild.
- * @param req Request with guildId in query-params
+ * @param req Request with guildId in URL-params
  * @param res Reponse with list of messages
  */
 export async function getMessages(

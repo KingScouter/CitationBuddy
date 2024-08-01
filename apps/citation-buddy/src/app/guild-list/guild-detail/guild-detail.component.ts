@@ -15,7 +15,7 @@ import { APIGuild } from 'discord-api-types/v10';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GuildIconPipe } from '../guild-icon.pipe';
-import { ServerConfig, ServerConfigResponse } from '@cite/models';
+import { GuildConfig, GuildConfigResponse } from '@cite/models';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -56,7 +56,7 @@ interface ComboboxValue {
 })
 export class GuildDetailComponent implements OnInit {
   protected guild = signal<APIGuild | null>(null);
-  protected serverConfigInfo = signal<ServerConfigResponse | null>(null);
+  protected guildConfigInfo = signal<GuildConfigResponse | null>(null);
 
   protected readonly availableChannels: Signal<ComboboxValue[]>;
   protected readonly additionalData = signal<string[]>([]);
@@ -79,7 +79,7 @@ export class GuildDetailComponent implements OnInit {
     });
 
     this.availableChannels = computed(() => {
-      const channels = this.serverConfigInfo()?.availableChannels;
+      const channels = this.guildConfigInfo()?.availableChannels;
       if (!channels || channels.length <= 0) return [];
 
       return channels.map(
@@ -89,7 +89,7 @@ export class GuildDetailComponent implements OnInit {
     });
 
     effect(() => {
-      const citeChannelId = this.serverConfigInfo()?.citeChannelId;
+      const citeChannelId = this.guildConfigInfo()?.citeChannelId;
       if (!citeChannelId) return;
       const citeChannelControl = this.formGroup.controls['citeChannel'];
       citeChannelControl.setValue(citeChannelId);
@@ -108,8 +108,8 @@ export class GuildDetailComponent implements OnInit {
         this.guild.set(guild);
 
         const serverConfig =
-          await this.discordBackendService.getServerConfigInfo(guildId);
-        this.serverConfigInfo.set(serverConfig);
+          await this.discordBackendService.getGuildConfigInfo(guildId);
+        this.guildConfigInfo.set(serverConfig);
         if (serverConfig.additionalContexts?.length > 0) {
           this.additionalData.set(serverConfig.additionalContexts);
         }
@@ -118,20 +118,20 @@ export class GuildDetailComponent implements OnInit {
 
   protected async onSaveConfig(): Promise<void> {
     const guild = this.guild();
-    const originalConfig = this.serverConfigInfo();
+    const originalConfig = this.guildConfigInfo();
     if (!guild || !originalConfig) {
       console.log('No guild available');
       return;
     }
 
-    const updatedConfig: ServerConfig = {
+    const updatedConfig: GuildConfig = {
       guildId: guild.id,
       citeChannelId: this.formGroup.value.citeChannel,
       additionalContexts: this.additionalData(),
-      messageConfigs: originalConfig.messageConfigs,
+      // messageConfigs: originalConfig.messageConfigs,
     };
 
-    await this.discordBackendService.updateServerConfig(updatedConfig);
+    await this.discordBackendService.updateGuildConfig(updatedConfig);
 
     this.router.navigate([AppRoutes.Guilds]);
   }
@@ -156,7 +156,7 @@ export class GuildDetailComponent implements OnInit {
     await this.router.navigate([
       AppRoutes.Guilds,
       AppRoutes.CitationsList,
-      this.serverConfigInfo()?.guildId,
+      this.guildConfigInfo()?.guildId,
     ]);
   }
 }

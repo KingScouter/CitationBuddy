@@ -31,7 +31,7 @@ export async function getGuilds(req: Request, res: Response): Promise<void> {
 
 /**
  * Get a specific guild by ID
- * @param req Request with the guildId in the query-params
+ * @param req Request with the guildId in the URL-params
  * @param res Response with the guild
  */
 export async function getGuild(req: Request, res: Response): Promise<Response> {

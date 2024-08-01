@@ -11,7 +11,7 @@ import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
 import { DiscordBackendService } from '../../discord-backend/discord-backend.service';
-import { ServerConfig } from '@cite/models';
+import { FullGuildConfig, GuildConfig } from '@cite/models';
 import { APIMessage } from 'discord-api-types/v10';
 import { MessageWithContext } from './models/message-with-context';
 import { MessageEditComponent } from './message-edit/message-edit.component';
@@ -49,13 +49,13 @@ export class CitationsListComponent implements OnInit {
 
       const messages = await this.discordBackendService.getMessages(guildId);
       const config =
-        await this.discordBackendService.getServerConfigInfo(guildId);
+        await this.discordBackendService.getFullGuildConfig(guildId);
 
       if (!config) {
         return;
       }
 
-      this.mapDisplayColumns(config);
+      this.mapDisplayColumns(config.generalConfig);
       this.mapDataSource(config, messages);
     });
   }
@@ -85,16 +85,16 @@ export class CitationsListComponent implements OnInit {
     this.selectedRow.set(null);
   }
 
-  private mapDisplayColumns(serverConfig: ServerConfig): void {
+  private mapDisplayColumns(serverConfig: GuildConfig): void {
     this.additionalColumns.set(serverConfig.additionalContexts);
   }
 
   private mapDataSource(
-    serverConfig: ServerConfig,
+    serverConfig: FullGuildConfig,
     messages: APIMessage[]
   ): void {
     const mapped: MessageWithContext[] = messages.map(message => {
-      const configuredMessage = serverConfig?.messageConfigs?.find(
+      const configuredMessage = serverConfig?.messageConfig?.configs.find(
         elem => elem.id === message.id
       );
 
@@ -105,7 +105,7 @@ export class CitationsListComponent implements OnInit {
         additionalData: {},
       };
 
-      for (const additional of serverConfig.additionalContexts) {
+      for (const additional of serverConfig.generalConfig.additionalContexts) {
         const data = configuredMessage?.additionalData[additional];
         val.additionalData[additional] = data ?? '';
       }

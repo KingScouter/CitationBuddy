@@ -2,7 +2,11 @@ import { Express } from 'express';
 import { DiscordBackendEndpoints } from '@cite/models';
 import { getMe, getOauth, postLogout } from './oauth-handlers';
 import { getGuild, getGuilds } from './guild-handlers';
-import { putGuildConfig, getGuildConfig } from './guild-config-handlers';
+import {
+  putGuildConfig,
+  getGuildConfig,
+  getFullGuildConfig,
+} from './guild-config-handlers';
 import {
   getMessageConfig,
   getMessages,
@@ -22,11 +26,16 @@ export default function (app: Express): void {
   app.put(DiscordBackendEndpoints.GuildConfig, putGuildConfig);
   app.get(DiscordBackendEndpoints.GuildConfig + guildIdSuffix, getGuildConfig);
 
-  app.get(DiscordBackendEndpoints.Messages, getMessages);
+  app.get(DiscordBackendEndpoints.Messages + guildIdSuffix, getMessages);
 
   app.get(
     DiscordBackendEndpoints.MessageConfig + guildIdSuffix,
     getMessageConfig
   );
   app.put(DiscordBackendEndpoints.MessageConfig, putMessageConfig);
+
+  app.get(
+    DiscordBackendEndpoints.FullGuildConfig + guildIdSuffix,
+    getFullGuildConfig
+  );
 }

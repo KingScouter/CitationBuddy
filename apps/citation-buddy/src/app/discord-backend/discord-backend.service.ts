@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, inject } from '@angular/core';
 import {
   DiscordGuild,
@@ -6,6 +6,7 @@ import {
   GuildConfig,
   GuildConfigResponse,
   DiscordBackendEndpoints,
+  FullGuildConfig,
 } from '@cite/models';
 import { APIGuild, APIMessage, APIUser } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
@@ -36,14 +37,7 @@ export class DiscordBackendService {
   async getMessages(guildId: string): Promise<APIMessage[]> {
     const response = await firstValueFrom(
       this.httpClient.get<APIMessage[]>(
-        this._apiUrl + DiscordBackendEndpoints.Messages,
-        {
-          params: new HttpParams({
-            fromObject: {
-              guildId,
-            },
-          }),
-        }
+        this.buildUrl(DiscordBackendEndpoints.Messages, guildId)
       )
     );
     return response;
@@ -56,7 +50,7 @@ export class DiscordBackendService {
   async getGuilds(): Promise<DiscordGuild[]> {
     const response = await firstValueFrom(
       this.httpClient.get<DiscordGuild[]>(
-        this._apiUrl + DiscordBackendEndpoints.Guilds
+        this.buildUrl(DiscordBackendEndpoints.Guilds)
       )
     );
     return response;
@@ -70,14 +64,7 @@ export class DiscordBackendService {
   async getGuild(guildId: string): Promise<APIGuild> {
     const response = await firstValueFrom(
       this.httpClient.get<APIGuild>(
-        this._apiUrl + DiscordBackendEndpoints.Guild,
-        {
-          params: new HttpParams({
-            fromObject: {
-              guildId,
-            },
-          }),
-        }
+        this.buildUrl(DiscordBackendEndpoints.Guilds, guildId)
       )
     );
 
@@ -90,7 +77,7 @@ export class DiscordBackendService {
    */
   async getMe(): Promise<APIUser> {
     const response = await firstValueFrom(
-      this.httpClient.get<APIUser>(this._apiUrl + DiscordBackendEndpoints.Me)
+      this.httpClient.get<APIUser>(this.buildUrl(DiscordBackendEndpoints.Me))
     );
     return response;
   }
@@ -104,14 +91,27 @@ export class DiscordBackendService {
     try {
       const response = await firstValueFrom(
         this.httpClient.get<GuildConfigResponse>(
-          this._apiUrl + DiscordBackendEndpoints.GuildConfig,
-          {
-            params: new HttpParams({
-              fromObject: {
-                guildId,
-              },
-            }),
-          }
+          this.buildUrl(DiscordBackendEndpoints.GuildConfig, guildId)
+        )
+      );
+
+      return response;
+    } catch (ex) {
+      console.error('Error occured: ', ex);
+      throw ex;
+    }
+  }
+
+  /**
+   * Send a request to the backend to get the server-configuration for a given guild.
+   * @param guildId ID of the guild to get the config for
+   * @returns { Promise<GuildConfigResponse> } The guild-configuration
+   */
+  async getFullGuildConfig(guildId: string): Promise<FullGuildConfig> {
+    try {
+      const response = await firstValueFrom(
+        this.httpClient.get<FullGuildConfig>(
+          this.buildUrl(DiscordBackendEndpoints.FullGuildConfig, guildId)
         )
       );
 
@@ -129,7 +129,7 @@ export class DiscordBackendService {
   async updateGuildConfig(config: GuildConfig): Promise<void> {
     await firstValueFrom(
       this.httpClient.put(
-        this._apiUrl + DiscordBackendEndpoints.GuildConfig,
+        this.buildUrl(DiscordBackendEndpoints.GuildConfig),
         config
       )
     );
@@ -146,7 +146,7 @@ export class DiscordBackendService {
   ): Promise<void> {
     await firstValueFrom(
       this.httpClient.put(
-        this._apiUrl + DiscordBackendEndpoints.MessageConfig,
+        this.buildUrl(DiscordBackendEndpoints.MessageConfig),
         {
           guildId,
           message,
@@ -160,7 +160,23 @@ export class DiscordBackendService {
    */
   async logout(): Promise<void> {
     await firstValueFrom(
-      this.httpClient.post(this._apiUrl + DiscordBackendEndpoints.Logout, {})
+      this.httpClient.post(this.buildUrl(DiscordBackendEndpoints.Logout), {})
     );
+  }
+
+  /**
+   * Build a url out of multiple path-segments
+   * @param urlParts List of path segments
+   * @returns {string} Complete URL
+   */
+  private buildUrl(...urlParts: string[]): string {
+    return [this.apiUrl, ...urlParts]
+      .join('/')
+      .replace(/[\/]+/g, '/') // Replace multiple slashes with a single slash.
+      .replace(/^(.+):\//, '$1://') // Add a colon after the scheme if missing.
+      .replace(/^file:/, 'file:/') // Add a colon after 'file' if missing.
+      .replace(/\/(\?|&|#[^!])/g, '$1') // Remove slashes before query parameters or fragments.
+      .replace(/\?/g, '&') // Replace the first occurrence of '?' with '&'.
+      .replace('&', '?'); // If there are multiple query parameters, replace the first '&' with '?'.
   }
 }
