@@ -25,6 +25,8 @@ app.use(cookieParser());
 app.use(morgan('combined'));
 app.use(checkCookieAuthMiddleware);
 
+app.use(express.static('citation-buddy/browser'));
+
 discordBackend(app);
 botApi(app);
 

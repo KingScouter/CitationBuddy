@@ -5,6 +5,67 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/citation-buddy-bot",
+        "main": "apps/citation-buddy-bot/src/main.ts",
+        "tsConfig": "apps/citation-buddy-bot/tsconfig.app.json",
+        "assets": ["apps/citation-buddy-bot/src/assets"],
+        "webpackConfig": "apps/citation-buddy-bot/webpack.config.js"
+      },
+      "dependsOn": [
+        {
+          "projects": "citation-buddy",
+          "target": "build"
+        }
+      ],
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "assets": [
+            "apps/citation-buddy-bot/src/assets",
+            {
+              "input": "dist/apps/citation-buddy",
+              "glob": "**/*",
+              "output": "citation-buddy"
+            }
+          ],
+          "tsConfig": "apps/citation-buddy-bot/tsconfig.json"
+        }
+      }
+    },
+    "build-package": {
+      "options": {
+        "assets": [
+          "apps/citation-buddy-bot/src/assets",
+          {
+            "input": "dist/apps/citation-buddy",
+            "glob": "**/*",
+            "output": "citation-buddy"
+          }
+        ],
+        "externalDependencies": [
+          "cache-manager",
+          "class-transformer/storage",
+          "kafkajs",
+          "mqtt",
+          "nats",
+          "ioredis",
+          "amqplib",
+          "amqp-connection-manager",
+          "@fastify/static",
+          "bufferutil",
+          "utf-8-validate"
+        ],
+        "webpackConfig": "apps/citation-buddy-bot/webpack.config.js"
+      }
+    },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
