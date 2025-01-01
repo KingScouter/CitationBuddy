@@ -102,7 +102,6 @@
     "jest-environment-node": "^29.4.1",
     "jest-preset-angular": "~14.1.0",
     "jsdom": "~22.1.0",
-    "ngrok": "^5.0.0-beta.2",
     "nx": "19.4.2",
     "prettier": "^3.3.2",
     "react-refresh": "^0.10.0",
