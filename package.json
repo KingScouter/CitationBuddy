@@ -12,7 +12,8 @@
     "start": "concurrently --names \"BOT,FRONTEND\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run start:bot\" \"npm run start:frontend\"",
     "start:storybook": "nx run citation-buddy:storybook",
     "ngrok": "ngrok http 3000",
-    "ngrok:frontend": "ngrok http 4200"
+    "ngrok:frontend": "ngrok http 4200",
+    "docker:run": "docker run -d -p 3000:3000 -v $pwd/.env:/home/node/app/.env -v $pwd/db:/home/node/app/db kingscouter/citation-buddy"
   },
   "private": true,
   "dependencies": {
