@@ -9,14 +9,15 @@ import {
 import { CHAT_INPUT_COMMANDS, MESSAGE_COMMANDS } from './commands';
 
 const APP_COMMANDS = [...CHAT_INPUT_COMMANDS, ...MESSAGE_COMMANDS];
+const BOT_PREFIX_URL = '/bot';
 
 export default function (app: Express): void {
   /**
    * Interactions endpoint URL where Discord will send HTTP requests
    */
-  app.post('/interactions', postInteractions);
+  app.post(`${BOT_PREFIX_URL}/interactions`, postInteractions);
 
-  app.post('/registercommands', postRegisterCommand);
+  app.post(`${BOT_PREFIX_URL}/registercommands`, postRegisterCommand);
 }
 
 async function postRegisterCommand(req: Request, res: Response): Promise<void> {
