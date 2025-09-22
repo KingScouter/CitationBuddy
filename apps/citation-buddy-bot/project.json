@@ -15,7 +15,8 @@
         "main": "apps/citation-buddy-bot/src/main.ts",
         "tsConfig": "apps/citation-buddy-bot/tsconfig.app.json",
         "assets": ["apps/citation-buddy-bot/src/assets"],
-        "webpackConfig": "apps/citation-buddy-bot/webpack.config.js"
+        "webpackConfig": "apps/citation-buddy-bot/webpack.config.js",
+        "generatePackageJson": true
       },
       "dependsOn": [
         {

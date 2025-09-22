@@ -10,23 +10,30 @@ import { OauthBackendUtils } from './oauth-backend-utils';
  * @param res Response with the list of guilds
  */
 export async function getGuilds(req: Request, res: Response): Promise<void> {
-  const jwtPayload = OauthBackendUtils.getUserFromCookie(req);
-  const guilds = await OauthBackendUtils.getUserGuilds(jwtPayload.accessToken);
-  if (!guilds || guilds.length <= 0) {
-    res.status(HttpStatusCode.NotFound).send([]);
+  try {
+    const jwtPayload = OauthBackendUtils.getUserFromCookie(req);
+    const guilds = await OauthBackendUtils.getUserGuilds(
+      jwtPayload.accessToken
+    );
+    if (!guilds || guilds.length <= 0) {
+      res.status(HttpStatusCode.NotFound).send([]);
+    }
+
+    const botGuilds = await BotUtils.getGuilds();
+
+    const mappedGuilds = guilds.map(
+      elem =>
+        ({
+          guild: elem,
+          hasBot: botGuilds.some(botGuild => botGuild.id === elem.id),
+        }) as DiscordGuild
+    );
+
+    res.json(mappedGuilds);
+  } catch (ex) {
+    console.error(`GetGuilds failed with exception`, ex);
+    res.status(HttpStatusCode.InternalServerError).send({});
   }
-
-  const botGuilds = await BotUtils.getGuilds();
-
-  const mappedGuilds = guilds.map(
-    elem =>
-      ({
-        guild: elem,
-        hasBot: botGuilds.some(botGuild => botGuild.id === elem.id),
-      }) as DiscordGuild
-  );
-
-  res.json(mappedGuilds);
 }
 
 /**
