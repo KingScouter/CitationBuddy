@@ -14,4 +14,6 @@ COPY dist/apps/citation-buddy-bot /home/node/app/dist/citation-buddy-bot
 
 EXPOSE 3000
 
-CMD [ "node", "/home/node/app/dist/citation-buddy-bot/main.js"]
+WORKDIR /home/node/app/
+
+CMD [ "node", "dist/citation-buddy-bot/main.js"]

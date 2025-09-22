@@ -7,6 +7,8 @@
     "build:frontend": "nx run citation-buddy:build:production",
     "start:bot": "nx run citation-buddy-bot:serve",
     "start:frontend": "nx run citation-buddy:serve",
+    "start:bot:prod": "npm run start:bot -- -c production",
+    "start:frontend:prod": "npm run start:frontend -- -c production",
     "start": "concurrently --names \"BOT,FRONTEND\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run start:bot\" \"npm run start:frontend\"",
     "start:storybook": "nx run citation-buddy:storybook",
     "ngrok": "ngrok http 3000",
