@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   DiscordGuild,
   MessageConfig,
@@ -10,6 +10,7 @@ import {
 } from '@cite/models';
 import { APIGuild, APIMessage, APIUser } from 'discord-api-types/v10';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -18,15 +19,22 @@ export class DiscordBackendService {
   private readonly httpClient = inject(HttpClient);
   private readonly _apiUrl: string = '';
 
-  /**
-   * The URL for the API-backend
-   */
+  // /**
+  //  * The URL for the API-backend
+  //  */
   get apiUrl(): string {
-    return this._apiUrl;
-  }
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
 
-  constructor(@Inject('API_URL') apiUrl: string) {
-    this._apiUrl = apiUrl;
+    let url = `${protocol}//${hostname}`;
+    if (environment.apiPort) {
+      url += `:${environment.apiPort}`;
+    } else if (port) {
+      url += `:${port}`;
+    }
+
+    return url;
   }
 
   /**

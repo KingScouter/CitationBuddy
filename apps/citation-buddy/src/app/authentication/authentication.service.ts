@@ -18,7 +18,7 @@ export class AuthenticationService {
   private readonly _oauth2Url = `${OAuth2Routes.authorizationURL}?client_id=${
     AppConfig.CLIENT_ID
   }&response_type=code&redirect_uri=${encodeURI(
-    AppConfig.BASE_REDIRECT_URI
+    this.discordBackenService.apiUrl + AppConfig.BASE_REDIRECT_URI_POSTFIX
   )}&scope=${this.oauth2Scopes.join('+')}`;
 
   private readonly _userAuth = signal<DiscordAuth | null>(null);
