@@ -1,23 +1,32 @@
 import { JsonDB, Config } from 'node-json-db';
+import path from 'node:path';
 
 export class BaseDbService<T> {
   private db: JsonDB;
   private readonly dbName: string;
   private readonly basePath: string = '/';
+  private readonly baseDirectory = 'db';
 
   constructor(dbName: string) {
     this.dbName = dbName;
 
-    this.db = new JsonDB(new Config(this.dbName, true, false, this.basePath));
+    this.db = new JsonDB(
+      new Config(
+        path.join(this.baseDirectory, this.dbName),
+        true,
+        false,
+        this.basePath
+      )
+    );
   }
 
   async set(key: string, user: T): Promise<void> {
-    await this.db.push(`${this.basePath}${key}`, user, true);
+    await this.db.push(path.join(this.basePath, key), user, true);
   }
 
   async get(key: string): Promise<T | null> {
     try {
-      const obj = await this.db.getObject<T>(`${this.basePath}${key}`);
+      const obj = await this.db.getObject<T>(path.join(this.basePath, key));
       return obj;
     } catch (ex) {
       console.log('Element not found', ex);
@@ -36,6 +45,6 @@ export class BaseDbService<T> {
   }
 
   async unset(key: string): Promise<void> {
-    await this.db.delete(`${this.basePath}${key}`);
+    await this.db.delete(path.join(this.basePath, key));
   }
 }
