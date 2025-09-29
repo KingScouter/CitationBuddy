@@ -21,12 +21,14 @@ export class BaseDbService<T> {
   }
 
   async set(key: string, user: T): Promise<void> {
-    await this.db.push(path.join(this.basePath, key), user, true);
+    await this.db.push(path.posix.join(this.basePath, key), user, true);
   }
 
   async get(key: string): Promise<T | null> {
     try {
-      const obj = await this.db.getObject<T>(path.join(this.basePath, key));
+      const obj = await this.db.getObject<T>(
+        path.posix.join(this.basePath, key)
+      );
       return obj;
     } catch (ex) {
       console.log('Element not found', ex);
@@ -45,6 +47,6 @@ export class BaseDbService<T> {
   }
 
   async unset(key: string): Promise<void> {
-    await this.db.delete(path.join(this.basePath, key));
+    await this.db.delete(path.posix.join(this.basePath, key));
   }
 }
