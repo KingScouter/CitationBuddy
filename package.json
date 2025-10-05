@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "build:prod": "nx run-many --target=build --all --configuration=production",
     "build:bot": "nx run citation-buddy-bot:build:production",
     "build:frontend": "nx run citation-buddy:build:production",
     "start:bot": "nx run citation-buddy-bot:serve",
