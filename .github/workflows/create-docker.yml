@@ -69,29 +69,4 @@ jobs:
 
   deploy-image:
     needs: create-docker-image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          sparse-checkout: |
-            compose.yaml
-          sparse-checkout-cone-mode: false
-
-      - name: Deploy compose file
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.VSHE_SSH_HOST }}
-          username: ${{ secrets.VSHE_SSH_USERNAME }}
-          password: ${{ secrets.VSHE_SSH_PASSWORD }}
-          source: "compose.yaml"
-          target: "/home/app/compose.yaml"
-
-      - name: SSH and deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VSHE_SSH_HOST }}
-          password: ${{ secrets.VSHE_SSH_PASSWORD }}
-          username: ${{ secrets.VSHE_SSH_USERNAME }}
-          script: |
-            docker compose -f /home/app/compose.yaml up
+    uses: ./.github/workflows/deploy-docker.yml
