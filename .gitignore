@@ -34,7 +34,7 @@ yarn-error.log
 testem.log
 /typings
 /tmp
-.env
+*.env
 usersDb.json
 messageConfigDb.json
 guildConfigDb.json
