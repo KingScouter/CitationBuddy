@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.VSHE_SSH_USERNAME }}
           password: ${{ secrets.VSHE_SSH_PASSWORD }}
           source: "compose.yaml"
-          target: "/home/app/compose.yaml"
+          target: "/home/app/"
 
       - name: SSH and deploy
         uses: appleboy/ssh-action@master
