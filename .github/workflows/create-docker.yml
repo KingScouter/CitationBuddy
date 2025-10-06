@@ -50,7 +50,7 @@ jobs:
       - name: Generate docker tags for image
         id: docker-tags-backend
         run: |
-          TAGS="${{ env.REGISTRY }}/jh-wm/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/jh-wm/${{ env.IMAGE_NAME }}:0.0.1"; echo "VALUE=$TAGS" >> "$GITHUB_OUTPUT"
+          TAGS="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:0.0.1"; echo "VALUE=$TAGS" >> "$GITHUB_OUTPUT"
 
       - name: Build and push Docker image
         id: push
