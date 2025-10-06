@@ -1,0 +1,8 @@
+services:
+  citation-buddy:
+    image: ghcr.io/kingscouter/citation-buddy:master
+    container_name: citation-buddy
+    ports:
+      - "3000:34921"
+    volumes:
+      - /home/app/citation-buddy.env:/home/node/app/.env
