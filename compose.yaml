@@ -1,6 +1,5 @@
 services:
   citation-buddy:
-    # image: ghcr.io/kingscouter/citation-buddy:master
     image: ghcr.io/kingscouter/citationbuddy:latest
     pull_policy: always
     container_name: citation-buddy
