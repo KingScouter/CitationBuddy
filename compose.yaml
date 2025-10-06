@@ -4,6 +4,6 @@ services:
     pull_policy: always
     container_name: citation-buddy
     ports:
-      - "3000:34921"
+      - "34921:3000"
     volumes:
       - /home/app/citation-buddy.env:/home/node/app/.env
