@@ -45,11 +45,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Generate docker tags for LP Backend
+        id: docker-tags-backend
+        run: |
+          TAGS="${{ env.REGISTRY }}/jh-wm/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/jh-wm/${{ env.IMAGE_NAME }}:0.0.1"; echo "VALUE=$TAGS" >> "$GITHUB_OUTPUT"
 
       - name: Build and push Docker image
         id: push
@@ -57,15 +56,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
-        with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
-          subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: true
+          tags: ${{ steps.docker-tags-backend.outputs.value }}
 
   deploy-image:
     needs: create-docker-image
