@@ -4,7 +4,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   create-docker-image:
@@ -45,7 +44,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate docker tags for LP Backend
+      - name: Generate image name
+        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+
+      - name: Generate docker tags for image
         id: docker-tags-backend
         run: |
           TAGS="${{ env.REGISTRY }}/jh-wm/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/jh-wm/${{ env.IMAGE_NAME }}:0.0.1"; echo "VALUE=$TAGS" >> "$GITHUB_OUTPUT"
