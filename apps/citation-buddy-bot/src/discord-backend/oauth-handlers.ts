@@ -29,8 +29,6 @@ export async function getOauth(req: Request, res: Response): Promise<void> {
     };
     headers.setContentType('application/x-www-form-urlencoded');
 
-    console.log('Exchanging code for token...', data);
-
     const discordUrl = OAuth2Routes.tokenURL;
     const tokenRes = await axios.post(discordUrl, data, {
       headers,
