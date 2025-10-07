@@ -1,7 +1,7 @@
 export enum AppRoutes {
   Guilds = 'guilds',
   OauthError = 'oauth-error',
-  Oauth = 'oauth',
+  OauthSuccess = 'oauth-success',
   Login = 'login',
   CitationsList = 'citations-list',
 }

@@ -58,7 +58,7 @@ export async function getOauth(req: Request, res: Response): Promise<void> {
   }
 
   // Redirect
-  res.redirect(`${process.env.CLIENT_URL}/oauth`);
+  res.redirect(`${process.env.CLIENT_URL}/oauth-success`);
 }
 
 /**

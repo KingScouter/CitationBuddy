@@ -15,7 +15,7 @@ export const appRoutes: Route[] = [
     canActivateChild: [authGuard],
     children: [
       {
-        path: AppRoutes.Oauth,
+        path: AppRoutes.OauthSuccess,
         loadComponent: () =>
           import('./oauth-redirect/oauth-redirect.component').then(
             comp => comp.OauthRedirectComponent
