@@ -25,9 +25,11 @@ export async function getOauth(req: Request, res: Response): Promise<void> {
     const data = {
       grant_type: 'authorization_code',
       code: code,
-      redirect_uri: `${process.env.API_URL}/oauth`,
+      redirect_uri: new URL('/oauth', process.env.API_URL).toString(),
     };
     headers.setContentType('application/x-www-form-urlencoded');
+
+    console.log('Exchanging code for token...', data);
 
     const discordUrl = OAuth2Routes.tokenURL;
     const tokenRes = await axios.post(discordUrl, data, {
@@ -53,12 +55,12 @@ export async function getOauth(req: Request, res: Response): Promise<void> {
     addCookieToRes(res, userFromDb, tokenResData.access_token);
   } catch (ex) {
     console.error(ex);
-    res.redirect(`${process.env.CLIENT_URL}/oauth-error`);
+    res.redirect(new URL('/oauth-error', process.env.CLIENT_URL).toString());
     return;
   }
 
   // Redirect
-  res.redirect(`${process.env.CLIENT_URL}/oauth-success`);
+  res.redirect(new URL('/oauth-success', process.env.CLIENT_URL).toString());
 }
 
 /**
