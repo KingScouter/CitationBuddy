@@ -36,7 +36,7 @@ export async function RegisterCommand(
     await restClient.put(Routes.applicationCommands(process.env.APP_ID), {
       body: commands,
     });
-    console.log('Install complete');
+    console.log('Install complete: ', commands.length, commands);
   } catch (err) {
     console.error('Install failed: ', err);
   }

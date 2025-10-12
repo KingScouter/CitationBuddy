@@ -44,14 +44,10 @@ class AddCiteModalCommand extends BaseChatInputCommand {
       return false;
     }
 
-    return this.handleModalResult(
-      interaction as APIModalSubmitInteraction,
-      res,
-      config.generalConfig
-    );
+    return this.handleModalResult(interaction, res, config.generalConfig);
   }
 
-  protected async executeInternal(
+  protected override async executeInternal(
     interaction: APIChatInputApplicationCommandInteraction,
     res: Response
   ): Promise<void> {

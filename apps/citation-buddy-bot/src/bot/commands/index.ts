@@ -6,6 +6,7 @@ import addCiteModalCommand from './chat-input/add-cite-modal-command';
 import ignoreCitationCommand from './message-command/ignore-citation-command';
 import unignoreCitationCommand from './message-command/unignore-citation-command';
 import manageIgnoreCommand from './chat-input/manage-ignore-command';
+import configureServerCommand from './chat-input/configure-server-command';
 
 const CHAT_INPUT_COMMANDS = [
   selectCiteChannelCommand,
@@ -14,6 +15,7 @@ const CHAT_INPUT_COMMANDS = [
   getRandomCiteCommand,
   addCiteModalCommand,
   manageIgnoreCommand,
+  configureServerCommand,
 ];
 
 const MESSAGE_COMMANDS = [ignoreCitationCommand, unignoreCitationCommand];
