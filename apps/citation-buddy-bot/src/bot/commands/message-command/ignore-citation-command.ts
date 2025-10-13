@@ -11,7 +11,11 @@ import { MessageConfigDbService } from '../../../db/message-config-db/message-co
 
 class IgnoreCitationCommand extends BaseMessageCommand {
   constructor() {
-    super('Ignore', '');
+    super('Ignore message');
+    this.name_localizations = {
+      de: 'Nachricht ignorieren',
+      'en-US': 'Ignore message',
+    };
   }
 
   protected async executeInternal(

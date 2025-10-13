@@ -30,7 +30,6 @@ class ConfigureServerCommand extends BaseChatInputCommand {
     res: Response,
     config: FullGuildConfig
   ): Promise<void> {
-    console.log('Incoming configure request');
     res.send({
       type: InteractionResponseType.Modal,
       data: {

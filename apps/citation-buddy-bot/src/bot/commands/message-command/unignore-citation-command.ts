@@ -11,7 +11,11 @@ import { MessageConfigDbService } from '../../../db/message-config-db/message-co
 
 class UnignoreCitationCommand extends BaseMessageCommand {
   constructor() {
-    super('Unignore', '');
+    super('Unignore message');
+    this.name_localizations = {
+      de: 'Nachricht nicht mehr ignorieren',
+      'en-US': 'Unignore message',
+    };
   }
 
   protected async executeInternal(

@@ -10,8 +10,8 @@ import { ApiCommand } from '../models/api-command';
 export abstract class BaseMessageCommand<
   T extends APIInteraction = APIInteraction,
 > extends ApiCommand<APIMessageApplicationCommandInteraction, T> {
-  protected constructor(name: string, description: string, needsConfig = true) {
-    super(name, description, ApplicationCommandType.Message, needsConfig);
+  protected constructor(name: string, needsConfig = true) {
+    super(name, '', ApplicationCommandType.Message, needsConfig);
   }
 
   protected isCommandType(

@@ -4,6 +4,7 @@ import {
   APIInteraction,
   ApplicationCommandType,
   InteractionResponseType,
+  Locale,
 } from 'discord.js';
 import { Response } from 'express';
 import { GuildConfigDbService } from '../../../db/guild-config-db/guild-config-db.service';
@@ -25,6 +26,7 @@ export abstract class ApiCommand<
   version: string;
   default_member_permissions: string;
   needsConfig = true;
+  name_localizations?: Partial<Record<Locale, string>>;
 
   protected constructor(
     name: string,

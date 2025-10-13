@@ -7,6 +7,7 @@ import ignoreCitationCommand from './message-command/ignore-citation-command';
 import unignoreCitationCommand from './message-command/unignore-citation-command';
 import manageIgnoreCommand from './chat-input/manage-ignore-command';
 import configureServerCommand from './chat-input/configure-server-command';
+import configureMessageCommand from './message-command/configure-message-command';
 
 const CHAT_INPUT_COMMANDS = [
   selectCiteChannelCommand,
@@ -18,6 +19,10 @@ const CHAT_INPUT_COMMANDS = [
   configureServerCommand,
 ];
 
-const MESSAGE_COMMANDS = [ignoreCitationCommand, unignoreCitationCommand];
+const MESSAGE_COMMANDS = [
+  ignoreCitationCommand,
+  unignoreCitationCommand,
+  configureMessageCommand,
+];
 
 export { CHAT_INPUT_COMMANDS, MESSAGE_COMMANDS };
