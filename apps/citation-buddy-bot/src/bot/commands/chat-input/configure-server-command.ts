@@ -71,7 +71,6 @@ class ConfigureServerCommand extends BaseChatInputCommand {
     interaction: APIModalSubmitInteraction,
     res: Response
   ): Promise<boolean> {
-    console.log('Configure server - 2');
     const componentId = interaction.data.custom_id;
     if (
       interaction.type !== InteractionType.ModalSubmit ||
@@ -79,7 +78,6 @@ class ConfigureServerCommand extends BaseChatInputCommand {
     )
       return false;
 
-    console.log('Configure server - 3');
     const config = await ApiCommand.getConfig(interaction.guild_id, res);
     if (!config) {
       return false;
