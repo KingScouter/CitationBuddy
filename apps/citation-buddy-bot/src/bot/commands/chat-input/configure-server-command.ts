@@ -1,4 +1,9 @@
-import { FullGuildConfig, GuildConfig } from '@cite/models';
+import {
+  additionalContextToString,
+  FullGuildConfig,
+  GuildConfig,
+  stringToAdditionalContext,
+} from '@cite/models';
 import {
   APIChatInputApplicationCommandInteraction,
   APIModalInteractionResponse,
@@ -54,12 +59,15 @@ class ConfigureServerCommand extends BaseChatInputCommand {
           {
             type: ComponentType.Label,
             label: 'Additional infos',
-            description: 'Separate using commas or newlines',
+            description:
+              'Combine "key:label". Separate using commas or newlines',
             component: {
               type: ComponentType.TextInput,
               style: TextInputStyle.Paragraph,
               custom_id: `${ConfigureServerCommand.additionalInfoComponentId}${interaction.id}`,
-              value: config.generalConfig.additionalContexts.join('\n'),
+              value: config.generalConfig.additionalContexts
+                .map(additionalContextToString)
+                .join('\n'),
             },
           },
         ],
@@ -115,13 +123,8 @@ class ConfigureServerCommand extends BaseChatInputCommand {
         const additionalInfos = value
           .split('\n')
           .flatMap(elem => elem.split(','))
-          .map(elem => elem.trim())
+          .map(elem => stringToAdditionalContext(elem.trim()))
           .filter(elem => !!elem);
-        console.log(
-          'AdditionalInfos: ',
-          additionalInfos.length,
-          additionalInfos
-        );
         config.additionalContexts = additionalInfos;
       }
     }

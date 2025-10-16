@@ -9,7 +9,7 @@ import {
   TextInputStyle,
 } from 'discord.js';
 import { BaseMessageCommand } from './base-message-commands';
-import { FullGuildConfig, GuildConfig, MessageConfig } from '@cite/models';
+import { FullGuildConfig, MessageConfig } from '@cite/models';
 import { Response } from 'express';
 import { ApiCommand } from '../models/api-command';
 import { MessageConfigDbService } from '../../../db/message-config-db/message-config-db.service';
@@ -54,18 +54,16 @@ class ConfigureMessageCommand extends BaseMessageCommand {
     const isIgnored = messageConfig.ignored;
 
     const additionalInfoComponents: APILabelComponent[] = [];
-    let idx = 0;
     for (const additionalContext of config.generalConfig.additionalContexts) {
-      const value = messageConfig.additionalData[additionalContext] ?? '';
+      const value = messageConfig.additionalData[additionalContext.id] ?? '';
       console.log('Label: ', additionalContext, ', value: ', value);
       additionalInfoComponents.push({
         type: ComponentType.Label,
-        label: additionalContext,
+        label: additionalContext.label,
         component: {
           type: ComponentType.TextInput,
           style: TextInputStyle.Short,
-          custom_id: `${idx++}_${interaction.id}`,
-          // custom_id: `${ConfigureMessageCommand.addInfoComponentId}_${idx++}_${interaction.id}`,
+          custom_id: `${additionalContext.id}_${interaction.id}`,
           value,
           required: false,
         },
@@ -146,6 +144,7 @@ class ConfigureMessageCommand extends BaseMessageCommand {
     messageConfig: MessageConfig,
     config: FullGuildConfig
   ): Promise<boolean> {
+    messageConfig.additionalData = {};
     for (const comp of interaction.data.components) {
       if (comp.type !== ComponentType.Label) {
         continue;
@@ -163,14 +162,13 @@ class ConfigureMessageCommand extends BaseMessageCommand {
         messageConfig.ignored = isIgnored;
       } else if (labelComp.type === ComponentType.TextInput) {
         const value = labelComp.value;
-        const pattern = /^(\d+)_.*$/;
+        const pattern = /^(\w+)_.*$/;
         const matchRes = labelComp.custom_id.match(pattern);
-        if (matchRes.length !== 2) {
+        if (matchRes?.length !== 2) {
           continue;
         }
-        const context = config.generalConfig.additionalContexts[matchRes[1]];
 
-        messageConfig.additionalData[context] = value;
+        messageConfig.additionalData[matchRes[1]] = value;
       }
     }
 
