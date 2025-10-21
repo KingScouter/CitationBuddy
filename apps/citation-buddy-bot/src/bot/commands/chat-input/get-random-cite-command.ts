@@ -5,7 +5,7 @@ import {
 import { Response } from 'express';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { BotUtils } from '../../bot-utils';
-import { FullGuildConfig } from '@cite/models';
+import { FullGuildConfig, GuildConfig, MessageConfig } from '@cite/models';
 import { BaseChatInputCommand } from './base-chat-input-commands';
 
 class GetRandomCitecommand extends BaseChatInputCommand {
@@ -46,7 +46,15 @@ class GetRandomCitecommand extends BaseChatInputCommand {
       Math.random() * randomNumber(0, filteredMessages.length - 1)
     );
     const randomMsg = filteredMessages[randomIdx];
-    const parsedMsg = hidePersonInCitation(randomMsg.content);
+
+    const msgConfig = config.messageConfig.configs.find(
+      elem => elem.id === randomMsg.id
+    );
+    const parsedMsg = hidePersonInCitation(
+      randomMsg.content,
+      config.generalConfig,
+      msgConfig
+    );
 
     res.send({
       type: InteractionResponseType.ChannelMessageWithSource,
@@ -62,7 +70,11 @@ function randomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function hidePersonInCitation(msg: string): string {
+function hidePersonInCitation(
+  msg: string,
+  generalConfig: GuildConfig,
+  msgConfig?: MessageConfig
+): string {
   if (!msg) {
     return msg;
   }
@@ -83,7 +95,22 @@ function hidePersonInCitation(msg: string): string {
   partYear = `||${partYear}||`;
   if (partCtx) partCtx = `||${partCtx}||`;
 
-  const parsedMsg = `${partMsg}${partPerson}${partYear}${partCtx}`;
+  let additionalInfoPart = '';
+  if (msgConfig) {
+    for (const [addInfoKey, addInfoValue] of Object.entries(
+      msgConfig.additionalData
+    )) {
+      const label = generalConfig.additionalContexts.find(
+        elem => elem.id === addInfoKey
+      );
+      if (!label) {
+        continue;
+      }
+      additionalInfoPart += `\n${label.label}: ||${addInfoValue}||`;
+    }
+  }
+
+  const parsedMsg = `${partMsg}${partPerson}${partYear}${partCtx}${additionalInfoPart}`;
 
   return parsedMsg;
 }
