@@ -1,0 +1,61 @@
+{
+  "name": "quote-buddy-bot",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/quote-buddy-bot/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/quote-buddy-bot",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "apps/quote-buddy-bot/src/main.ts",
+        "tsConfig": "apps/quote-buddy-bot/tsconfig.app.json",
+        "assets": ["apps/quote-buddy-bot/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generateLockfile": true,
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "quote-buddy-bot:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "quote-buddy-bot:build:development"
+        },
+        "production": {
+          "buildTarget": "quote-buddy-bot:build:production"
+        }
+      }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f apps/quote-buddy-bot/Dockerfile . -t quote-buddy-bot"
+    }
+  }
+}
