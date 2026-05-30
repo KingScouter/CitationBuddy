@@ -4,12 +4,8 @@ import Event from '../models/event';
 export default new Event({
   name: Events.ClientReady,
   once: true,
-  execute(): void {
+  execute(readyClient): void {
     // Runs when the bot logs in
-    if (client) {
-      console.log(`Logged in as ${client?.user?.tag as string}!`);
-    } else {
-      console.log('Ready, but no client');
-    }
+    console.log(`Logged in as ${readyClient.user.tag}!`);
   },
 });
