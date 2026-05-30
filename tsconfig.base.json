@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@citation-buddy/config": ["libs/config/src/index.ts"],
       "@cite/models": ["libs/models/src/index.ts"]
     }
   },
