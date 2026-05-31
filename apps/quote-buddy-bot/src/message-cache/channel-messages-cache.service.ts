@@ -1,5 +1,6 @@
 import { Collection, Message } from 'discord.js';
 import { ChannelMessageCache } from './models/channel-message-cache';
+import { GuildConfigDbService } from '@citation-buddy/config';
 
 export class ChannelMessagesCacheService {
   private static instance: ChannelMessagesCacheService;
@@ -15,9 +16,14 @@ export class ChannelMessagesCacheService {
   private readonly messages = new Map<string, ChannelMessageCache>();
 
   static async fetchMessages(
-    guildId: string,
-    channelId: string
+    guildId: string
   ): Promise<Collection<string, Message> | null> {
+    const config = await GuildConfigDbService.getInstance().getConfig(guildId);
+    const channelId = config.citeChannelId;
+    if (!channelId) {
+      return null;
+    }
+
     let guildInstance = this.getInstance().messages.get(guildId);
     if (!guildInstance) {
       guildInstance = new ChannelMessageCache(guildId, channelId);
