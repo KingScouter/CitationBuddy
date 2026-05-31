@@ -18,7 +18,7 @@ export class ChannelMessagesCacheService {
 
   static async fetchMessages(
     guildId: string
-  ): Promise<Collection<string, ParsedQuote> | null> {
+  ): Promise<ChannelMessageCache | null> {
     const config = await GuildConfigDbService.getInstance().getConfig(guildId);
     const channelId = config.citeChannelId;
     if (!channelId) {
@@ -31,10 +31,10 @@ export class ChannelMessagesCacheService {
     }
 
     if (guildInstance.messages.size === 0) {
-      return guildInstance.fetchMessages();
+      await guildInstance.fetchMessages();
     }
 
-    return guildInstance.messages;
+    return guildInstance;
   }
 
   static getMessages(guildId: string): Collection<string, ParsedQuote> | null {

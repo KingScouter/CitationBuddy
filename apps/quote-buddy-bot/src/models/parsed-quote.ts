@@ -8,7 +8,7 @@ export class ParsedQuote {
   ) {}
 
   static parse(message: string): ParsedQuote | null {
-    const quoteRegex = /((?:.*\n)+)(.*),\s*(\d+),?\s*(.*)/gms;
+    const quoteRegex = /((?:.*\n)+)(?:\s*.\s*)(.*),\s*(\d+),?\s*(.*)/gms;
     const regexRes = quoteRegex.exec(message);
     if (!regexRes) {
       return null;

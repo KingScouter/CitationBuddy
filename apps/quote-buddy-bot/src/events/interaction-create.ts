@@ -56,6 +56,18 @@ export default new Event({
       } catch (error) {
         console.error(error);
       }
+    } else {
+      console.log('Unhandled command: ', interaction);
+      try {
+        for (const cmd of client.commands.values()) {
+          if (cmd.handleFollowup?.(interaction)) {
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error during handling of follow-up: ', error);
+      }
+      // await interaction.reply('Unknown command');
     }
   },
 });

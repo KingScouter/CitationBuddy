@@ -15,8 +15,10 @@ export default {
     }
 
     const messages = await ChannelMessagesCacheService.fetchMessages(guildId);
-    console.log(`Got ${messages?.size} number of messages`);
-    await interaction.reply(`Got ${messages?.size} number of messages`);
+    console.log(`Got ${messages?.messages?.size} number of messages`);
+    await interaction.reply(
+      `Got ${messages?.messages?.size} number of messages`
+    );
 
     BotUtils.autoDeleteReply(interaction);
   },

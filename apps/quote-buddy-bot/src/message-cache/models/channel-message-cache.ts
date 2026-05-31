@@ -5,10 +5,17 @@ import {
   MessageResolvable,
 } from 'discord.js';
 import { ParsedQuote } from '../../models/parsed-quote';
+import { QuizUsers } from '../../models/quiz-users';
+
+function randomNumber(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 export class ChannelMessageCache {
   private readonly guildId: string;
   private readonly channelId: string;
+
+  private readonly _quoteNames = new Set<string>();
 
   private _messages = new Collection<string, ParsedQuote>();
 
@@ -16,9 +23,29 @@ export class ChannelMessageCache {
     return this._messages;
   }
 
+  get quoteNames(): string[] {
+    return Array.from(this._quoteNames.values());
+  }
+
   constructor(guildId: string, channelId: string) {
     this.guildId = guildId;
     this.channelId = channelId;
+  }
+
+  getRandomUsers(num: number, defaultUser: string): string[] {
+    const allNames = new Set<string>([...this.quoteNames, defaultUser]);
+    if (num >= allNames.size) {
+      return Array.from(allNames).filter(elem => !!elem);
+    }
+
+    const allNamesArray = this.quoteNames;
+    const names = new Set<string>([defaultUser]);
+    while (names.size < num) {
+      const randomIdx = randomNumber(0, allNamesArray.length);
+      names.add(allNamesArray[randomIdx]);
+    }
+
+    return Array.from(names.values()).filter(elem => !!elem);
   }
 
   async fetchMessages(): Promise<Collection<string, ParsedQuote> | null> {
@@ -61,6 +88,11 @@ export class ChannelMessageCache {
       }
 
       this._messages.set(msg.id, parsedQuote);
+
+      const name = QuizUsers.ParseName(parsedQuote.person);
+      if (name) {
+        this._quoteNames.add(name);
+      }
     }
 
     return this._messages;
