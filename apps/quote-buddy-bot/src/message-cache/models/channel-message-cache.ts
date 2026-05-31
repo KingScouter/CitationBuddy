@@ -9,7 +9,7 @@ export class ChannelMessageCache {
   private readonly guildId: string;
   private readonly channelId: string;
 
-  private readonly _messages = new Collection<string, Message>();
+  private _messages = new Collection<string, Message>();
 
   get messages(): Collection<string, Message> {
     return this._messages;
@@ -53,7 +53,7 @@ export class ChannelMessageCache {
     }
 
     this._messages.clear();
-    this._messages.concat(allMessages);
+    this._messages = allMessages.clone();
 
     return this._messages;
   }
