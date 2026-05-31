@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type {
   AutocompleteInteraction,
+  BaseInteraction,
   ChatInputCommandInteraction,
   ContextMenuCommandBuilder,
   SlashCommandBuilder,
@@ -20,6 +21,7 @@ export default class ApplicationCommand {
     | SlashCommandOptionsOnlyBuilder;
   hasSubCommands: boolean;
   execute?: (interaction: ChatInputCommandInteraction) => Promise<void> | void;
+  handleFollowup?: (interaction: BaseInteraction) => Promise<boolean> | boolean;
   autocomplete?: (interaction: AutocompleteInteraction) => Promise<void> | void;
 
   /**
