@@ -4,14 +4,15 @@ import {
   Message,
   MessageResolvable,
 } from 'discord.js';
+import { ParsedQuote } from '../../models/parsed-quote';
 
 export class ChannelMessageCache {
   private readonly guildId: string;
   private readonly channelId: string;
 
-  private _messages = new Collection<string, Message>();
+  private _messages = new Collection<string, ParsedQuote>();
 
-  get messages(): Collection<string, Message> {
+  get messages(): Collection<string, ParsedQuote> {
     return this._messages;
   }
 
@@ -20,7 +21,7 @@ export class ChannelMessageCache {
     this.channelId = channelId;
   }
 
-  async fetchMessages(): Promise<Collection<string, Message> | null> {
+  async fetchMessages(): Promise<Collection<string, ParsedQuote> | null> {
     const guild = await client.guilds.fetch(this.guildId);
     if (!guild) {
       return null;
@@ -53,7 +54,14 @@ export class ChannelMessageCache {
     }
 
     this._messages.clear();
-    this._messages = allMessages.clone();
+    for (const msg of allMessages.values()) {
+      const parsedQuote = ParsedQuote.parse(msg.content);
+      if (!parsedQuote) {
+        continue;
+      }
+
+      this._messages.set(msg.id, parsedQuote);
+    }
 
     return this._messages;
   }

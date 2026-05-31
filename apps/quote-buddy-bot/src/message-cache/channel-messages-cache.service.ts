@@ -1,6 +1,7 @@
-import { Collection, Message } from 'discord.js';
+import { Collection } from 'discord.js';
 import { ChannelMessageCache } from './models/channel-message-cache';
 import { GuildConfigDbService } from '@citation-buddy/config';
+import { ParsedQuote } from '../models/parsed-quote';
 
 export class ChannelMessagesCacheService {
   private static instance: ChannelMessagesCacheService;
@@ -17,7 +18,7 @@ export class ChannelMessagesCacheService {
 
   static async fetchMessages(
     guildId: string
-  ): Promise<Collection<string, Message> | null> {
+  ): Promise<Collection<string, ParsedQuote> | null> {
     const config = await GuildConfigDbService.getInstance().getConfig(guildId);
     const channelId = config.citeChannelId;
     if (!channelId) {
@@ -36,7 +37,7 @@ export class ChannelMessagesCacheService {
     return guildInstance.messages;
   }
 
-  static getMessages(guildId: string): Collection<string, Message> | null {
+  static getMessages(guildId: string): Collection<string, ParsedQuote> | null {
     const guildInstance = this.getInstance().messages.get(guildId);
     if (!guildInstance) {
       return null;
