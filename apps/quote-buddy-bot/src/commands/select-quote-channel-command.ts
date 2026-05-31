@@ -2,11 +2,11 @@ import {
   ChannelType,
   ChatInputCommandInteraction,
   InteractionReplyOptions,
-  MessagePayload,
   SlashCommandBuilder,
 } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
 import { GuildConfigDbService } from '@citation-buddy/config';
+import { BotUtils } from '../bot-utils';
 
 const channelOption = 'channelinput';
 
@@ -38,9 +38,7 @@ export default {
       content: `Selected channel: ${selectedChannel.name}`,
       flags: 'Ephemeral',
     } satisfies InteractionReplyOptions);
-    setTimeout(() => {
-      interaction.deleteReply();
-    }, 3000);
+    BotUtils.autoDeleteReply(interaction);
   },
   hasSubCommands: false,
 } satisfies ApplicationCommand;

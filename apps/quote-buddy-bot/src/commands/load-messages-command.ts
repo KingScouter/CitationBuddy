@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
 import { ChannelMessagesCacheService } from '../message-cache/channel-messages-cache.service';
+import { BotUtils } from '../bot-utils';
 
 export default {
   data: new SlashCommandBuilder()
@@ -16,6 +17,8 @@ export default {
     const messages = await ChannelMessagesCacheService.fetchMessages(guildId);
     console.log(`Got ${messages?.size} number of messages`);
     await interaction.reply(`Got ${messages?.size} number of messages`);
+
+    BotUtils.autoDeleteReply(interaction);
   },
   hasSubCommands: false,
 } satisfies ApplicationCommand;
