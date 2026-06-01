@@ -3,7 +3,7 @@ interface QuizGuess {
   answer: string;
 }
 
-export interface QuizChoice {
+export interface QuizOption {
   label: string;
   id: string;
 }
@@ -15,25 +15,40 @@ export interface QuizRoundResult {
 }
 
 export class QuizRound {
-  private readonly options: QuizChoice[];
+  private readonly options: QuizOption[];
   private readonly correct: string;
+  private readonly messageContent: string;
+  private readonly maxNumGuesses: number;
 
   private readonly guesses = new Map<string, string>();
 
-  constructor(options: QuizChoice[], correct: string) {
+  messageId: string | null = null;
+
+  constructor(
+    options: QuizOption[],
+    correct: string,
+    messageContent: string,
+    maxNumGuesses: number
+  ) {
     this.options = options;
     this.correct = correct;
+    this.messageContent = messageContent;
+    this.maxNumGuesses = maxNumGuesses;
   }
 
   addGuess(user: string, choice: string): void {
+    if (this.guesses.has(user)) {
+      return;
+    }
+
     this.guesses.set(user, this.getChoiceById(choice));
   }
 
-  getChoiceById(id: string): string {
-    return this.options.find(elem => elem.id === id)?.label ?? '';
+  getNumGuesses(): number {
+    return this.guesses.size;
   }
 
-  resolveRound(): QuizRoundResult | null {
+  resolveRound(): QuizRoundResult {
     const correctUsers: string[] = [];
     const wrongUsers: QuizGuess[] = [];
 
@@ -45,24 +60,44 @@ export class QuizRound {
       }
     }
     return {
-      correctAnswer: this.getChoiceById(this.correct),
+      correctAnswer: this.correct,
       correctUsers,
       wrongUsers,
     };
   }
+
+  getMessage(): string {
+    const roundStatus = `Status: ${this.getNumGuesses()} / ${this.maxNumGuesses}\n`;
+
+    const msg = `Zitat:
+${this.messageContent}
+${roundStatus}
+Wer hat's gesagt?
+`;
+
+    return msg;
+  }
+
+  private getChoiceById(id: string): string {
+    return this.options.find(elem => elem.id === id)?.label ?? '';
+  }
 }
 
 export class Quiz {
-  private readonly id: string;
+  private readonly guildId: string;
 
   private readonly users: string[] = [];
 
   private readonly scores = new Map<string, number>();
 
-  private currRound: QuizRound | null = null;
+  private _currRound: QuizRound | null = null;
 
-  constructor(id: string) {
-    this.id = id;
+  get currRound(): QuizRound | null {
+    return this._currRound;
+  }
+
+  constructor(guildId: string) {
+    this.guildId = guildId;
   }
 
   addUser(user: string) {
@@ -79,29 +114,54 @@ export class Quiz {
     this.scores.set(user, ++score);
   }
 
-  startRound(choices: QuizChoice[], answer: string): QuizRound {
-    const quizRound = new QuizRound(choices, answer);
-    this.currRound = quizRound;
+  startRound(
+    options: QuizOption[],
+    answer: string,
+    messageContent: string
+  ): QuizRound | null {
+    if (this._currRound) {
+      return null;
+    }
+
+    const quizRound = new QuizRound(
+      options,
+      answer,
+      messageContent,
+      this.users.length
+    );
+    this._currRound = quizRound;
     return quizRound;
   }
 
   addGuess(user: string, answer: string): void {
-    if (!this.currRound) {
+    if (!this._currRound) {
       return;
     }
 
-    this.currRound.addGuess(user, answer);
+    this._currRound.addGuess(user, answer);
   }
 
   resolveRound(): QuizRoundResult | null {
-    const round = this.currRound;
+    const round = this._currRound;
     if (!round) {
       return null;
     }
 
     const result = round.resolveRound();
-    this.currRound = null;
+    for (const name of result.correctUsers) {
+      this.addSuccess(name);
+    }
+
+    this._currRound = null;
     return result;
+  }
+
+  isFinished(): boolean {
+    if (!this._currRound) {
+      return false;
+    }
+
+    return this._currRound.getNumGuesses() === this.users.length;
   }
 }
 
@@ -118,13 +178,13 @@ export class QuizService {
 
   private readonly openQuizes = new Map<string, Quiz>();
 
-  startQuiz(id: string): Quiz {
-    const quiz = new Quiz(id);
-    this.openQuizes.set(id, quiz);
+  startQuiz(guildId: string): Quiz {
+    const quiz = new Quiz(guildId);
+    this.openQuizes.set(guildId, quiz);
     return quiz;
   }
 
-  getQuiz(id: string): Quiz | null {
-    return this.openQuizes.get(id) ?? null;
+  getQuiz(guildId: string): Quiz | null {
+    return this.openQuizes.get(guildId) ?? null;
   }
 }

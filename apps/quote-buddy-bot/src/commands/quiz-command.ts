@@ -9,7 +9,8 @@ import {
 import ApplicationCommand from '../models/application-command';
 import { ChannelMessagesCacheService } from '../message-cache/channel-messages-cache.service';
 import { QuizUsers } from '../models/quiz-users';
-import { QuizChoice, QuizService } from '../quiz/quiz-service';
+import { QuizOption, QuizService } from '../quiz/quiz-service';
+import { BotUtils } from '../bot-utils';
 
 const commandId = 'quiz';
 
@@ -43,9 +44,9 @@ export default {
     randomUsers.forEach(elem => persons.add(elem));
 
     let idx = 0;
-    const quizOptions: QuizChoice[] = Array.from(persons.values()).map(
+    const quizOptions: QuizOption[] = Array.from(persons.values()).map(
       elem =>
-        ({ id: `${commandId}-${idx++}`, label: elem }) satisfies QuizChoice
+        ({ id: `${commandId}-${idx++}`, label: elem }) satisfies QuizOption
     );
 
     const buttons = quizOptions.map(choice => {
@@ -67,13 +68,24 @@ export default {
     }
 
     const quiz = QuizService.getInstance().startQuiz(guildId);
-    quiz.addUser(interaction.member?.user.username ?? '');
-    quiz.startRound(quizOptions, message.person);
+    const name = BotUtils.getUsername(interaction);
+    console.log('Add user to quiz: ', name);
+    quiz.addUser(name);
+    const round = quiz.startRound(
+      quizOptions,
+      message.person,
+      message.toAnonymString()
+    );
+    if (!round) {
+      await interaction.reply('Error while trying to start a round');
+      return;
+    }
 
     const response = await interaction.reply({
-      content: message.toAnonymString(),
+      content: round.getMessage(),
       components: rows,
     });
+    round.messageId = response.id;
   },
   handleFollowup: async (interaction: BaseInteraction): Promise<boolean> => {
     if (
@@ -89,14 +101,30 @@ export default {
       return true;
     }
 
-    quiz.addGuess(interaction.user.username, interaction.customId);
-    const result = quiz.resolveRound();
+    // Send reply
+    await interaction.reply({
+      content: 'Stimme abgegeben!',
+      flags: 'Ephemeral',
+    });
+    BotUtils.autoDeleteReply(interaction);
 
-    console.log('Result of quiz: ', result);
+    const name = BotUtils.getUsername(interaction);
+    quiz.addGuess(name, interaction.customId);
+    const round = quiz.currRound;
+    if (round) {
+      await interaction.message.edit(quiz.currRound.getMessage());
+    }
 
-    await interaction.reply(
-      `Quiz ended.\nCorrect answers by: ${result?.correctUsers.join(', ')}\nWrong guesses by: ${result?.wrongUsers.map(elem => `${elem.user} (${elem.answer})`).join(', ')}`
-    );
+    if (quiz.isFinished()) {
+      const result = quiz.resolveRound();
+
+      console.log('Result of quiz: ', result);
+
+      await interaction.followUp(
+        `Quiz ended.\nCorrect answers by: ${result?.correctUsers.join(', ')}\nWrong guesses by: ${result?.wrongUsers.map(elem => `${elem.user} (${elem.answer})`).join(', ')}`
+      );
+      return true;
+    }
 
     return true;
   },
