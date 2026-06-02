@@ -5,6 +5,7 @@ import {
   ButtonInteraction,
   ButtonStyle,
   ChatInputCommandInteraction,
+  ComponentType,
   SlashCommandBuilder,
   TextChannel,
 } from 'discord.js';
@@ -235,20 +236,57 @@ async function handleQuizGuess(
   await BotUtils.sendAutoDeleteReply(interaction, 'Stimme abgegeben!');
 
   const round = quiz.currRound;
-  if (round) {
-    await interaction.message.edit(quiz.currRound.getMessage());
+  if (!round) {
+    return true;
   }
+
+  const roundMessage = round.getMessage();
 
   if (quiz.isFinished()) {
     const result = quiz.resolveRound();
 
     console.log('Result of quiz: ', result);
 
+    const components = interaction.message.components
+      .map(row => {
+        if (row.type !== ComponentType.ActionRow) {
+          return row;
+        }
+
+        const oldSubComps = row.components;
+        const newComps = oldSubComps
+          .map(subElem => {
+            if (subElem.type !== ComponentType.Button) {
+              return null;
+            }
+
+            return ButtonBuilder.from(subElem).setDisabled(true);
+          })
+          .filter(elem => !!elem);
+        const newRow = ActionRowBuilder.from(row)
+          .setComponents(...newComps)
+          .toJSON();
+
+        return newRow;
+      })
+      .filter(elem => !!elem);
+
+    console.log('Disabled buttons: ', components);
+
+    await interaction.message.edit({
+      content: roundMessage,
+      components: components,
+    });
+
     await interaction.followUp(
       `Quiz ended.\nCorrect answers by: ${result?.correctUsers.join(', ')}\nWrong guesses by: ${result?.wrongUsers.map(elem => `${elem.user} (${elem.answer})`).join(', ')}`
     );
     return true;
   }
+
+  await interaction.message.edit({
+    content: roundMessage,
+  });
 
   return true;
 }
