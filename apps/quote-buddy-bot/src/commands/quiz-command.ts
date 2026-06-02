@@ -6,6 +6,7 @@ import {
   ButtonStyle,
   ChatInputCommandInteraction,
   ComponentType,
+  MessageFlags,
   SlashCommandBuilder,
   TextChannel,
 } from 'discord.js';
@@ -16,6 +17,9 @@ import { Quiz, QuizOption, QuizService } from '../quiz/quiz-service';
 import { BotUtils } from '../bot-utils';
 
 const commandId = 'quiz';
+const commandIdGuess = `${commandId}-guess-`;
+const commandIdStartQuiz = `${commandId}-startQuiz-`;
+const commandIdJoinQuiz = `${commandId}-joinQuiz-`;
 
 export default {
   data: new SlashCommandBuilder()
@@ -57,11 +61,11 @@ export default {
 
     const buttons = [
       new ButtonBuilder()
-        .setCustomId(`${commandId}-joinQuiz`)
+        .setCustomId(`${commandIdJoinQuiz}`)
         .setLabel('Mitmachen')
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
-        .setCustomId(`${commandId}-startQuiz`)
+        .setCustomId(`${commandIdStartQuiz}`)
         .setLabel('Quiz starten')
         .setStyle(ButtonStyle.Success),
     ];
@@ -86,15 +90,17 @@ export default {
       return true;
     }
 
-    if (interaction.customId === `${commandId}-joinQuiz`) {
+    if (interaction.customId === `${commandIdJoinQuiz}`) {
       await handleJoinQuiz(interaction, quiz);
       return true;
-    } else if (interaction.customId === `${commandId}-startQuiz`) {
+    } else if (interaction.customId === `${commandIdStartQuiz}`) {
       await handleStartQuiz(interaction, quiz);
       return true;
+    } else if (interaction.customId.startsWith(commandIdGuess)) {
+      return await handleQuizGuess(interaction, quiz);
     }
 
-    return await handleQuizGuess(interaction, quiz);
+    return false;
   },
   hasSubCommands: false,
 } satisfies ApplicationCommand;
@@ -170,14 +176,14 @@ async function handleStartQuiz(
   let idx = 0;
   const quizOptions: QuizOption[] = Array.from(persons.values()).map(
     elem =>
-      ({ id: `${commandId}-guess-${idx++}`, label: elem }) satisfies QuizOption
+      ({ id: `${commandIdGuess}${idx++}`, label: elem }) satisfies QuizOption
   );
 
   const buttons = quizOptions.map(choice => {
     return new ButtonBuilder()
       .setCustomId(choice.id)
       .setLabel(choice.label)
-      .setStyle(ButtonStyle.Primary);
+      .setStyle(ButtonStyle.Secondary);
   });
 
   const rows: ActionRowBuilder<ButtonBuilder>[] = [];
@@ -245,6 +251,10 @@ async function handleQuizGuess(
   if (quiz.isFinished()) {
     const roundSolution = round.correct;
     const result = quiz.resolveRound();
+    if (!result) {
+      await interaction.followUp('Fehler beim Beenden der Runde!');
+      return true;
+    }
 
     const components = interaction.message.components
       .map(row => {
@@ -279,8 +289,25 @@ async function handleQuizGuess(
       components: components,
     });
 
+    let resultsText = '';
+    const correctUsersText = result.correctUsers.join(', ');
+    const incorrectUsersText = result.wrongUsers
+      .map(elem => `${elem.user} ("*${elem.answer}*")`)
+      .join(', ');
+
+    if (!result.wrongUsers.length && result.correctUsers.length) {
+      // All correct
+      resultsText = `:white_check_mark: Alle haben's erraten! *(Das war wohl zu einfach)*`;
+    } else if (result.wrongUsers.length && !result.correctUsers.length) {
+      // All incorrect
+      resultsText = `:x: **Niemand hat*s erraten, wie peinlich!**\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
+    } else {
+      // Some correct
+      resultsText = `:white_check_mark:**Richtig geraten:** ${correctUsersText}\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
+    }
+
     await interaction.followUp(
-      `Quiz ended.\nCorrect answers by: ${result?.correctUsers.join(', ')}\nWrong guesses by: ${result?.wrongUsers.map(elem => `${elem.user} (${elem.answer})`).join(', ')}`
+      `**Runde beendet!**.\n\nDie korrekte Antwort war: *${roundSolution}*\n${resultsText}\n\nNächste Runde?`
     );
     return true;
   }
