@@ -100,9 +100,20 @@ export class Quiz {
     this.guildId = guildId;
   }
 
-  addUser(user: string) {
+  /**
+   * Add a new user to the active quiz.
+   * @param user Username to add
+   * @returns True if the user was added sucessfully, otherwise false if the user is already
+   *          playing the quiz.
+   */
+  addUser(user: string): boolean {
+    if (this.users.includes(user)) {
+      return false;
+    }
     this.users.push(user);
     this.scores.set(user, 0);
+
+    return true;
   }
 
   addSuccess(user: string): void {
@@ -133,12 +144,18 @@ export class Quiz {
     return quizRound;
   }
 
-  addGuess(user: string, answer: string): void {
+  addGuess(user: string, answer: string): boolean {
     if (!this._currRound) {
-      return;
+      return false;
+    }
+
+    if (!this.users.includes(user)) {
+      return false;
     }
 
     this._currRound.addGuess(user, answer);
+
+    return true;
   }
 
   resolveRound(): QuizRoundResult | null {

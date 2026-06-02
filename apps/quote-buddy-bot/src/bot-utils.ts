@@ -6,6 +6,34 @@ import {
 } from 'discord.js';
 
 export class BotUtils {
+  /**
+   * Send a reply to the interaction and automatically delete it after a given timeout.
+   * @param interaction Interaction
+   * @param message Message to send
+   * @param isPrivate True if the reply should be private (Ephemeral), otherwise false for a public message
+   * @param timeout Timeout for the automatic deletion of the reply
+   */
+  static async sendAutoDeleteReply(
+    interaction:
+      | CommandInteraction
+      | ChatInputCommandInteraction
+      | ButtonInteraction,
+    message: string,
+    isPrivate = true,
+    timeout = 5000
+  ): Promise<void> {
+    await interaction.reply({
+      content: message,
+      flags: isPrivate ? 'Ephemeral' : undefined,
+    });
+    BotUtils.autoDeleteReply(interaction, timeout);
+  }
+
+  /**
+   * Automatically delete the last reply after a given timeout.
+   * @param interaction Interaction
+   * @param timeout Timeout for the automatic deletion of the reply
+   */
   static autoDeleteReply(
     interaction:
       | CommandInteraction
@@ -18,6 +46,11 @@ export class BotUtils {
     }, timeout);
   }
 
+  /**
+   * Retrieve the display username of the user that triggered an interaction
+   * @param interaction Interaction
+   * @returns {string} The name of the interaction-user
+   */
   static getUsername(
     interaction:
       | CommandInteraction
