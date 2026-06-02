@@ -16,13 +16,17 @@ export interface QuizRoundResult {
 
 export class QuizRound {
   private readonly options: QuizOption[];
-  private readonly correct: string;
+  private readonly _correct: string;
   private readonly messageContent: string;
   private readonly maxNumGuesses: number;
 
   private readonly guesses = new Map<string, string>();
 
   messageId: string | null = null;
+
+  get correct(): string {
+    return this._correct;
+  }
 
   constructor(
     options: QuizOption[],
@@ -31,7 +35,7 @@ export class QuizRound {
     maxNumGuesses: number
   ) {
     this.options = options;
-    this.correct = correct;
+    this._correct = correct;
     this.messageContent = messageContent;
     this.maxNumGuesses = maxNumGuesses;
   }
@@ -53,14 +57,14 @@ export class QuizRound {
     const wrongUsers: QuizGuess[] = [];
 
     for (const [username, guess] of this.guesses.entries()) {
-      if (guess === this.correct) {
+      if (guess === this._correct) {
         correctUsers.push(username);
       } else {
         wrongUsers.push({ user: username, answer: guess });
       }
     }
     return {
-      correctAnswer: this.correct,
+      correctAnswer: this._correct,
       correctUsers,
       wrongUsers,
     };

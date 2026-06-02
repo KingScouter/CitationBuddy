@@ -57,13 +57,13 @@ export default new Event({
         console.error(error);
       }
     } else {
-      console.log('Unhandled command: ', interaction);
       try {
         for (const cmd of client.commands.values()) {
           if (cmd.handleFollowup?.(interaction)) {
             return;
           }
         }
+        console.log('Unhandled command: ', interaction);
       } catch (error) {
         console.error('Error during handling of follow-up: ', error);
       }

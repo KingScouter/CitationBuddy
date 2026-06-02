@@ -177,7 +177,7 @@ async function handleStartQuiz(
     return new ButtonBuilder()
       .setCustomId(choice.id)
       .setLabel(choice.label)
-      .setStyle(ButtonStyle.Secondary);
+      .setStyle(ButtonStyle.Primary);
   });
 
   const rows: ActionRowBuilder<ButtonBuilder>[] = [];
@@ -243,9 +243,8 @@ async function handleQuizGuess(
   const roundMessage = round.getMessage();
 
   if (quiz.isFinished()) {
+    const roundSolution = round.correct;
     const result = quiz.resolveRound();
-
-    console.log('Result of quiz: ', result);
 
     const components = interaction.message.components
       .map(row => {
@@ -260,7 +259,11 @@ async function handleQuizGuess(
               return null;
             }
 
-            return ButtonBuilder.from(subElem).setDisabled(true);
+            const btn = ButtonBuilder.from(subElem).setDisabled(true);
+            if (subElem.label === roundSolution) {
+              btn.setStyle(ButtonStyle.Success);
+            }
+            return btn;
           })
           .filter(elem => !!elem);
         const newRow = ActionRowBuilder.from(row)
@@ -270,8 +273,6 @@ async function handleQuizGuess(
         return newRow;
       })
       .filter(elem => !!elem);
-
-    console.log('Disabled buttons: ', components);
 
     await interaction.message.edit({
       content: roundMessage,
