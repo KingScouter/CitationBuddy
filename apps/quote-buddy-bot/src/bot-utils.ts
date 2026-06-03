@@ -1,7 +1,10 @@
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
   ButtonInteraction,
   ChatInputCommandInteraction,
   CommandInteraction,
+  ComponentType,
   GuildMember,
 } from 'discord.js';
 
@@ -59,5 +62,36 @@ export class BotUtils {
   ): string {
     const user = interaction.member as GuildMember;
     return user.nickname ?? user.user.globalName ?? user.user.username;
+  }
+
+  /**
+   * Disable all buttons within the interaction message.
+   * @param interaction Interaction with a message
+   */
+  static async disableMessageButtons(
+    interaction: ButtonInteraction
+  ): Promise<void> {
+    const prevMsgComps = interaction.message.components
+      .map(row => {
+        if (row.type !== ComponentType.ActionRow) {
+          return row;
+        }
+
+        const subElems = row.components
+          .map(subElem => {
+            if (subElem.type !== ComponentType.Button) {
+              return null;
+            }
+
+            return ButtonBuilder.from(subElem).setDisabled(true);
+          })
+          .filter(elem => !!elem);
+
+        return ActionRowBuilder.from(row)
+          .setComponents(...subElems)
+          .toJSON();
+      })
+      .filter(elem => !!elem);
+    await interaction.message.edit({ components: prevMsgComps });
   }
 }

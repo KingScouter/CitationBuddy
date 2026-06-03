@@ -183,6 +183,9 @@ async function handleNextRound(
   interaction: ButtonInteraction,
   quiz: Quiz
 ): Promise<void> {
+  // Disable the "Next round" button before starting the new round
+  await BotUtils.disableMessageButtons(interaction);
+
   const { round, components } = await PrepareRound(quiz);
 
   if (!round || !components) {
@@ -275,6 +278,8 @@ async function handleStartQuiz(
     );
     return;
   }
+
+  await BotUtils.disableMessageButtons(interaction);
 
   const thread = await channel.threads.create({
     name: 'quiz',
