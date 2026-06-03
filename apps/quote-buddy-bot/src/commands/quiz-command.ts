@@ -11,9 +11,11 @@ import {
 } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
 import { ChannelMessagesCacheService } from '../message-cache/channel-messages-cache.service';
-import { QuizUsers } from '../models/quiz-users';
-import { Quiz, QuizOption, QuizRound, QuizService } from '../quiz/quiz-service';
+import { QuizOption, QuizUsers } from '../quiz/models';
+import { QuizService } from '../quiz/quiz-service';
 import { BotUtils } from '../bot-utils';
+import { Quiz } from '../quiz/quiz';
+import { QuizRound } from '../quiz/quiz-round';
 
 const commandId = 'quiz';
 const commandIdGuess = `${commandId}-guess-`;
