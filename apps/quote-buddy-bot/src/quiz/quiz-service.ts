@@ -204,6 +204,26 @@ export class Quiz {
 
     return msg;
   }
+
+  getScoreMessage(): string {
+    let msg = '**Aktueller Punktestand:**\n';
+
+    msg += [...this.scores.entries()]
+      .sort((elemA, elemB) => elemA[1] - elemB[1])
+      .map(([elemName, elemScore], idx) => {
+        let val = `${elemName}: ${elemScore}`;
+        if (idx === 0) {
+          val = ':crown:' + val;
+        } else if (idx === this.scores.size - 1) {
+          val = ':anger:' + val;
+        }
+
+        return val;
+      })
+      .join('\n');
+
+    return msg;
+  }
 }
 
 export class QuizService {

@@ -391,6 +391,8 @@ async function handleQuizGuess(
       resultsText = `:white_check_mark:**Richtig geraten:** ${correctUsersText}\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
     }
 
+    resultsText += `\n\n${quiz.getScoreMessage()}`;
+
     await interaction.followUp({
       content: `**Runde beendet!**.\n\nDie korrekte Antwort war: *${roundSolution}*\n${resultsText}\n\nNächste Runde?`,
       components: [nextRoundBtn],
