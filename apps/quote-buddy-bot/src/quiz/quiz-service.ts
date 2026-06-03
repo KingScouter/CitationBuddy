@@ -89,15 +89,19 @@ Wer hat's gesagt?
 
 export class Quiz {
   private readonly guildId: string;
-
   private readonly users: string[] = [];
-
   private readonly scores = new Map<string, number>();
 
   private _currRound: QuizRound | null = null;
 
+  joinMessageId = '';
+
   get currRound(): QuizRound | null {
     return this._currRound;
+  }
+
+  get players(): string[] {
+    return this.users;
   }
 
   constructor(guildId: string) {
@@ -183,6 +187,18 @@ export class Quiz {
     }
 
     return this._currRound.getNumGuesses() === this.users.length;
+  }
+
+  getJoinMessage(): string {
+    let msg = 'Quiz wird gestartet. Wer will teilnehmen?\n\n';
+
+    if (this.users.length === 0) {
+      msg += 'Noch niemand!';
+    } else {
+      msg += `**Teilnehmer:** ${this.users.join(', ')}`;
+    }
+
+    return msg;
   }
 }
 

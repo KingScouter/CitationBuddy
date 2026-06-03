@@ -56,8 +56,6 @@ export default {
 
     // Start quiz
     const quiz = QuizService.getInstance().startQuiz(guildId);
-    const name = BotUtils.getUsername(interaction);
-    quiz.addUser(name);
 
     const buttons = [
       new ButtonBuilder()
@@ -67,14 +65,16 @@ export default {
       new ButtonBuilder()
         .setCustomId(`${commandIdStartQuiz}`)
         .setLabel('Quiz starten')
-        .setStyle(ButtonStyle.Success),
+        .setStyle(ButtonStyle.Success)
+        .setDisabled(true),
     ];
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons);
-    await interaction.reply({
-      content: 'Quiz wird gestartet. Wer will teilnehmen?',
+    const joinMessage = await interaction.reply({
+      content: quiz.getJoinMessage(),
       components: [row],
     });
+    quiz.joinMessageId = joinMessage.id;
   },
   handleFollowup: async (interaction: BaseInteraction): Promise<boolean> => {
     if (
@@ -86,7 +86,7 @@ export default {
 
     const quiz = QuizService.getInstance().getQuiz(interaction.guildId ?? '');
     if (!quiz) {
-      await interaction.reply('No quiz running');
+      await interaction.reply('Aktuell läuft kein Quiz');
       return true;
     }
 
@@ -118,6 +118,43 @@ async function handleJoinQuiz(
   const username = BotUtils.getUsername(interaction);
 
   if (quiz.addUser(username)) {
+    if (quiz.players.length === 1) {
+      const components = interaction.message.components
+        .map(row => {
+          if (row.type !== ComponentType.ActionRow) {
+            return row;
+          }
+
+          const oldSubComps = row.components;
+          const newComps = oldSubComps
+            .map(subElem => {
+              if (subElem.type !== ComponentType.Button) {
+                return null;
+              }
+
+              const btn = ButtonBuilder.from(subElem);
+              if (subElem.customId === commandIdStartQuiz) {
+                btn.setDisabled(false);
+              }
+              return btn;
+            })
+            .filter(elem => !!elem);
+          const newRow = ActionRowBuilder.from(row)
+            .setComponents(...newComps)
+            .toJSON();
+
+          return newRow;
+        })
+        .filter(elem => !!elem);
+
+      await interaction.message.edit({
+        content: quiz.getJoinMessage(),
+        components: components,
+      });
+    } else {
+      interaction.message.edit(quiz.getJoinMessage());
+    }
+
     await BotUtils.sendAutoDeleteReply(interaction, 'Quiz beigetreten!');
   } else {
     await BotUtils.sendAutoDeleteReply(interaction, 'Du bist bereits dabei!');
@@ -147,8 +184,6 @@ async function handleStartQuiz(
   const thread = await channel.threads.create({
     name: 'quiz',
   });
-
-  await thread.send('Quiz message');
 
   const guildId = interaction.guildId;
   if (!guildId) {
