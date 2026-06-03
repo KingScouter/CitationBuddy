@@ -6,20 +6,20 @@ import {
   ButtonStyle,
   ChatInputCommandInteraction,
   ComponentType,
-  MessageFlags,
   SlashCommandBuilder,
   TextChannel,
 } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
 import { ChannelMessagesCacheService } from '../message-cache/channel-messages-cache.service';
 import { QuizUsers } from '../models/quiz-users';
-import { Quiz, QuizOption, QuizService } from '../quiz/quiz-service';
+import { Quiz, QuizOption, QuizRound, QuizService } from '../quiz/quiz-service';
 import { BotUtils } from '../bot-utils';
 
 const commandId = 'quiz';
 const commandIdGuess = `${commandId}-guess-`;
 const commandIdStartQuiz = `${commandId}-startQuiz-`;
 const commandIdJoinQuiz = `${commandId}-joinQuiz-`;
+const commandIdNextRound = `${commandId}-nextRound-`;
 
 export default {
   data: new SlashCommandBuilder()
@@ -90,11 +90,14 @@ export default {
       return true;
     }
 
-    if (interaction.customId === `${commandIdJoinQuiz}`) {
+    if (interaction.customId === commandIdJoinQuiz) {
       await handleJoinQuiz(interaction, quiz);
       return true;
-    } else if (interaction.customId === `${commandIdStartQuiz}`) {
+    } else if (interaction.customId === commandIdStartQuiz) {
       await handleStartQuiz(interaction, quiz);
+      return true;
+    } else if (interaction.customId === commandIdNextRound) {
+      await handleNextRound(interaction, quiz);
       return true;
     } else if (interaction.customId.startsWith(commandIdGuess)) {
       return await handleQuizGuess(interaction, quiz);
@@ -104,6 +107,96 @@ export default {
   },
   hasSubCommands: false,
 } satisfies ApplicationCommand;
+
+/**
+ * Prepares a new quiz round. Returns the prepared round and the button-components
+ * for the message.
+ * @param quiz Quiz
+ * @returns The prepared round and components, or undefined if an error occured.
+ */
+async function PrepareRound(quiz: Quiz): Promise<{
+  round?: QuizRound;
+  components?: ActionRowBuilder<ButtonBuilder>[];
+}> {
+  const messageCache = await ChannelMessagesCacheService.fetchMessages(
+    quiz.guildId
+  );
+  if (!messageCache?.messages || messageCache?.messages.size === 0) {
+    return {};
+  }
+
+  const message = messageCache.messages.random();
+
+  if (!message) {
+    return {};
+  }
+
+  const persons = new Set<string>();
+  QuizUsers.defaultUsers.forEach(elem => persons.add(elem.name));
+  const randomUsers = messageCache.getRandomUsers(3, message.person);
+  randomUsers.forEach(elem => persons.add(elem));
+
+  let idx = 0;
+  const quizOptions: QuizOption[] = Array.from(persons.values()).map(
+    elem =>
+      ({ id: `${commandIdGuess}${idx++}`, label: elem }) satisfies QuizOption
+  );
+
+  const buttons = quizOptions.map(choice => {
+    return new ButtonBuilder()
+      .setCustomId(choice.id)
+      .setLabel(choice.label)
+      .setStyle(ButtonStyle.Secondary);
+  });
+
+  const rows: ActionRowBuilder<ButtonBuilder>[] = [];
+
+  while (buttons.length) {
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      ...buttons.slice(0, 4)
+    );
+    buttons.splice(0, 4);
+
+    rows.push(row);
+  }
+
+  const round = quiz.startRound(
+    quizOptions,
+    message.person,
+    message.toAnonymString()
+  );
+  if (!round) {
+    return {};
+  }
+
+  return { round, components: rows };
+}
+
+/**
+ * Handle an interaction for starting the next round in a quiz.
+ * @param interaction Interaction
+ * @param quiz Active quiz
+ */
+async function handleNextRound(
+  interaction: ButtonInteraction,
+  quiz: Quiz
+): Promise<void> {
+  const { round, components } = await PrepareRound(quiz);
+
+  if (!round || !components) {
+    await BotUtils.sendAutoDeleteReply(
+      interaction,
+      'Error while trying to start a round'
+    );
+    return;
+  }
+
+  const response = await interaction.reply({
+    content: round.getMessage(),
+    components,
+  });
+  round.messageId = response.id;
+}
 
 /**
  * Handle an interaction for joining the active quiz.
@@ -185,59 +278,9 @@ async function handleStartQuiz(
     name: 'quiz',
   });
 
-  const guildId = interaction.guildId;
-  if (!guildId) {
-    await interaction.reply('No guild available!');
-    return;
-  }
-  const messageCache = await ChannelMessagesCacheService.fetchMessages(guildId);
-  if (!messageCache?.messages || messageCache?.messages.size === 0) {
-    await interaction.reply('No messages available!');
-    return;
-  }
+  const { round, components } = await PrepareRound(quiz);
 
-  const message = messageCache.messages.random();
-
-  if (!message) {
-    await interaction.reply('No quote found!');
-    return;
-  }
-
-  const persons = new Set<string>();
-  QuizUsers.defaultUsers.forEach(elem => persons.add(elem.name));
-  const randomUsers = messageCache.getRandomUsers(3, message.person);
-  randomUsers.forEach(elem => persons.add(elem));
-
-  let idx = 0;
-  const quizOptions: QuizOption[] = Array.from(persons.values()).map(
-    elem =>
-      ({ id: `${commandIdGuess}${idx++}`, label: elem }) satisfies QuizOption
-  );
-
-  const buttons = quizOptions.map(choice => {
-    return new ButtonBuilder()
-      .setCustomId(choice.id)
-      .setLabel(choice.label)
-      .setStyle(ButtonStyle.Secondary);
-  });
-
-  const rows: ActionRowBuilder<ButtonBuilder>[] = [];
-
-  while (buttons.length) {
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      ...buttons.slice(0, 4)
-    );
-    buttons.splice(0, 4);
-
-    rows.push(row);
-  }
-
-  const round = quiz.startRound(
-    quizOptions,
-    message.person,
-    message.toAnonymString()
-  );
-  if (!round) {
+  if (!round || !components) {
     await BotUtils.sendAutoDeleteReply(
       interaction,
       'Error while trying to start a round'
@@ -247,7 +290,7 @@ async function handleStartQuiz(
 
   const response = await thread.send({
     content: round.getMessage(),
-    components: rows,
+    components,
   });
   round.messageId = response.id;
 
@@ -324,6 +367,13 @@ async function handleQuizGuess(
       components: components,
     });
 
+    const nextRoundBtn = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(commandIdNextRound)
+        .setLabel('Nächste Runde')
+        .setStyle(ButtonStyle.Primary)
+    );
+
     let resultsText = '';
     const correctUsersText = result.correctUsers.join(', ');
     const incorrectUsersText = result.wrongUsers
@@ -341,9 +391,10 @@ async function handleQuizGuess(
       resultsText = `:white_check_mark:**Richtig geraten:** ${correctUsersText}\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
     }
 
-    await interaction.followUp(
-      `**Runde beendet!**.\n\nDie korrekte Antwort war: *${roundSolution}*\n${resultsText}\n\nNächste Runde?`
-    );
+    await interaction.followUp({
+      content: `**Runde beendet!**.\n\nDie korrekte Antwort war: *${roundSolution}*\n${resultsText}\n\nNächste Runde?`,
+      components: [nextRoundBtn],
+    });
     return true;
   }
 
