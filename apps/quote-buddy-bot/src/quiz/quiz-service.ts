@@ -88,7 +88,7 @@ Wer hat's gesagt?
 }
 
 export class Quiz {
-  private readonly guildId: string;
+  private readonly _guildId: string;
   private readonly users: string[] = [];
   private readonly scores = new Map<string, number>();
 
@@ -104,8 +104,12 @@ export class Quiz {
     return this.users;
   }
 
+  get guildId(): string {
+    return this._guildId;
+  }
+
   constructor(guildId: string) {
-    this.guildId = guildId;
+    this._guildId = guildId;
   }
 
   /**

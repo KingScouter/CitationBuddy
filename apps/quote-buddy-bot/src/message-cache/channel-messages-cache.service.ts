@@ -36,13 +36,4 @@ export class ChannelMessagesCacheService {
 
     return guildInstance;
   }
-
-  static getMessages(guildId: string): Collection<string, ParsedQuote> | null {
-    const guildInstance = this.getInstance().messages.get(guildId);
-    if (!guildInstance) {
-      return null;
-    }
-
-    return guildInstance.messages;
-  }
 }
