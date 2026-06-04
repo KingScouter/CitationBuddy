@@ -209,13 +209,15 @@ async function handleEndQuiz(
       .map(elem => elem[0]);
 
     if (winners.length > 1) {
-      msg += `Die großen Gewinner sind:`;
+      msg += `:crown: Die großen Gewinner sind:`;
     } else {
-      msg += `Der große Gewinner ist:`;
+      msg += `:crown: Der große Gewinner ist:`;
     }
     msg += ` **${winners.join(', ')}**\n`;
 
-    msg += `Wer kennt sich am wenigsten aus: **${losers.join(', ')}**`;
+    if (losers.length > 0) {
+      msg += `:anger: Wer kennt sich am wenigsten aus: **${losers.join(', ')}**`;
+    }
   }
 
   QuizService.getInstance().endQuiz(quiz);
