@@ -216,6 +216,7 @@ async function handleJoinQuiz(
   const username = BotUtils.getUsername(interaction);
 
   if (quiz.addUser(username)) {
+    await interaction.deferUpdate();
     if (quiz.players.length === 1) {
       const components = interaction.message.components
         .map(row => {
@@ -252,8 +253,6 @@ async function handleJoinQuiz(
     } else {
       interaction.message.edit(quiz.getJoinMessage());
     }
-
-    await BotUtils.sendAutoDeleteReply(interaction, 'Quiz beigetreten!');
   } else {
     await BotUtils.sendAutoDeleteReply(interaction, 'Du bist bereits dabei!');
   }
@@ -279,6 +278,7 @@ async function handleStartQuiz(
     return;
   }
 
+  await interaction.deferUpdate();
   await BotUtils.disableMessageButtons(interaction);
 
   const thread = await channel.threads.create({
@@ -288,7 +288,7 @@ async function handleStartQuiz(
   const { round, components } = await PrepareRound(quiz);
 
   if (!round || !components) {
-    await BotUtils.sendAutoDeleteReply(
+    await BotUtils.sendAutoDeleteFollowUp(
       interaction,
       'Error while trying to start a round'
     );
@@ -300,8 +300,6 @@ async function handleStartQuiz(
     components,
   });
   round.messageId = response.id;
-
-  await BotUtils.sendAutoDeleteReply(interaction, 'Quiz started');
 }
 
 /**
@@ -323,13 +321,15 @@ async function handleQuizGuess(
     return true;
   }
 
-  // Send reply
-  await BotUtils.sendAutoDeleteReply(interaction, 'Stimme abgegeben!');
-
   const round = quiz.currRound;
   if (!round) {
+    await BotUtils.sendAutoDeleteReply(
+      interaction,
+      'Aktuell läuft keine Runde!'
+    );
     return true;
   }
+  await interaction.deferUpdate();
 
   const roundMessage = round.getMessage();
 
@@ -337,7 +337,10 @@ async function handleQuizGuess(
     const roundSolution = round.correct;
     const result = quiz.resolveRound();
     if (!result) {
-      await interaction.followUp('Fehler beim Beenden der Runde!');
+      await BotUtils.sendAutoDeleteReply(
+        interaction,
+        'Fehler beim Beenden der Runde!'
+      );
       return true;
     }
 
