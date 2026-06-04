@@ -33,6 +33,31 @@ export class BotUtils {
   }
 
   /**
+   * Send a follow-up to the interaction and automatically delete it after a given timeout.
+   * @param interaction Interaction
+   * @param message Message to send
+   * @param isPrivate True if the follow up should be private (Ephemeral), otherwise false for a public message
+   * @param timeout Timeout for the automatic deletion of the follow up
+   */
+  static async sendAutoDeleteFollowUp(
+    interaction:
+      | CommandInteraction
+      | ChatInputCommandInteraction
+      | ButtonInteraction,
+    message: string,
+    isPrivate = true,
+    timeout = 5000
+  ): Promise<void> {
+    const msg = await interaction.followUp({
+      content: message,
+      flags: isPrivate ? 'Ephemeral' : undefined,
+    });
+    setTimeout(async () => {
+      await msg.delete();
+    }, timeout);
+  }
+
+  /**
    * Automatically delete the last reply after a given timeout.
    * @param interaction Interaction
    * @param timeout Timeout for the automatic deletion of the reply
