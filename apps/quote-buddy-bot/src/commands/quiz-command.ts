@@ -8,6 +8,7 @@ import {
   ComponentType,
   SlashCommandBuilder,
   TextChannel,
+  ThreadAutoArchiveDuration,
 } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
 import { ChannelMessagesCacheService } from '../message-cache/channel-messages-cache.service';
@@ -327,10 +328,14 @@ async function handleStartQuiz(
   }
 
   await interaction.deferUpdate();
-  await BotUtils.disableMessageButtons(interaction);
+  await BotUtils.disableMessageButtons(
+    interaction,
+    `Quiz gestartet!\n\n**Teilnehmer:** ${quiz.players.join(', ')}`
+  );
 
-  const thread = await channel.threads.create({
-    name: 'quiz',
+  const thread = await interaction.message.startThread({
+    name: 'Quiz',
+    autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
   });
 
   const { round, components } = await PrepareRound(quiz);

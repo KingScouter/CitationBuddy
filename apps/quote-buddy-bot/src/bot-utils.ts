@@ -92,9 +92,11 @@ export class BotUtils {
   /**
    * Disable all buttons within the interaction message.
    * @param interaction Interaction with a message
+   * @param message Optional message to update the content with
    */
   static async disableMessageButtons(
-    interaction: ButtonInteraction
+    interaction: ButtonInteraction,
+    message?: string
   ): Promise<void> {
     const prevMsgComps = interaction.message.components
       .map(row => {
@@ -117,6 +119,9 @@ export class BotUtils {
           .toJSON();
       })
       .filter(elem => !!elem);
-    await interaction.message.edit({ components: prevMsgComps });
+    await interaction.message.edit({
+      content: message,
+      components: prevMsgComps,
+    });
   }
 }
