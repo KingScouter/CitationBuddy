@@ -4,7 +4,7 @@ import { QuizRound } from './quiz-round';
 export class Quiz {
   private readonly _guildId: string;
   private readonly users: string[] = [];
-  private readonly scores = new Map<string, number>();
+  private readonly _scores = new Map<string, number>();
 
   private _currRound: QuizRound | null = null;
 
@@ -22,6 +22,12 @@ export class Quiz {
     return this._guildId;
   }
 
+  get scores(): [string, number][] {
+    return [...this._scores.entries()].sort(
+      (elemA, elemB) => elemA[1] - elemB[1]
+    );
+  }
+
   constructor(guildId: string) {
     this._guildId = guildId;
   }
@@ -37,18 +43,18 @@ export class Quiz {
       return false;
     }
     this.users.push(user);
-    this.scores.set(user, 0);
+    this._scores.set(user, 0);
 
     return true;
   }
 
   addSuccess(user: string): void {
-    let score = this.scores.get(user);
+    let score = this._scores.get(user);
     if (!score) {
       score = 0;
     }
 
-    this.scores.set(user, ++score);
+    this._scores.set(user, ++score);
   }
 
   startRound(
@@ -120,15 +126,12 @@ export class Quiz {
   }
 
   getScoreMessage(): string {
-    let msg = '**Aktueller Punktestand:**\n';
-
-    msg += [...this.scores.entries()]
-      .sort((elemA, elemB) => elemA[1] - elemB[1])
+    const msg = this.scores
       .map(([elemName, elemScore], idx) => {
         let val = `${elemName}: ${elemScore}`;
         if (idx === 0) {
           val = ':crown:' + val;
-        } else if (idx === this.scores.size - 1) {
+        } else if (idx === this._scores.size - 1) {
           val = ':anger:' + val;
         }
 

@@ -22,4 +22,8 @@ export class QuizService {
   getQuiz(guildId: string): Quiz | null {
     return this.openQuizes.get(guildId) ?? null;
   }
+
+  endQuiz(quiz: Quiz): void {
+    this.openQuizes.delete(quiz.guildId);
+  }
 }

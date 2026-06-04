@@ -22,6 +22,7 @@ const commandIdGuess = `${commandId}-guess-`;
 const commandIdStartQuiz = `${commandId}-startQuiz-`;
 const commandIdJoinQuiz = `${commandId}-joinQuiz-`;
 const commandIdNextRound = `${commandId}-nextRound-`;
+const commandIdEndQuiz = `${commandId}-endQuiz-`;
 
 export default {
   data: new SlashCommandBuilder()
@@ -101,6 +102,9 @@ export default {
     } else if (interaction.customId === commandIdNextRound) {
       await handleNextRound(interaction, quiz);
       return true;
+    } else if (interaction.customId === commandIdEndQuiz) {
+      await handleEndQuiz(interaction, quiz);
+      return true;
     } else if (interaction.customId.startsWith(commandIdGuess)) {
       return await handleQuizGuess(interaction, quiz);
     }
@@ -172,6 +176,50 @@ async function PrepareRound(quiz: Quiz): Promise<{
   }
 
   return { round, components: rows };
+}
+
+/**
+ * Handle an interaction to end the current quiz.
+ * @param interaction Interaction
+ * @param quiz Quiz to end
+ */
+async function handleEndQuiz(
+  interaction: ButtonInteraction,
+  quiz: Quiz
+): Promise<void> {
+  await BotUtils.disableMessageButtons(interaction);
+
+  let msg = `**Quiz beendet!**\n\n**Finaler Score:**\n${quiz.getScoreMessage()}\n\n`;
+
+  const scores = quiz.scores;
+  const highScore = Math.max(...scores.map(elem => elem[1]));
+  const lowScore = Math.min(...scores.map(elem => elem[1]));
+
+  if (highScore === 0) {
+    msg += `Niemand hat irgendwas erraten *(also mir wär das echt peinlich)*!`;
+  } else if (highScore === lowScore) {
+    msg += `**Gleichstand!** Karl Marx wäre stolz auf euch!`;
+  } else {
+    const winners = scores
+      .filter(elem => elem[1] === highScore)
+      .map(elem => elem[0]);
+    const losers = scores
+      .filter(elem => elem[1] === lowScore)
+      .map(elem => elem[0]);
+
+    if (winners.length > 1) {
+      msg += `Die großen Gewinner sind:`;
+    } else {
+      msg += `Der große Gewinner ist:`;
+    }
+    msg += ` **${winners.join(', ')}**\n`;
+
+    msg += `Wer kennt sich am wenigsten aus: **${losers.join(', ')}**`;
+  }
+
+  QuizService.getInstance().endQuiz(quiz);
+
+  await interaction.reply(msg);
 }
 
 /**
@@ -377,11 +425,15 @@ async function handleQuizGuess(
       components: components,
     });
 
-    const nextRoundBtn = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    const roundEndButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(commandIdNextRound)
         .setLabel('Nächste Runde')
-        .setStyle(ButtonStyle.Primary)
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId(commandIdEndQuiz)
+        .setLabel('Quiz beenden')
+        .setStyle(ButtonStyle.Danger)
     );
 
     let resultsText = '';
@@ -401,11 +453,11 @@ async function handleQuizGuess(
       resultsText = `:white_check_mark:**Richtig geraten:** ${correctUsersText}\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
     }
 
-    resultsText += `\n\n${quiz.getScoreMessage()}`;
+    resultsText += `\n\n**Aktueller Punktestand:**\n${quiz.getScoreMessage()}`;
 
     await interaction.followUp({
       content: `**Runde beendet!**.\n\nDie korrekte Antwort war: *${roundSolution}*\n${resultsText}\n\nNächste Runde?`,
-      components: [nextRoundBtn],
+      components: [roundEndButtons],
     });
     return true;
   }
