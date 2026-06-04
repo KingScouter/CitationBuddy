@@ -330,7 +330,7 @@ async function handleStartQuiz(
   }
 
   await interaction.deferUpdate();
-  await BotUtils.disableMessageButtons(
+  await BotUtils.removeMessageButtons(
     interaction,
     `Quiz gestartet!\n\n**Teilnehmer:** ${quiz.players.join(', ')}`
   );
