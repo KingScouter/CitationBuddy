@@ -124,4 +124,19 @@ export class BotUtils {
       components: prevMsgComps,
     });
   }
+
+  /**
+   * Removes all buttons within the interaction message.
+   * @param interaction Interaction with a message
+   * @param message Optional message to update the content with
+   */
+  static async removeMessageButtons(
+    interaction: ButtonInteraction,
+    message?: string
+  ): Promise<void> {
+    await interaction.message.edit({
+      content: message,
+      components: [],
+    });
+  }
 }
