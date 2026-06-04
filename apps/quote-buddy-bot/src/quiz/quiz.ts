@@ -130,9 +130,9 @@ export class Quiz {
       .map(([elemName, elemScore], idx) => {
         let val = `${elemName}: ${elemScore}`;
         if (idx === 0) {
-          val = ':crown:' + val;
+          val = ':crown: ' + val;
         } else if (idx === this._scores.size - 1) {
-          val = ':anger:' + val;
+          val = ':anger: ' + val;
         }
 
         return val;
