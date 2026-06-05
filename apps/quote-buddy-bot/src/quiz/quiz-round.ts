@@ -1,6 +1,12 @@
 import { QuizGuess, QuizOption, QuizRoundResult } from './models';
 
 export class QuizRound {
+  private static progressBarStart = '|';
+  private static progressBarMiddle = '=';
+  private static progressBarEmpty = '-';
+  private static progressBarEnd = '|';
+  private static progressBarNumBars = 10;
+
   private readonly options: QuizOption[];
   private readonly _correct: string;
   private readonly messageContent: string;
@@ -57,7 +63,8 @@ export class QuizRound {
   }
 
   getMessage(): string {
-    const roundStatus = `Status: ${this.getNumGuesses()} / ${this.maxNumGuesses}\n`;
+    const numGuesses = this.getNumGuesses();
+    const roundStatus = `Status: ${numGuesses} / ${this.maxNumGuesses}\n${this.printProgressBar(numGuesses / this.maxNumGuesses)}`;
 
     const msg = `Zitat:
 ${this.messageContent}
@@ -70,5 +77,34 @@ Wer hat's gesagt?
 
   private getChoiceById(id: string): string {
     return this.options.find(elem => elem.id === id)?.label ?? '';
+  }
+
+  /**
+   * Print a simple progress bar
+   * @param state State of the progress bar (0 - 1)
+   * @returns Progress bar string
+   */
+  private printProgressBar(state: number): string {
+    let barsPercentage = 0;
+    if (state >= 1) {
+      barsPercentage = QuizRound.progressBarNumBars;
+    } else if (barsPercentage > 0) {
+      barsPercentage = Math.max(
+        Math.floor(QuizRound.progressBarNumBars * state),
+        1
+      );
+    }
+
+    let msg = `**${QuizRound.progressBarStart}`;
+    let idx = 0;
+    for (; idx < barsPercentage; idx++) {
+      msg += QuizRound.progressBarMiddle;
+    }
+    for (; idx < QuizRound.progressBarNumBars; idx++) {
+      msg += QuizRound.progressBarEmpty;
+    }
+    msg += `${QuizRound.progressBarEnd}**`;
+
+    return msg;
   }
 }
