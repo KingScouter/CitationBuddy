@@ -38,6 +38,7 @@ testem.log
 usersDb.json
 messageConfigDb.json
 guildConfigDb.json
+quizScoreDb.json
 
 # System Files
 .DS_Store

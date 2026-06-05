@@ -17,6 +17,7 @@ import { QuizService } from '../quiz/quiz-service';
 import { BotUtils } from '../bot-utils';
 import { Quiz } from '../quiz/quiz';
 import { QuizRound } from '../quiz/quiz-round';
+import { QuizScoreDbService } from '@citation-buddy/config';
 
 const commandId = 'quiz';
 const commandIdGuess = `${commandId}-guess-`;
@@ -196,18 +197,18 @@ async function handleEndQuiz(
   const highScore = Math.max(...scores.map(elem => elem[1]));
   const lowScore = Math.min(...scores.map(elem => elem[1]));
 
+  const winners = scores
+    .filter(elem => elem[1] === highScore)
+    .map(elem => elem[0]);
+  const losers = scores
+    .filter(elem => elem[1] === lowScore)
+    .map(elem => elem[0]);
+
   if (highScore === 0) {
     msg += `Niemand hat irgendwas erraten *(also mir wär das echt peinlich)*!`;
   } else if (highScore === lowScore) {
     msg += `**Gleichstand!** Karl Marx wäre stolz auf euch!`;
   } else {
-    const winners = scores
-      .filter(elem => elem[1] === highScore)
-      .map(elem => elem[0]);
-    const losers = scores
-      .filter(elem => elem[1] === lowScore)
-      .map(elem => elem[0]);
-
     if (winners.length > 1) {
       msg += `:crown: Die großen Gewinner sind:`;
     } else {
@@ -219,6 +220,10 @@ async function handleEndQuiz(
       msg += `:anger: Wer kennt sich am wenigsten aus: **${losers.join(', ')}**`;
     }
   }
+
+  const guildScores = await QuizScoreDbService.getGuild(quiz.guildId);
+  winners.forEach(elem => guildScores.addQuizWin(elem));
+  await QuizScoreDbService.setConfig(guildScores);
 
   QuizService.getInstance().endQuiz(quiz);
 
@@ -398,6 +403,10 @@ async function handleQuizGuess(
       );
       return true;
     }
+
+    const guildScores = await QuizScoreDbService.getGuild(quiz.guildId);
+    result.correctUsers.forEach(elem => guildScores.addGuessWin(elem));
+    await QuizScoreDbService.setConfig(guildScores);
 
     const components = interaction.message.components
       .map(row => {
