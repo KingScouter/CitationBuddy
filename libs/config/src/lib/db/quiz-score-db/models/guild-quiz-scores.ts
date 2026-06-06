@@ -4,12 +4,11 @@ export interface UserScore {
 }
 
 export type QuizScores = Record<string, UserScore>;
-export type GuessScores = Record<string, UserScore>;
 
 export class GuildQuizScores {
   readonly guildId: string;
   readonly quizScores: QuizScores = {};
-  readonly guessScores: GuessScores = {};
+  readonly guessScores: QuizScores = {};
 
   constructor(guildId: string) {
     this.guildId = guildId;
