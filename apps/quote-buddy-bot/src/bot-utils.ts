@@ -79,7 +79,7 @@ export class BotUtils {
    * @param interaction Interaction
    * @returns {string} The name of the interaction-user
    */
-  static getUsername(
+  static getUserDisplayName(
     interaction:
       | CommandInteraction
       | ChatInputCommandInteraction
@@ -87,6 +87,20 @@ export class BotUtils {
   ): string {
     const user = interaction.member as GuildMember;
     return user.nickname ?? user.user.globalName ?? user.user.username;
+  }
+
+  /**
+   * Get the username of the user that triggered an interaction.
+   * @param interaction Interaction
+   * @returns {string} The username of the interaction-user
+   */
+  static getUsername(
+    interaction:
+      | CommandInteraction
+      | ChatInputCommandInteraction
+      | ButtonInteraction
+  ): string {
+    return interaction.user.username;
   }
 
   /**

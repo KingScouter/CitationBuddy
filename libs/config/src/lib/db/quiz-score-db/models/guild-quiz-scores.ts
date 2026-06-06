@@ -1,5 +1,10 @@
-export type QuizScores = Record<string, number>;
-export type GuessScores = Record<string, number>;
+export interface UserScore {
+  displayName: string;
+  score: number;
+}
+
+export type QuizScores = Record<string, UserScore>;
+export type GuessScores = Record<string, UserScore>;
 
 export class GuildQuizScores {
   readonly guildId: string;
@@ -10,13 +15,23 @@ export class GuildQuizScores {
     this.guildId = guildId;
   }
 
-  addGuessWin(username: string): void {
-    const score = this.guessScores[username] ?? 0;
-    this.guessScores[username] = score + 1;
+  addGuessWin(username: string, displayName: string): void {
+    const score = this.guessScores[username] ?? {
+      displayName: displayName,
+      score: 0,
+    };
+    score.displayName = displayName;
+    score.score++;
+    this.guessScores[username] = score;
   }
 
-  addQuizWin(username: string): void {
-    const score = this.quizScores[username] ?? 0;
-    this.quizScores[username] = score + 1;
+  addQuizWin(username: string, displayName: string): void {
+    const score = this.quizScores[username] ?? {
+      displayName: displayName,
+      score: 0,
+    };
+    score.displayName = displayName;
+    score.score++;
+    this.quizScores[username] = score;
   }
 }
