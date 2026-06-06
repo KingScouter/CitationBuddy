@@ -189,6 +189,7 @@ async function handleEndQuiz(
   interaction: ButtonInteraction,
   quiz: Quiz
 ): Promise<void> {
+  await interaction.deferUpdate();
   await BotUtils.disableMessageButtons(interaction);
 
   let msg = `**Quiz beendet!**\n\n**Finaler Score:**\n${quiz.getScoreMessage()}\n\n`;
@@ -222,12 +223,15 @@ async function handleEndQuiz(
   }
 
   const guildScores = await QuizScoreDbService.getGuild(quiz.guildId);
-  winners.forEach(elem => guildScores.addQuizWin(elem));
+  winners.forEach(elem => {
+    const user = quiz.getUser(elem);
+    guildScores.addQuizWin(user.username, user.displayName);
+  });
   await QuizScoreDbService.setConfig(guildScores);
 
   QuizService.getInstance().endQuiz(quiz);
 
-  await interaction.reply(msg);
+  await interaction.followUp(msg);
 }
 
 /**
@@ -269,9 +273,10 @@ async function handleJoinQuiz(
   interaction: ButtonInteraction,
   quiz: Quiz
 ): Promise<void> {
+  const displayName = BotUtils.getUserDisplayName(interaction);
   const username = BotUtils.getUsername(interaction);
 
-  if (quiz.addUser(username)) {
+  if (quiz.addUser(username, displayName)) {
     await interaction.deferUpdate();
     if (quiz.players.length === 1) {
       const components = interaction.message.components
@@ -337,7 +342,7 @@ async function handleStartQuiz(
   await interaction.deferUpdate();
   await BotUtils.removeMessageButtons(
     interaction,
-    `Quiz gestartet!\n\n**Teilnehmer:** ${quiz.players.join(', ')}`
+    `Quiz gestartet!\n\n**Teilnehmer:** ${quiz.playerDisplayNames.join(', ')}`
   );
 
   const thread = await interaction.message.startThread({
@@ -405,7 +410,10 @@ async function handleQuizGuess(
     }
 
     const guildScores = await QuizScoreDbService.getGuild(quiz.guildId);
-    result.correctUsers.forEach(elem => guildScores.addGuessWin(elem));
+    result.correctUsers.forEach(elem => {
+      const user = quiz.getUser(elem);
+      guildScores.addGuessWin(user.username, user.displayName);
+    });
     await QuizScoreDbService.setConfig(guildScores);
 
     const components = interaction.message.components
@@ -453,9 +461,11 @@ async function handleQuizGuess(
     );
 
     let resultsText = '';
-    const correctUsersText = result.correctUsers.join(', ');
+    const correctUsersText = result.correctUsers
+      .map(elem => quiz.getUserDisplayname(elem))
+      .join(', ');
     const incorrectUsersText = result.wrongUsers
-      .map(elem => `${elem.user} ("*${elem.answer}*")`)
+      .map(elem => `${quiz.getUserDisplayname(elem.user)} ("*${elem.answer}*")`)
       .join(', ');
 
     if (!result.wrongUsers.length && result.correctUsers.length) {

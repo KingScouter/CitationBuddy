@@ -1,9 +1,14 @@
 import { QuizOption, QuizRoundResult } from './models';
 import { QuizRound } from './quiz-round';
 
+export interface QuizUser {
+  username: string;
+  displayName: string;
+}
+
 export class Quiz {
   private readonly _guildId: string;
-  private readonly users: string[] = [];
+  private readonly users = new Map<string, QuizUser>();
   private readonly _scores = new Map<string, number>();
 
   private _currRound: QuizRound | null = null;
@@ -14,8 +19,18 @@ export class Quiz {
     return this._currRound;
   }
 
-  get players(): string[] {
-    return this.users;
+  /**
+   * Get list of all players of the quiz
+   */
+  get players(): QuizUser[] {
+    return Array.from(this.users.values());
+  }
+
+  /**
+   * Get list of the displaynames of all players of the quiz
+   */
+  get playerDisplayNames(): string[] {
+    return this.players.map(elem => elem.displayName);
   }
 
   get guildId(): string {
@@ -35,15 +50,16 @@ export class Quiz {
   /**
    * Add a new user to the active quiz.
    * @param user Username to add
+   * @param displayName Displayname of the user
    * @returns True if the user was added sucessfully, otherwise false if the user is already
    *          playing the quiz.
    */
-  addUser(user: string): boolean {
-    if (this.users.includes(user)) {
+  addUser(username: string, displayName: string): boolean {
+    if (this.users.has(username)) {
       return false;
     }
-    this.users.push(user);
-    this._scores.set(user, 0);
+    this.users.set(username, { username, displayName });
+    this._scores.set(username, 0);
 
     return true;
   }
@@ -70,7 +86,7 @@ export class Quiz {
       options,
       answer,
       messageContent,
-      this.users.length
+      this.users.size
     );
     this._currRound = quizRound;
     return quizRound;
@@ -81,7 +97,7 @@ export class Quiz {
       return false;
     }
 
-    if (!this.users.includes(user)) {
+    if (!this.users.has(user)) {
       return false;
     }
 
@@ -110,16 +126,16 @@ export class Quiz {
       return false;
     }
 
-    return this._currRound.getNumGuesses() === this.users.length;
+    return this._currRound.getNumGuesses() === this.users.size;
   }
 
   getJoinMessage(): string {
     let msg = 'Quiz wird gestartet. Wer will teilnehmen?\n\n';
 
-    if (this.users.length === 0) {
+    if (this.users.size === 0) {
       msg += 'Noch niemand!';
     } else {
-      msg += `**Teilnehmer:** ${this.users.join(', ')}`;
+      msg += `**Teilnehmer:** ${this.playerDisplayNames.join(', ')}`;
     }
 
     return msg;
@@ -128,7 +144,8 @@ export class Quiz {
   getScoreMessage(): string {
     const msg = this.scores
       .map(([elemName, elemScore], idx) => {
-        let val = `${elemName}: ${elemScore}`;
+        const displayName = this.getUserDisplayname(elemName);
+        let val = `${displayName}: ${elemScore}`;
         if (idx === 0) {
           val = ':crown: ' + val;
         } else if (idx === this._scores.size - 1) {
@@ -140,5 +157,32 @@ export class Quiz {
       .join('\n');
 
     return msg;
+  }
+
+  /**
+   * Get the display name for a given username.
+   * @param username Unique username
+   * @returns {string} The display name of the user, or username if not found.
+   */
+  getUserDisplayname(username: string): string {
+    const user = this.users.get(username);
+    return user?.displayName ?? username;
+  }
+
+  /**
+   * Get a registered user for a player of the quiz
+   * @param username Username of the user
+   * @returns {QuizUser} The user
+   */
+  getUser(username: string): QuizUser {
+    const user = this.users.get(username);
+    if (user) {
+      return user;
+    }
+
+    return {
+      displayName: username,
+      username,
+    };
   }
 }
