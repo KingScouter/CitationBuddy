@@ -14,13 +14,15 @@ export default {
       return;
     }
 
+    await interaction.deferReply({ flags: 'Ephemeral' });
+
     const messages = await ChannelMessagesCacheService.fetchMessages(guildId);
     console.log(`Got ${messages?.messages?.size} number of messages`);
-    await interaction.reply(
+
+    BotUtils.sendAutoDeleteEditReply(
+      interaction,
       `Got ${messages?.messages?.size} number of messages`
     );
-
-    BotUtils.autoDeleteReply(interaction);
   },
   hasSubCommands: false,
 } satisfies ApplicationCommand;

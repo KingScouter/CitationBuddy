@@ -33,6 +33,26 @@ export class BotUtils {
   }
 
   /**
+   * Edit the reply of the interaction and automatically delete it after a given timeout.
+   * @param interaction Interaction
+   * @param message Message to send
+   * @param timeout Timeout for the automatic deletion of the reply
+   */
+  static async sendAutoDeleteEditReply(
+    interaction:
+      | CommandInteraction
+      | ChatInputCommandInteraction
+      | ButtonInteraction,
+    message: string,
+    timeout = 5000
+  ): Promise<void> {
+    await interaction.editReply({
+      content: message,
+    });
+    BotUtils.autoDeleteReply(interaction, timeout);
+  }
+
+  /**
    * Send a follow-up to the interaction and automatically delete it after a given timeout.
    * @param interaction Interaction
    * @param message Message to send

@@ -36,23 +36,26 @@ export default {
       await interaction.reply('No guild available!');
       return;
     }
+
+    await interaction.deferReply();
+
     const messageCache =
       await ChannelMessagesCacheService.fetchMessages(guildId);
     if (!messageCache?.messages || messageCache?.messages.size === 0) {
-      await interaction.reply('No messages available!');
+      await interaction.editReply('No messages available!');
       return;
     }
 
     const message = messageCache.messages.random();
 
     if (!message) {
-      await interaction.reply('No quote found!');
+      await interaction.editReply('No quote found!');
       return;
     }
 
     const channel = interaction.channel;
     if (!(channel instanceof TextChannel)) {
-      await BotUtils.sendAutoDeleteReply(
+      await BotUtils.sendAutoDeleteEditReply(
         interaction,
         'Channel must be a text channel!'
       );
@@ -75,7 +78,7 @@ export default {
     ];
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons);
-    const joinMessage = await interaction.reply({
+    const joinMessage = await interaction.editReply({
       content: quiz.getJoinMessage(),
       components: [row],
     });
