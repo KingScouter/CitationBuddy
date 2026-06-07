@@ -31,7 +31,7 @@ export class BaseDbService<T> {
       );
       return obj;
     } catch (ex) {
-      console.log('Element not found', ex);
+      console.log('Element not found in DB:', key);
       return null;
     }
   }
@@ -41,7 +41,7 @@ export class BaseDbService<T> {
       const allObj = await this.db.getObject<Record<string, T>>(this.basePath);
       return allObj;
     } catch (ex) {
-      console.log('No elements found', ex);
+      console.log('No elements found in DB');
       return null;
     }
   }
