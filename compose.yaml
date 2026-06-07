@@ -1,9 +1,10 @@
 services:
-  citation-buddy:
+  quote-buddy:
     image: ghcr.io/kingscouter/citationbuddy:latest
     pull_policy: always
-    container_name: citation-buddy
-    ports:
-      - "34921:3000"
+    container_name: quote-buddy
     volumes:
-      - /home/app/citation-buddy.env:/home/node/app/.env
+      - /home/app/quote-buddy/quote-buddy.env:/home/node/app/config.env
+      - /home/app/quote-buddy/db/:/home/node/app/db/
+    environment:
+      - BOT_ENV_PATH=/home/node/app/config.env
