@@ -3,8 +3,21 @@ import deployGlobalCommands from './deploy-commands';
 import { EVENTS } from './events';
 import { BOT_COMMANDS } from './commands';
 import { DiscordClient } from './models/discord-client';
+import dotenv from 'dotenv';
 
 async function runBot(): Promise<void> {
+  if (!process.env.DISCORD_TOKEN) {
+    const envPath = process.env.BOT_ENV_PATH;
+    if (envPath) {
+      dotenv.config({ path: envPath });
+    }
+  }
+
+  if (!process.env.DISCORD_TOKEN) {
+    console.error('No token provieded, terminating application!');
+    return;
+  }
+
   await deployGlobalCommands();
 
   // Discord client object
