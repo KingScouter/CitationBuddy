@@ -82,7 +82,7 @@ export class ChannelMessageCache {
 
     this._messages.clear();
     for (const msg of allMessages.values()) {
-      const parsedQuote = ParsedQuote.parse(msg.content);
+      const parsedQuote = ParsedQuote.parse(msg.content, msg.url);
       if (!parsedQuote) {
         continue;
       }

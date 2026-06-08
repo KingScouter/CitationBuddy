@@ -171,11 +171,7 @@ async function PrepareRound(quiz: Quiz): Promise<{
     rows.push(row);
   }
 
-  const round = quiz.startRound(
-    quizOptions,
-    message.person,
-    message.toAnonymString()
-  );
+  const round = quiz.startRound(quizOptions, message);
   if (!round) {
     return {};
   }
@@ -457,8 +453,10 @@ async function handleQuizGuess(
     })
     .filter(elem => !!elem);
 
+  const finalRoundMsg = round.getMessage(true);
+
   await interaction.message.edit({
-    content: roundMessage,
+    content: finalRoundMsg,
     components: components,
   });
 

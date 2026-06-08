@@ -1,3 +1,4 @@
+import { ParsedQuote } from '../models/parsed-quote';
 import { QuizGuess, QuizOption, QuizRoundResult } from './models';
 
 export class QuizRound {
@@ -11,10 +12,15 @@ export class QuizRound {
   private readonly _correct: string;
   private readonly messageContent: string;
   private readonly maxNumGuesses: number;
+  private readonly _message: ParsedQuote;
 
   private readonly guesses = new Map<string, string>();
 
   messageId: string | null = null;
+
+  get message(): ParsedQuote {
+    return this._message;
+  }
 
   get correct(): string {
     return this._correct;
@@ -22,13 +28,13 @@ export class QuizRound {
 
   constructor(
     options: QuizOption[],
-    correct: string,
-    messageContent: string,
+    message: ParsedQuote,
     maxNumGuesses: number
   ) {
     this.options = options;
-    this._correct = correct;
-    this.messageContent = messageContent;
+    this._message = message;
+    this._correct = message.person;
+    this.messageContent = message.toAnonymString();
     this.maxNumGuesses = maxNumGuesses;
   }
 
@@ -62,13 +68,16 @@ export class QuizRound {
     };
   }
 
-  getMessage(): string {
+  getMessage(isFinished = false): string {
     const numGuesses = this.getNumGuesses();
     const roundStatus = `***Fortschritt***: ${numGuesses} / ${this.maxNumGuesses}\n\n${this.printProgressBar(numGuesses / this.maxNumGuesses)}\n`;
+
+    const linkContent = isFinished ? `||${this._message.getLink()}||\n` : '';
 
     const msg = `***Zitat:***
 ${this.messageContent}
 ${roundStatus}
+${linkContent}
 ***Wer hat's gesagt?***
 `;
 

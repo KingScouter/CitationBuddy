@@ -1,6 +1,7 @@
 import { printScores, QuizScores, UserScore } from '@citation-buddy/config';
 import { QuizOption, QuizRoundResult } from './models';
 import { QuizRound } from './quiz-round';
+import { ParsedQuote } from '../models/parsed-quote';
 
 export interface QuizUser {
   username: string;
@@ -39,14 +40,9 @@ export class Quiz {
   }
 
   get scores(): [string, number][] {
-    const values: [string, number][] = [
-      ['Leon', 5],
-      ['Gabi', 3],
-      ['Jonas', 4],
-      ['Dino', 9],
-      ['Robin', 1],
-    ];
-    return values.sort((elemA, elemB) => elemB[1] - elemA[1]);
+    return [...this._scores.entries()].sort(
+      (elemA, elemB) => elemB[1] - elemA[1]
+    );
   }
 
   constructor(guildId: string) {
@@ -79,21 +75,12 @@ export class Quiz {
     this._scores.set(user, ++score);
   }
 
-  startRound(
-    options: QuizOption[],
-    answer: string,
-    messageContent: string
-  ): QuizRound | null {
+  startRound(options: QuizOption[], message: ParsedQuote): QuizRound | null {
     if (this._currRound) {
       return null;
     }
 
-    const quizRound = new QuizRound(
-      options,
-      answer,
-      messageContent,
-      this.users.size
-    );
+    const quizRound = new QuizRound(options, message, this.users.size);
     this._currRound = quizRound;
     return quizRound;
   }

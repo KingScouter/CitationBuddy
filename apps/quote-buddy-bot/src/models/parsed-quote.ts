@@ -4,10 +4,11 @@ export class ParsedQuote {
     public readonly message: string,
     public readonly person: string,
     public readonly year: string,
-    public readonly suffix: string
+    public readonly suffix: string,
+    public readonly url: string
   ) {}
 
-  static parse(message: string): ParsedQuote | null {
+  static parse(message: string, url: string): ParsedQuote | null {
     const quoteRegex = /((?:.*\n)+)(?:\s*.\s*)(.*),\s*(\d+),?\s*(.*)/gms;
     const regexRes = quoteRegex.exec(message);
     if (!regexRes) {
@@ -19,7 +20,8 @@ export class ParsedQuote {
       regexRes[1],
       regexRes[2],
       regexRes[3],
-      regexRes[4] ?? ''
+      regexRes[4] ?? '',
+      url
     );
 
     return parsedQuote;
@@ -33,5 +35,9 @@ export class ParsedQuote {
     message += '```';
 
     return message;
+  }
+
+  getLink(): string {
+    return `[Original](${this.url})`;
   }
 }
