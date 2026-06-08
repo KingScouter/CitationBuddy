@@ -28,10 +28,14 @@ export class ChannelMessagesCacheService {
     let guildInstance = this.getInstance().messages.get(guildId);
     if (!guildInstance) {
       guildInstance = new ChannelMessageCache(guildId, channelId);
+      this.getInstance().messages.set(guildId, guildInstance);
     }
 
     if (guildInstance.messages.size === 0) {
+      console.log('MessageCacheService - No messages, fetch new');
       await guildInstance.fetchMessages();
+    } else {
+      console.log('MessageCacheService - Messages already fetched');
     }
 
     return guildInstance;
