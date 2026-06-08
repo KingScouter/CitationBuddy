@@ -193,7 +193,6 @@ async function handleEndQuiz(
   quiz: Quiz
 ): Promise<void> {
   await interaction.deferUpdate();
-  await BotUtils.disableMessageButtons(interaction);
 
   let msg = `**Quiz beendet!**\n\n**Finaler Score:**\n${quiz.getScoreMessage()}\n\n`;
 
@@ -234,6 +233,8 @@ async function handleEndQuiz(
 
   QuizService.getInstance().endQuiz(quiz);
 
+  await BotUtils.disableMessageButtons(interaction);
+
   await interaction.followUp(msg);
 }
 
@@ -246,20 +247,20 @@ async function handleNextRound(
   interaction: ButtonInteraction,
   quiz: Quiz
 ): Promise<void> {
-  // Disable the "Next round" button before starting the new round
-  await BotUtils.disableMessageButtons(interaction);
+  await interaction.deferReply();
 
   const { round, components } = await PrepareRound(quiz);
 
   if (!round || !components) {
-    await BotUtils.sendAutoDeleteReply(
+    await BotUtils.sendAutoDeleteFollowUp(
       interaction,
       'Error while trying to start a round'
     );
+    await interaction.editReply({});
     return;
   }
 
-  const response = await interaction.reply({
+  const response = await interaction.editReply({
     content: round.getMessage(),
     components,
   });
@@ -343,10 +344,6 @@ async function handleStartQuiz(
   }
 
   await interaction.deferUpdate();
-  await BotUtils.removeMessageButtons(
-    interaction,
-    `Quiz gestartet!\n\n**Teilnehmer:** ${quiz.playerDisplayNames.join(', ')}`
-  );
 
   const thread = await interaction.message.startThread({
     name: 'Quiz',
@@ -368,6 +365,11 @@ async function handleStartQuiz(
     components,
   });
   round.messageId = response.id;
+
+  await BotUtils.removeMessageButtons(
+    interaction,
+    `Quiz gestartet!\n\n**Teilnehmer:** ${quiz.playerDisplayNames.join(', ')}`
+  );
 }
 
 /**
@@ -401,99 +403,100 @@ async function handleQuizGuess(
 
   const roundMessage = round.getMessage();
 
-  if (quiz.isFinished()) {
-    const roundSolution = round.correct;
-    const result = quiz.resolveRound();
-    if (!result) {
-      await BotUtils.sendAutoDeleteReply(
-        interaction,
-        'Fehler beim Beenden der Runde!'
-      );
-      return true;
-    }
-
-    const guildScores = await QuizScoreDbService.getGuild(quiz.guildId);
-    result.correctUsers.forEach(elem => {
-      const user = quiz.getUser(elem);
-      guildScores.addGuessWin(user.username, user.displayName);
-    });
-    await QuizScoreDbService.setConfig(guildScores);
-
-    const components = interaction.message.components
-      .map(row => {
-        if (row.type !== ComponentType.ActionRow) {
-          return row;
-        }
-
-        const oldSubComps = row.components;
-        const newComps = oldSubComps
-          .map(subElem => {
-            if (subElem.type !== ComponentType.Button) {
-              return null;
-            }
-
-            const btn = ButtonBuilder.from(subElem).setDisabled(true);
-            if (subElem.label === roundSolution) {
-              btn.setStyle(ButtonStyle.Success);
-            }
-            return btn;
-          })
-          .filter(elem => !!elem);
-        const newRow = ActionRowBuilder.from(row)
-          .setComponents(...newComps)
-          .toJSON();
-
-        return newRow;
-      })
-      .filter(elem => !!elem);
-
+  if (!quiz.isFinished()) {
     await interaction.message.edit({
       content: roundMessage,
-      components: components,
     });
 
-    const roundEndButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId(commandIdNextRound)
-        .setLabel('Nächste Runde')
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setCustomId(commandIdEndQuiz)
-        .setLabel('Quiz beenden')
-        .setStyle(ButtonStyle.Danger)
-    );
-
-    let resultsText = '';
-    const correctUsersText = result.correctUsers
-      .map(elem => quiz.getUserDisplayname(elem))
-      .join(', ');
-    const incorrectUsersText = result.wrongUsers
-      .map(elem => `${quiz.getUserDisplayname(elem.user)} ("*${elem.answer}*")`)
-      .join(', ');
-
-    if (!result.wrongUsers.length && result.correctUsers.length) {
-      // All correct
-      resultsText = `:white_check_mark: Alle haben's erraten! *(Das war wohl zu einfach)*`;
-    } else if (result.wrongUsers.length && !result.correctUsers.length) {
-      // All incorrect
-      resultsText = `:x: **Niemand hat*s erraten, wie peinlich!**\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
-    } else {
-      // Some correct
-      resultsText = `:white_check_mark:**Richtig geraten:** ${correctUsersText}\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
-    }
-
-    resultsText += `\n\n**Aktueller Punktestand:**\n${quiz.getScoreMessage()}`;
-
-    await interaction.followUp({
-      content: `**Runde beendet!**.\n\nDie korrekte Antwort war: *${roundSolution}*\n${resultsText}\n\nNächste Runde?`,
-      components: [roundEndButtons],
-    });
     return true;
   }
 
+  const roundSolution = round.correct;
+  const result = quiz.resolveRound();
+  if (!result) {
+    await BotUtils.sendAutoDeleteReply(
+      interaction,
+      'Fehler beim Beenden der Runde!'
+    );
+    return true;
+  }
+
+  // Add correct guesses to global scoreboard
+  const guildScores = await QuizScoreDbService.getGuild(quiz.guildId);
+  result.correctUsers.forEach(elem => {
+    const user = quiz.getUser(elem);
+    guildScores.addGuessWin(user.username, user.displayName);
+  });
+  await QuizScoreDbService.setConfig(guildScores);
+
+  const components = interaction.message.components
+    .map(row => {
+      if (row.type !== ComponentType.ActionRow) {
+        return row;
+      }
+
+      const oldSubComps = row.components;
+      const newComps = oldSubComps
+        .map(subElem => {
+          if (subElem.type !== ComponentType.Button) {
+            return null;
+          }
+
+          const btn = ButtonBuilder.from(subElem).setDisabled(true);
+          if (subElem.label === roundSolution) {
+            btn.setStyle(ButtonStyle.Success);
+          }
+          return btn;
+        })
+        .filter(elem => !!elem);
+      const newRow = ActionRowBuilder.from(row)
+        .setComponents(...newComps)
+        .toJSON();
+
+      return newRow;
+    })
+    .filter(elem => !!elem);
+
   await interaction.message.edit({
     content: roundMessage,
+    components: components,
   });
 
+  const roundEndButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(commandIdNextRound)
+      .setLabel('Nächste Runde')
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId(commandIdEndQuiz)
+      .setLabel('Quiz beenden')
+      .setStyle(ButtonStyle.Danger)
+  );
+
+  let resultsText = '';
+  const correctUsersText = result.correctUsers
+    .map(elem => quiz.getUserDisplayname(elem))
+    .join(', ');
+  const incorrectUsersText = result.wrongUsers
+    .map(elem => `${quiz.getUserDisplayname(elem.user)} ("*${elem.answer}*")`)
+    .join(', ');
+
+  if (!result.wrongUsers.length && result.correctUsers.length) {
+    // All correct
+    resultsText = `:white_check_mark: Alle haben's erraten! *(Das war wohl zu einfach)*`;
+  } else if (result.wrongUsers.length && !result.correctUsers.length) {
+    // All incorrect
+    resultsText = `:x: **Niemand hat*s erraten, wie peinlich!**\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
+  } else {
+    // Some correct
+    resultsText = `:white_check_mark:**Richtig geraten:** ${correctUsersText}\n:no_entry_sign: **Falsch geraten:** ${incorrectUsersText}`;
+  }
+
+  resultsText += `\n\n**Aktueller Punktestand:**\n${quiz.getScoreMessage()}`;
+
+  await interaction.followUp({
+    content: `**Runde beendet!**.\n\nDie korrekte Antwort war: *${roundSolution}*\n${resultsText}\n\nNächste Runde?`,
+    components: [roundEndButtons],
+  });
   return true;
 }

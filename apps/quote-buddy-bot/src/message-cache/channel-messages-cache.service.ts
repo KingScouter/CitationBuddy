@@ -1,7 +1,5 @@
-import { Collection } from 'discord.js';
 import { ChannelMessageCache } from './models/channel-message-cache';
 import { GuildConfigDbService } from '@citation-buddy/config';
-import { ParsedQuote } from '../models/parsed-quote';
 
 export class ChannelMessagesCacheService {
   private static instance: ChannelMessagesCacheService;
