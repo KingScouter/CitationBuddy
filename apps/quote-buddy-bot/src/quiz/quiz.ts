@@ -1,3 +1,4 @@
+import { printScores, QuizScores, UserScore } from '@citation-buddy/config';
 import { QuizOption, QuizRoundResult } from './models';
 import { QuizRound } from './quiz-round';
 
@@ -38,9 +39,14 @@ export class Quiz {
   }
 
   get scores(): [string, number][] {
-    return [...this._scores.entries()].sort(
-      (elemA, elemB) => elemA[1] - elemB[1]
-    );
+    const values: [string, number][] = [
+      ['Leon', 5],
+      ['Gabi', 3],
+      ['Jonas', 4],
+      ['Dino', 9],
+      ['Robin', 1],
+    ];
+    return values.sort((elemA, elemB) => elemB[1] - elemA[1]);
   }
 
   constructor(guildId: string) {
@@ -142,21 +148,16 @@ export class Quiz {
   }
 
   getScoreMessage(): string {
-    const msg = this.scores
-      .map(([elemName, elemScore], idx) => {
-        const displayName = this.getUserDisplayname(elemName);
-        let val = `${displayName}: ${elemScore}`;
-        if (idx === 0) {
-          val = ':crown: ' + val;
-        } else if (idx === this._scores.size - 1) {
-          val = ':anger: ' + val;
-        }
+    const scores: QuizScores = {};
+    this.scores.forEach(elem => {
+      const userScore: UserScore = {
+        displayName: this.getUserDisplayname(elem[0]),
+        score: elem[1],
+      };
+      scores[elem[0]] = userScore;
+    });
 
-        return val;
-      })
-      .join('\n');
-
-    return msg;
+    return printScores(scores);
   }
 
   /**

@@ -1,11 +1,11 @@
 import { QuizGuess, QuizOption, QuizRoundResult } from './models';
 
 export class QuizRound {
-  private static progressBarStart = '|';
+  private static progressBarStart = '[';
   private static progressBarMiddle = '=';
-  private static progressBarEmpty = '-';
-  private static progressBarEnd = '|';
-  private static progressBarNumBars = 10;
+  private static progressBarEmpty = ' ';
+  private static progressBarEnd = ']';
+  private static progressBarNumBars = 20;
 
   private readonly options: QuizOption[];
   private readonly _correct: string;
@@ -64,12 +64,12 @@ export class QuizRound {
 
   getMessage(): string {
     const numGuesses = this.getNumGuesses();
-    const roundStatus = `Status: ${numGuesses} / ${this.maxNumGuesses}\n${this.printProgressBar(numGuesses / this.maxNumGuesses)}`;
+    const roundStatus = `***Fortschritt***: ${numGuesses} / ${this.maxNumGuesses}\n\n${this.printProgressBar(numGuesses / this.maxNumGuesses)}\n`;
 
-    const msg = `Zitat:
+    const msg = `***Zitat:***
 ${this.messageContent}
 ${roundStatus}
-Wer hat's gesagt?
+***Wer hat's gesagt?***
 `;
 
     return msg;
@@ -95,7 +95,7 @@ Wer hat's gesagt?
       );
     }
 
-    let msg = `**${QuizRound.progressBarStart}`;
+    let msg = '`' + QuizRound.progressBarStart;
     let idx = 0;
     for (; idx < barsPercentage; idx++) {
       msg += QuizRound.progressBarMiddle;
@@ -103,7 +103,7 @@ Wer hat's gesagt?
     for (; idx < QuizRound.progressBarNumBars; idx++) {
       msg += QuizRound.progressBarEmpty;
     }
-    msg += `${QuizRound.progressBarEnd}**`;
+    msg += QuizRound.progressBarEnd + '`';
 
     return msg;
   }

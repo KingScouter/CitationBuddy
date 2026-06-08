@@ -495,7 +495,7 @@ async function handleQuizGuess(
   resultsText += `\n\n**Aktueller Punktestand:**\n${quiz.getScoreMessage()}`;
 
   await interaction.followUp({
-    content: `**Runde beendet!**.\n\nDie korrekte Antwort war: *${roundSolution}*\n${resultsText}\n\nNächste Runde?`,
+    content: `**Runde beendet!**.\n\nDie korrekte Antwort war: ***${roundSolution}***\n${resultsText}\n\nNächste Runde?`,
     components: [roundEndButtons],
   });
   return true;

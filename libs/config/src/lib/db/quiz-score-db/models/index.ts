@@ -1,1 +1,6 @@
-export { GuildQuizScores, QuizScores } from './guild-quiz-scores';
+export {
+  GuildQuizScores,
+  QuizScores,
+  printScores,
+  UserScore,
+} from './guild-quiz-scores';
