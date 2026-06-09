@@ -136,7 +136,7 @@ async function PrepareRound(quiz: Quiz): Promise<{
     return {};
   }
 
-  const message = messageCache.messages.random();
+  const message = messageCache.getRandomMessage(quiz.doneMessages);
 
   if (!message) {
     return {};

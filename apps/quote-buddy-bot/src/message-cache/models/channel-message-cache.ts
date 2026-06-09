@@ -82,7 +82,7 @@ export class ChannelMessageCache {
 
     this._messages.clear();
     for (const msg of allMessages.values()) {
-      const parsedQuote = ParsedQuote.parse(msg.content, msg.url);
+      const parsedQuote = ParsedQuote.parse(msg.content, msg.url, msg.id);
       if (!parsedQuote) {
         continue;
       }
@@ -96,5 +96,21 @@ export class ChannelMessageCache {
     }
 
     return this._messages;
+  }
+
+  /**
+   * Retrieve a random message from the cache. Skip any of the given IDs (e.g. they were already retrieved before).
+   * @param skipIds List of IDs to skip
+   * @returns {ParsedQuote | null} The retrieved random message, or null if no message remains.
+   */
+  getRandomMessage(skipIds: string[]): ParsedQuote | null {
+    const filteredMessages = this._messages.filter(
+      elem => skipIds.indexOf(elem.id) < 0
+    );
+    if (filteredMessages.size <= 0) {
+      return null;
+    }
+
+    return filteredMessages.random() ?? null;
   }
 }

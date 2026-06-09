@@ -13,9 +13,15 @@ export class Quiz {
   private readonly users = new Map<string, QuizUser>();
   private readonly _scores = new Map<string, number>();
 
+  private readonly _doneMessages: string[] = [];
+
   private _currRound: QuizRound | null = null;
 
   joinMessageId = '';
+
+  get doneMessages(): string[] {
+    return this._doneMessages;
+  }
 
   get currRound(): QuizRound | null {
     return this._currRound;
@@ -82,6 +88,7 @@ export class Quiz {
 
     const quizRound = new QuizRound(options, message, this.users.size);
     this._currRound = quizRound;
+    this._doneMessages.push(message.id);
     return quizRound;
   }
 
