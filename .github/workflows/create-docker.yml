@@ -1,6 +1,12 @@
 name: Create Docker Image
 on:
   workflow_dispatch:
+    inputs:
+      imageTag:
+        type: string
+        description: "Tag for the docker image"
+        default: "0.0.1"
+        required: true
 
 env:
   REGISTRY: ghcr.io
@@ -51,7 +57,7 @@ jobs:
       - name: Generate docker tags for image
         id: docker-tags-backend
         run: |
-          TAGS="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:0.0.1"; echo "VALUE=$TAGS" >> "$GITHUB_OUTPUT"
+          TAGS="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest, ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.imageTag }}"; echo "VALUE=$TAGS" >> "$GITHUB_OUTPUT"
 
       - name: Build and push Docker image
         id: push
