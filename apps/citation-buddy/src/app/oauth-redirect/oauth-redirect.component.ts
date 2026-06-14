@@ -4,14 +4,14 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { AppRoutes } from '../models';
 
 @Component({
   selector: 'app-oauth-redirect',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './oauth-redirect.component.html',
   styleUrl: './oauth-redirect.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

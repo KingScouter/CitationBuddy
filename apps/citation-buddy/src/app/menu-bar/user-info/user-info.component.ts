@@ -4,7 +4,7 @@ import {
   input,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DiscordAuth } from '../../models/discord-auth';
 import { UserAvatarPipe } from './user-avatar.pipe';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-user-info',
   standalone: true,
-  imports: [CommonModule, UserAvatarPipe, MatIconModule],
+  imports: [UserAvatarPipe, MatIconModule],
   templateUrl: './user-info.component.html',
   styleUrl: './user-info.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

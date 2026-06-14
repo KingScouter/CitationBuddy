@@ -9,7 +9,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DiscordBackendService } from '../../discord-backend/discord-backend.service';
 import { APIGuild } from 'discord-api-types/v10';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -39,7 +39,6 @@ interface ComboboxValue {
   selector: 'app-guild-detail',
   standalone: true,
   imports: [
-    CommonModule,
     GuildIconPipe,
     MatFormFieldModule,
     MatSelectModule,
@@ -48,8 +47,8 @@ interface ComboboxValue {
     MatButtonModule,
     ReactiveFormsModule,
     MatListModule,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   templateUrl: './guild-detail.component.html',
   styleUrl: './guild-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

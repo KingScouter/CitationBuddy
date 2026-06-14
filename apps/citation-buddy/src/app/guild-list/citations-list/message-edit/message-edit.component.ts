@@ -7,7 +7,7 @@ import {
   OnInit,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MessageWithContext } from '../models/message-with-context';
 import {
   FormArray,
@@ -23,12 +23,11 @@ import { MatInputModule } from '@angular/material/input';
   selector: 'app-message-edit',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatInputModule,
-  ],
+    MatInputModule
+],
   templateUrl: './message-edit.component.html',
   styleUrl: './message-edit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DiscordBackendService } from '../discord-backend/discord-backend.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
@@ -19,12 +19,11 @@ import { AppRoutes } from '../models';
   selector: 'app-guild-list',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatListModule,
     GuildIconPipe,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   templateUrl: './guild-list.component.html',
   styleUrl: './guild-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -5,7 +5,7 @@ import {
   inject,
   Signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { UserInfoComponent } from './user-info/user-info.component';
 import { DiscordAuth } from '../models/discord-auth';
 import { AuthenticationService } from '../authentication/authentication.service';
@@ -16,7 +16,7 @@ import { AppRoutes } from '../models';
 @Component({
   selector: 'app-menu-bar',
   standalone: true,
-  imports: [CommonModule, UserInfoComponent, MatIconModule],
+  imports: [UserInfoComponent, MatIconModule],
   templateUrl: './menu-bar.component.html',
   styleUrl: './menu-bar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

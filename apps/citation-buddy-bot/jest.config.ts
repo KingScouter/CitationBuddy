@@ -1,5 +1,5 @@
 /* eslint-disable */
-export default {
+module.exports = {
   displayName: 'citation-buddy-bot',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
