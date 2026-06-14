@@ -1,0 +1,12 @@
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  bufferutil: true
+  core-js-pure: true
+  cypress: false
+  esbuild: true
+  lmdb: false
+  msgpackr-extract: false
+  nx: true
+  utf-8-validate: true
+  zlib-sync: true
