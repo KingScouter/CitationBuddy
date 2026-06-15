@@ -84,7 +84,7 @@
     "@types/cors": "^2.8.19",
     "@types/jest": "30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^18.19.130",
+    "@types/node": "20.19.9",
     "@types/node-json-db": "^0.9.3",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
