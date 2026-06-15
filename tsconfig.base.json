@@ -14,7 +14,8 @@
     "skipDefaultLibCheck": true,
     "paths": {
       "@cite/models": ["./libs/models/src/index.ts"],
-      "@quote-buddy/db-json": ["./libs/db-json/src/index.ts"]
+      "@quote-buddy/db-json": ["./libs/db-json/src/index.ts"],
+      "@citation-buddy/db-mongodb": ["./libs/db-mongodb/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

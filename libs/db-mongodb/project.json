@@ -1,0 +1,8 @@
+{
+  "name": "db-mongodb",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/db-mongodb/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {}
+}
