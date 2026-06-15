@@ -1,4 +1,4 @@
-import { printScores, QuizScores, UserScore } from '@citation-buddy/config';
+import { printScores, QuizScores, UserScore } from '@quote-buddy/db-json';
 import { QuizOption, QuizRoundResult } from './models';
 import { QuizRound } from './quiz-round';
 import { ParsedQuote } from '../models/parsed-quote';

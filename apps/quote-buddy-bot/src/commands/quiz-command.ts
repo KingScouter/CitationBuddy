@@ -17,7 +17,7 @@ import { QuizService } from '../quiz/quiz-service';
 import { BotUtils } from '../bot-utils';
 import { Quiz } from '../quiz/quiz';
 import { QuizRound } from '../quiz/quiz-round';
-import { QuizScoreDbService } from '@citation-buddy/config';
+import { QuizScoreDbService } from '@quote-buddy/db-json';
 
 const commandId = 'quiz';
 const commandIdGuess = `${commandId}-guess-`;

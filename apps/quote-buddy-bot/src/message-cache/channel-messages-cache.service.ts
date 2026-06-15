@@ -1,5 +1,5 @@
 import { ChannelMessageCache } from './models/channel-message-cache';
-import { GuildConfigDbService } from '@citation-buddy/config';
+import { GuildConfigDbService } from '@quote-buddy/db-json';
 
 export class ChannelMessagesCacheService {
   private static instance: ChannelMessagesCacheService;

@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
-import { GuildConfigDbService } from '@citation-buddy/config';
+import { GuildConfigDbService } from '@quote-buddy/db-json';
 import { BotUtils } from '../bot-utils';
 
 const channelOption = 'channelinput';

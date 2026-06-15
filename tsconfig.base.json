@@ -13,8 +13,8 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
-      "@citation-buddy/config": ["./libs/config/src/index.ts"],
-      "@cite/models": ["./libs/models/src/index.ts"]
+      "@cite/models": ["./libs/models/src/index.ts"],
+      "@quote-buddy/db-json": ["./libs/db-json/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
