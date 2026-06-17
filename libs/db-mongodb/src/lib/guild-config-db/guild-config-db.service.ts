@@ -1,6 +1,6 @@
 import { GuildConfig } from '@cite/models';
 import { BaseDbService } from '../base-db.service';
-import { Collection, Db, WithId } from 'mongodb';
+import { Collection, WithId } from 'mongodb';
 
 type IdGuildConfig = WithId<GuildConfig>;
 

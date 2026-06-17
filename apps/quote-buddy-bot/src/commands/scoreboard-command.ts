@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
-import { QuizScoreDbService } from '@quote-buddy/db-json';
 import { printScores } from '@cite/models';
+import { QuizScoreDbService } from '@citation-buddy/db-mongodb';
 
 const commandId = 'scoreboard';
 
@@ -16,7 +16,11 @@ export default {
       return;
     }
 
-    const guildScores = await QuizScoreDbService.getGuild(guildId);
+    const guildScores = await QuizScoreDbService.getGuildScores(guildId);
+    if (!guildScores) {
+      await interaction.reply('Kein Punktestand vorhanden für diesen Server!');
+      return;
+    }
 
     const msg = `**Quiz Gewinne:**\n${printScores(guildScores.quizScores)}\n\n**Rate Gewinne (einzeln):**\n${printScores(guildScores.guessScores)}`;
     await interaction.reply(msg);

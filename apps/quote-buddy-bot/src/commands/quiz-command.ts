@@ -17,7 +17,8 @@ import { QuizService } from '../quiz/quiz-service';
 import { BotUtils } from '../bot-utils';
 import { Quiz } from '../quiz/quiz';
 import { QuizRound } from '../quiz/quiz-round';
-import { QuizScoreDbService } from '@quote-buddy/db-json';
+import { QuizScoreDbService } from '@citation-buddy/db-mongodb';
+import { GuildQuizScores } from '@cite/models';
 
 const commandId = 'quiz';
 const commandIdGuess = `${commandId}-guess-`;
@@ -220,12 +221,15 @@ async function handleEndQuiz(
     }
   }
 
-  const guildScores = await QuizScoreDbService.getGuild(quiz.guildId);
+  let guildScores = await QuizScoreDbService.getGuildScores(quiz.guildId);
+  if (!guildScores) {
+    guildScores = new GuildQuizScores(quiz.guildId);
+  }
   winners.forEach(elem => {
     const user = quiz.getUser(elem);
     guildScores.addQuizWin(user.username, user.displayName);
   });
-  await QuizScoreDbService.setConfig(guildScores);
+  await QuizScoreDbService.addOrUpdateConfig(guildScores);
 
   QuizService.getInstance().endQuiz(quiz);
 
@@ -418,12 +422,15 @@ async function handleQuizGuess(
   }
 
   // Add correct guesses to global scoreboard
-  const guildScores = await QuizScoreDbService.getGuild(quiz.guildId);
+  let guildScores = await QuizScoreDbService.getGuildScores(quiz.guildId);
+  if (!guildScores) {
+    guildScores = new GuildQuizScores(quiz.guildId);
+  }
   result.correctUsers.forEach(elem => {
     const user = quiz.getUser(elem);
     guildScores.addGuessWin(user.username, user.displayName);
   });
-  await QuizScoreDbService.setConfig(guildScores);
+  await QuizScoreDbService.addOrUpdateConfig(guildScores);
 
   const components = interaction.message.components
     .map(row => {
