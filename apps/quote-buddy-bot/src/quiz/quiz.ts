@@ -1,7 +1,7 @@
-import { printScores, QuizScores, UserScore } from '@quote-buddy/db-json';
 import { QuizOption, QuizRoundResult } from './models';
 import { QuizRound } from './quiz-round';
 import { ParsedQuote } from '../models/parsed-quote';
+import { QuizScores, UserScore, printScores } from '@cite/models';
 
 export interface QuizUser {
   username: string;

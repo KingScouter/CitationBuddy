@@ -1,5 +1,5 @@
+import { GuildQuizScores } from '@cite/models';
 import { BaseDbService } from '../base-db.service';
-import { GuildQuizScores } from './models';
 
 export class QuizScoreDbService {
   private static instance: QuizScoreDbService;

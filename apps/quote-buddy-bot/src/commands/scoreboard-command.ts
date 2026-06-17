@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
-import { printScores, QuizScoreDbService } from '@quote-buddy/db-json';
+import { QuizScoreDbService } from '@quote-buddy/db-json';
+import { printScores } from '@cite/models';
 
 const commandId = 'scoreboard';
 

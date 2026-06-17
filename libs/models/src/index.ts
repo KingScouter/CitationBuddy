@@ -1,3 +1,5 @@
+export * from './lib/quiz-score';
+
 export { DiscordGuild } from './lib/discord-guild';
 export { GuildConfig } from './lib/guild-config';
 export { GuildConfigResponse } from './lib/guild-config-response';
