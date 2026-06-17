@@ -1,7 +1,7 @@
 import { DbClient } from './db-client';
 
 declare global {
-  var client: DbClient;
+  var dbClient: DbClient;
 }
 
 export {};

@@ -1,26 +1,32 @@
-import { MongoClient } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export class DbClient {
-  private readonly client: MongoClient;
+  private static readonly DB_NAME = process.env.DB_NAME ?? 'quote-buddy';
+
+  private readonly _client: MongoClient;
 
   private isConnected = false;
 
+  get db(): Db {
+    return this._client.db(DbClient.DB_NAME);
+  }
+
   protected constructor(connectionString: string) {
-    this.client = new MongoClient(connectionString);
+    this._client = new MongoClient(connectionString);
   }
 
   static async createGlobalClient(connectionString: string): Promise<boolean> {
     try {
-      if (global.client) {
+      if (global.dbClient) {
         await this.closeGlobalClient();
       }
 
-      global.client = new DbClient(connectionString);
+      global.dbClient = new DbClient(connectionString);
       for (let idx = 0; idx < 5; idx++) {
         console.info('Connecting to MongoDb instance...');
-        const connResult = await global.client.connect();
+        const connResult = await global.dbClient.connect();
         if (connResult) {
           console.log('Connection to MongoDb instance successfully!');
           return true;
@@ -32,7 +38,7 @@ export class DbClient {
         delay(1000);
       }
 
-      if (global.client.isConnected) {
+      if (global.dbClient.isConnected) {
         return true;
       }
     } catch (ex) {
@@ -47,12 +53,12 @@ export class DbClient {
 
   static async closeGlobalClient(): Promise<void> {
     try {
-      if (!global.client) {
+      if (!global.dbClient) {
         return;
       }
 
-      if (global.client.isConnected) {
-        await global.client.close();
+      if (global.dbClient.isConnected) {
+        await global.dbClient.close();
       }
     } catch (ex) {
       console.error('Error while trying to close connection to MongoDb:', ex);
@@ -65,7 +71,7 @@ export class DbClient {
     }
 
     try {
-      await this.client.connect();
+      await this._client.connect();
       this.isConnected = true;
     } catch (ex) {
       console.error('Error while connecting to MongoDB instance:', ex);
@@ -81,7 +87,7 @@ export class DbClient {
     }
 
     try {
-      await this.client.close();
+      await this._client.close();
       this.isConnected = false;
     } catch (ex) {
       console.error('Error while trying to close the MongoDB connection:', ex);

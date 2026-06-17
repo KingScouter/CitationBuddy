@@ -1,5 +1,5 @@
 import { ChannelMessageCache } from './models/channel-message-cache';
-import { GuildConfigDbService } from '@quote-buddy/db-json';
+import { GuildConfigDbService } from '@citation-buddy/db-mongodb';
 
 export class ChannelMessagesCacheService {
   private static instance: ChannelMessagesCacheService;
@@ -17,8 +17,8 @@ export class ChannelMessagesCacheService {
   static async fetchMessages(
     guildId: string
   ): Promise<ChannelMessageCache | null> {
-    const config = await GuildConfigDbService.getInstance().getConfig(guildId);
-    const channelId = config.citeChannelId;
+    const config = await GuildConfigDbService.getConfig(guildId);
+    const channelId = config?.citeChannelId;
     if (!channelId) {
       return null;
     }

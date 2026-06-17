@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
-import { GuildConfigDbService } from '@quote-buddy/db-json';
+import { GuildConfigDbService } from '@citation-buddy/db-mongodb';
 import { BotUtils } from '../bot-utils';
 
 const channelOption = 'channelinput';
@@ -28,11 +28,15 @@ export default {
       return;
     }
 
-    const config = await GuildConfigDbService.getInstance().getConfig(
-      interaction.guildId
-    );
-    config.citeChannelId = selectedChannel.id;
-    await GuildConfigDbService.getInstance().setConfig(config);
+    const config = await GuildConfigDbService.getConfig(interaction.guildId);
+    if (!config) {
+      const newConfig = GuildConfigDbService.generateGuild(interaction.guildId);
+      newConfig.citeChannelId = selectedChannel.id;
+      await GuildConfigDbService.insertConfig(newConfig);
+    } else {
+      config.citeChannelId = selectedChannel.id;
+      await GuildConfigDbService.updateConfigById(config);
+    }
 
     await interaction.reply({
       content: `Selected channel: ${selectedChannel.name}`,

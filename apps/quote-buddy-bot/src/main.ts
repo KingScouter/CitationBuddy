@@ -3,6 +3,7 @@ import deployGlobalCommands from './deploy-commands';
 import { EVENTS } from './events';
 import { BOT_COMMANDS } from './commands';
 import { DiscordClient } from './models/discord-client';
+import { DbClient } from '@citation-buddy/db-mongodb';
 import dotenv from 'dotenv';
 
 async function runBot(): Promise<void> {
@@ -15,6 +16,18 @@ async function runBot(): Promise<void> {
 
   if (!process.env.DISCORD_TOKEN) {
     console.error('No token provieded, terminating application!');
+    return;
+  }
+
+  if (!process.env.MONGODB_CONN_STRING) {
+    console.error('No connection string for MongoDb instance provided!');
+    return;
+  }
+
+  if (!DbClient.createGlobalClient(process.env.MONGODB_CONN_STRING)) {
+    console.error(
+      'Connection to MongoDb instance could not be established. Exit!'
+    );
     return;
   }
 
