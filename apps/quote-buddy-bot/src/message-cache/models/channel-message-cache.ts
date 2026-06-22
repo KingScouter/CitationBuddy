@@ -6,6 +6,7 @@ import {
 } from 'discord.js';
 import { ParsedQuote } from '../../models/parsed-quote';
 import { QuizUsers } from '../../quiz/models/quiz-users';
+import { BotUtils } from '../../bot-utils';
 
 function randomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -82,7 +83,13 @@ export class ChannelMessageCache {
 
     this._messages.clear();
     for (const msg of allMessages.values()) {
-      const parsedQuote = ParsedQuote.parse(msg.content, msg.url, msg.id);
+      const authorName = BotUtils.getAuthorDisplayName(msg.author);
+      const parsedQuote = ParsedQuote.parse(
+        msg.content,
+        msg.url,
+        authorName,
+        msg.id
+      );
       if (!parsedQuote) {
         continue;
       }

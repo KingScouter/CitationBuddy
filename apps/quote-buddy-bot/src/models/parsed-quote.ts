@@ -6,10 +6,16 @@ export class ParsedQuote {
     public readonly year: string,
     public readonly suffix: string,
     public readonly url: string,
+    public readonly author: string,
     public readonly id: string
   ) {}
 
-  static parse(message: string, url: string, id: string): ParsedQuote | null {
+  static parse(
+    message: string,
+    url: string,
+    author: string,
+    id: string
+  ): ParsedQuote | null {
     const quoteRegex = /((?:.*\n)+)(?:\s*.\s*)(.*),\s*(\d+),?\s*(.*)/gms;
     const regexRes = quoteRegex.exec(message);
     if (!regexRes) {
@@ -23,6 +29,7 @@ export class ParsedQuote {
       regexRes[3],
       regexRes[4] ?? '',
       url,
+      author,
       id
     );
 

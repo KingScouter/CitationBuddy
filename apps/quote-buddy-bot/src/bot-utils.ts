@@ -6,6 +6,7 @@ import {
   CommandInteraction,
   ComponentType,
   GuildMember,
+  User,
 } from 'discord.js';
 
 export class BotUtils {
@@ -107,6 +108,15 @@ export class BotUtils {
   ): string {
     const user = interaction.member as GuildMember;
     return user.nickname ?? user.user.globalName ?? user.user.username;
+  }
+
+  /**
+   * Retrieve the display username of a user
+   * @param author User to check
+   * @returns {string} The name of the user
+   */
+  static getAuthorDisplayName(author: User): string {
+    return author.globalName ?? author.username;
   }
 
   /**

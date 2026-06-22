@@ -45,10 +45,34 @@ export default {
   },
 } satisfies ApplicationCommand;
 
+/**
+ * Handle the command to show stats about how often which person creates a quote.
+ * @param interaction Interaciton
+ */
 async function handleAuthorStats(
   interaction: ChatInputCommandInteraction
 ): Promise<void> {
-  await BotUtils.sendAutoDeleteReply(interaction, 'Author stats');
+  await interaction.deferReply();
+  const guildId = interaction.guildId ?? '';
+
+  const messages = await ChannelMessagesCacheService.fetchMessages(guildId);
+  if (!messages || messages.messages.size === 0) {
+    await interaction.editReply('Keine Nachrichten vorhanden / geladen!');
+    return;
+  }
+
+  const stats = new Map<string, number>();
+  for (const [_, quote] of messages.messages) {
+    let userStat = stats.get(quote.author) ?? 0;
+    userStat++;
+    stats.set(quote.author, userStat);
+  }
+
+  const results = prepareStats(stats);
+
+  await interaction.editReply(
+    `# Wer schreibt die meisten Zitate?\n\n${results}`
+  );
 }
 
 /**
@@ -74,12 +98,16 @@ async function handlePersonStats(
     stats.set(quote.person, userStat);
   }
 
-  const results = Array.from(stats.entries())
+  const results = prepareStats(stats);
+
+  await interaction.editReply(`# Wer wurde am öftesten zitiert?\n\n${results}`);
+}
+
+function prepareStats(stats: Map<string, number>): string {
+  return Array.from(stats.entries())
     .sort((personA, personB) => {
       return personB[1] - personA[1];
     })
     .map(([name, stat]) => `**${name}:** ${stat}`)
     .join('\n');
-
-  await interaction.editReply(`# Wer wurde am öftesten zitiert?\n\n${results}`);
 }
