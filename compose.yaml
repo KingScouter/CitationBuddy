@@ -10,3 +10,4 @@ services:
       - BOT_ENV_PATH=/home/node/app/config.env
     network_mode: host
     user: "1000:1000"
+    restart: unless-stopped
