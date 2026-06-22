@@ -1,5 +1,6 @@
 import loadMessagesCommand from './load-messages-command';
 import quizCommand from './quiz-command';
+import statsCommand from './stats-command';
 import scoreboardCommand from './scoreboard-command';
 import selectQuoteChannelCommand from './select-quote-channel-command';
 import testCommand from './test-command';
@@ -12,4 +13,5 @@ export const BOT_COMMANDS = [
   loadMessagesCommand,
   quizCommand,
   scoreboardCommand,
+  statsCommand,
 ];
