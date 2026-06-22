@@ -1,4 +1,5 @@
 import { BotUtils } from '../bot-utils';
+import { ChannelMessagesCacheService } from '../message-cache/channel-messages-cache.service';
 import ApplicationCommand from '../models/application-command';
 import {
   ChatInputCommandInteraction,
@@ -50,8 +51,35 @@ async function handleAuthorStats(
   await BotUtils.sendAutoDeleteReply(interaction, 'Author stats');
 }
 
+/**
+ * Handle the command to show stats about how often which person got quoted
+ * @param interaction Interaction
+ */
 async function handlePersonStats(
   interaction: ChatInputCommandInteraction
 ): Promise<void> {
-  await BotUtils.sendAutoDeleteReply(interaction, 'Person stats');
+  await interaction.deferReply();
+  const guildId = interaction.guildId ?? '';
+
+  const messages = await ChannelMessagesCacheService.fetchMessages(guildId);
+  if (!messages || messages.messages.size === 0) {
+    await interaction.editReply('Keine Nachrichten vorhanden / geladen!');
+    return;
+  }
+
+  const stats = new Map<string, number>();
+  for (const [_, quote] of messages.messages) {
+    let userStat = stats.get(quote.person) ?? 0;
+    userStat++;
+    stats.set(quote.person, userStat);
+  }
+
+  const results = Array.from(stats.entries())
+    .sort((personA, personB) => {
+      return personB[1] - personA[1];
+    })
+    .map(([name, stat]) => `**${name}:** ${stat}`)
+    .join('\n');
+
+  await interaction.editReply(`# Wer wurde am öftesten zitiert?\n\n${results}`);
 }
