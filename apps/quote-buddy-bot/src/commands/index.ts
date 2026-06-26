@@ -5,6 +5,7 @@ import scoreboardCommand from './scoreboard-command';
 import selectQuoteChannelCommand from './select-quote-channel-command';
 import testCommand from './test-command';
 import userCommand from './user-command';
+import quickRoundCommand from './quick-round-command';
 
 export const BOT_COMMANDS = [
   testCommand,
@@ -14,4 +15,5 @@ export const BOT_COMMANDS = [
   quizCommand,
   scoreboardCommand,
   statsCommand,
+  quickRoundCommand,
 ];

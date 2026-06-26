@@ -81,12 +81,21 @@ export class Quiz {
     this._scores.set(user, ++score);
   }
 
-  startRound(options: QuizOption[], message: ParsedQuote): QuizRound | null {
+  startRound(
+    options: QuizOption[],
+    message: ParsedQuote,
+    quickRound: boolean
+  ): QuizRound | null {
     if (this._currRound) {
       return null;
     }
 
-    const quizRound = new QuizRound(options, message, this.users.size);
+    const quizRound = new QuizRound(
+      options,
+      message,
+      this.users.size,
+      quickRound
+    );
     this._currRound = quizRound;
     this._doneMessages.push(message.id);
     return quizRound;

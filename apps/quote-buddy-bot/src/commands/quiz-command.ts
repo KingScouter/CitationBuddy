@@ -11,14 +11,13 @@ import {
   ThreadAutoArchiveDuration,
 } from 'discord.js';
 import ApplicationCommand from '../models/application-command';
-import { ChannelMessagesCacheService } from '../message-cache/channel-messages-cache.service';
-import { QuizOption, QuizUsers } from '../quiz/models';
 import { QuizService } from '../quiz/quiz-service';
 import { BotUtils } from '../bot-utils';
 import { Quiz } from '../quiz/quiz';
-import { QuizRound } from '../quiz/quiz-round';
 import { QuizScoreDbService } from '@citation-buddy/db-mongodb';
 import { GuildQuizScores } from '@cite/models';
+import { initQuiz, PrepareRound } from '../quiz/quiz-handler';
+import { ParsedQuote } from '../models/parsed-quote';
 
 const commandId = 'quiz';
 const commandIdGuess = `${commandId}-guess-`;
@@ -40,17 +39,17 @@ export default {
 
     await interaction.deferReply();
 
-    const messageCache =
-      await ChannelMessagesCacheService.fetchMessages(guildId);
-    if (!messageCache?.messages || messageCache?.messages.size === 0) {
-      await interaction.editReply('No messages available!');
-      return;
-    }
+    let message: ParsedQuote;
 
-    const message = messageCache.messages.random();
+    try {
+      message = await initQuiz(guildId);
+    } catch (err: unknown) {
+      let errMsg =
+        err instanceof Error ?
+          err.message
+        : `Error during quiz init: ${JSON.stringify(err)}`;
+      await interaction.editReply(errMsg);
 
-    if (!message) {
-      await interaction.editReply('No quote found!');
       return;
     }
 
@@ -121,66 +120,6 @@ export default {
 } satisfies ApplicationCommand;
 
 /**
- * Prepares a new quiz round. Returns the prepared round and the button-components
- * for the message.
- * @param quiz Quiz
- * @returns The prepared round and components, or undefined if an error occured.
- */
-async function PrepareRound(quiz: Quiz): Promise<{
-  round?: QuizRound;
-  components?: ActionRowBuilder<ButtonBuilder>[];
-}> {
-  const messageCache = await ChannelMessagesCacheService.fetchMessages(
-    quiz.guildId
-  );
-  if (!messageCache?.messages || messageCache?.messages.size === 0) {
-    return {};
-  }
-
-  const message = messageCache.getRandomMessage(quiz.doneMessages);
-
-  if (!message) {
-    return {};
-  }
-
-  const persons = new Set<string>();
-  QuizUsers.defaultUsers.forEach(elem => persons.add(elem.name));
-  const randomUsers = messageCache.getRandomUsers(3, message.person);
-  randomUsers.forEach(elem => persons.add(elem));
-
-  let idx = 0;
-  const quizOptions: QuizOption[] = Array.from(persons.values()).map(
-    elem =>
-      ({ id: `${commandIdGuess}${idx++}`, label: elem }) satisfies QuizOption
-  );
-
-  const buttons = quizOptions.map(choice => {
-    return new ButtonBuilder()
-      .setCustomId(choice.id)
-      .setLabel(choice.label)
-      .setStyle(ButtonStyle.Secondary);
-  });
-
-  const rows: ActionRowBuilder<ButtonBuilder>[] = [];
-
-  while (buttons.length) {
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      ...buttons.slice(0, 4)
-    );
-    buttons.splice(0, 4);
-
-    rows.push(row);
-  }
-
-  const round = quiz.startRound(quizOptions, message);
-  if (!round) {
-    return {};
-  }
-
-  return { round, components: rows };
-}
-
-/**
  * Handle an interaction to end the current quiz.
  * @param interaction Interaction
  * @param quiz Quiz to end
@@ -249,7 +188,7 @@ async function handleNextRound(
 ): Promise<void> {
   await interaction.deferReply();
 
-  const { round, components } = await PrepareRound(quiz);
+  const { round, components } = await PrepareRound(quiz, commandIdGuess, false);
 
   if (!round || !components) {
     await BotUtils.sendAutoDeleteFollowUp(
@@ -350,7 +289,7 @@ async function handleStartQuiz(
     autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
   });
 
-  const { round, components } = await PrepareRound(quiz);
+  const { round, components } = await PrepareRound(quiz, commandIdGuess, false);
 
   if (!round || !components) {
     await BotUtils.sendAutoDeleteFollowUp(

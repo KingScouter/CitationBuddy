@@ -13,6 +13,7 @@ export class QuizRound {
   private readonly messageContent: string;
   private readonly maxNumGuesses: number;
   private readonly _message: ParsedQuote;
+  private readonly _quickRound: boolean;
 
   private readonly guesses = new Map<string, string>();
 
@@ -26,16 +27,22 @@ export class QuizRound {
     return this._correct;
   }
 
+  get quickRound(): boolean {
+    return this._quickRound;
+  }
+
   constructor(
     options: QuizOption[],
     message: ParsedQuote,
-    maxNumGuesses: number
+    maxNumGuesses: number,
+    quickRound = false
   ) {
     this.options = options;
     this._message = message;
     this._correct = message.person;
     this.messageContent = message.toAnonymString();
     this.maxNumGuesses = maxNumGuesses;
+    this._quickRound = quickRound;
   }
 
   addGuess(user: string, choice: string): void {
@@ -69,6 +76,29 @@ export class QuizRound {
   }
 
   getMessage(isFinished = false): string {
+    return this._quickRound ?
+        this.getQuickRoundMessage(isFinished)
+      : this.getQuizMessage(isFinished);
+  }
+
+  private getQuickRoundMessage(isFinished = false): string {
+    const guesses = Array.from(this.guesses.keys());
+    const numGuesses = this.getNumGuesses();
+    const roundStatus = `***Fortschritt***: ${numGuesses} Tipps abgegeben\nStimmen: ${guesses.join(', ')}\n`;
+
+    const linkContent = isFinished ? `||${this._message.getLink()}||\n` : '';
+
+    const msg = `***Zitat:***
+${this.messageContent}
+${roundStatus}
+${linkContent}
+***Wer hat's gesagt?***
+`;
+
+    return msg;
+  }
+
+  private getQuizMessage(isFinished = false): string {
     const numGuesses = this.getNumGuesses();
     const roundStatus = `***Fortschritt***: ${numGuesses} / ${this.maxNumGuesses}\n\n${this.printProgressBar(numGuesses / this.maxNumGuesses)}\n`;
 

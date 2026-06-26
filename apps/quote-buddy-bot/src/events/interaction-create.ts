@@ -59,7 +59,8 @@ export default new Event({
     } else {
       try {
         for (const cmd of client.commands.values()) {
-          if (cmd.handleFollowup?.(interaction)) {
+          const followUpResult = await cmd.handleFollowup?.(interaction);
+          if (followUpResult) {
             return;
           }
         }
