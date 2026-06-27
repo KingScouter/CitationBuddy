@@ -125,7 +125,7 @@ async function handleQuizGuess(
     );
     return true;
   }
-  if (!quiz.addGuess(displayName, interaction.customId)) {
+  if (!quiz.addGuess(name, interaction.customId)) {
     await BotUtils.sendAutoDeleteReply(
       interaction,
       'Du nimmt an diesem Quiz aktuell nicht teil!'

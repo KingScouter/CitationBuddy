@@ -1,6 +1,11 @@
 import { ParsedQuote } from '../models/parsed-quote';
 import { QuizGuess, QuizOption, QuizRoundResult } from './models';
 
+interface QuizGuessData {
+  displayName: string;
+  answer: string;
+}
+
 export class QuizRound {
   private static progressBarStart = '[';
   private static progressBarMiddle = '=';
@@ -15,7 +20,7 @@ export class QuizRound {
   private readonly _message: ParsedQuote;
   private readonly _quickRound: boolean;
 
-  private readonly guesses = new Map<string, string>();
+  private readonly guesses = new Map<string, QuizGuessData>();
 
   messageId: string | null = null;
 
@@ -45,12 +50,15 @@ export class QuizRound {
     this._quickRound = quickRound;
   }
 
-  addGuess(user: string, choice: string): void {
+  addGuess(user: string, displayName: string, choice: string): void {
     if (this.guesses.has(user)) {
       return;
     }
 
-    this.guesses.set(user, this.getChoiceById(choice));
+    this.guesses.set(user, {
+      displayName,
+      answer: this.getChoiceById(choice),
+    });
   }
 
   getNumGuesses(): number {
@@ -62,10 +70,10 @@ export class QuizRound {
     const wrongUsers: QuizGuess[] = [];
 
     for (const [username, guess] of this.guesses.entries()) {
-      if (guess === this._correct) {
+      if (guess.answer === this._correct) {
         correctUsers.push(username);
       } else {
-        wrongUsers.push({ user: username, answer: guess });
+        wrongUsers.push({ user: username, answer: guess.answer });
       }
     }
     return {
@@ -82,7 +90,9 @@ export class QuizRound {
   }
 
   private getQuickRoundMessage(isFinished = false): string {
-    const guesses = Array.from(this.guesses.keys());
+    const guesses = Array.from(this.guesses.values()).map(
+      elem => elem.displayName
+    );
     const numGuesses = this.getNumGuesses();
     const roundStatus = `***Fortschritt***: ${numGuesses} Tipps abgegeben\nStimmen: ${guesses.join(', ')}\n`;
 

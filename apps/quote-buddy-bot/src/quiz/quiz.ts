@@ -106,11 +106,12 @@ export class Quiz {
       return false;
     }
 
-    if (!this.users.has(user)) {
+    const userData = this.users.get(user);
+    if (!userData) {
       return false;
     }
 
-    this._currRound.addGuess(user, answer);
+    this._currRound.addGuess(user, userData.displayName, answer);
 
     return true;
   }
