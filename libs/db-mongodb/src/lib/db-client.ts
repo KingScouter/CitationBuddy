@@ -35,7 +35,7 @@ export class DbClient {
         console.log(
           `Attempt #${idx + 1} to connect to MongoDb instance failed.`
         );
-        delay(1000);
+        await delay(1000 * (idx + 1));
       }
 
       if (global.dbClient.isConnected) {
